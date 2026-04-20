@@ -1,0 +1,80 @@
+{
+  "project_name": "fasseg/exp4j",
+  "github_url": "https://github.com/fasseg/exp4j",
+  "mined_at": "2026-04-20T08:41:53.145571+00:00",
+  "total_closed_issues_scanned": 52,
+  "total_relevant_issues": 3,
+  "issues": [
+    {
+      "number": 25,
+      "title": "Feature request  to be able to set the equation on an existing instance of ExpressionBuilder",
+      "url": "https://github.com/fasseg/exp4j/issues/25",
+      "created_at": "2014-12-30T21:27:59Z",
+      "closed_at": "2015-07-31T08:22:33Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/fasseg/exp4j/pull/43"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 43,
+          "title": "Allowing an Expression to be copied",
+          "url": "https://github.com/fasseg/exp4j/pull/43",
+          "repository": "fasseg/exp4j",
+          "merged_at": "2015-07-31T08:16:47Z",
+          "impacted_files": [
+            "src/main/java/net/objecthunter/exp4j/Expression.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 62,
+      "title": "Exception when trying to use adjacent operators",
+      "url": "https://github.com/fasseg/exp4j/issues/62",
+      "created_at": "2016-04-21T12:17:56Z",
+      "closed_at": "2016-04-22T09:32:33Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/fasseg/exp4j/pull/63"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 63,
+          "title": "Fix for Issue 62",
+          "url": "https://github.com/fasseg/exp4j/pull/63",
+          "repository": "fasseg/exp4j",
+          "merged_at": "2016-04-22T07:37:31Z",
+          "impacted_files": [
+            "src/main/java/net/objecthunter/exp4j/tokenizer/Tokenizer.java",
+            "src/test/java/net/objecthunter/exp4j/ExpressionBuilderTest.java"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    },
+    {
+      "number": 66,
+      "title": "Get a list of variables to be set",
+      "url": "https://github.com/fasseg/exp4j/issues/66",
+      "created_at": "2016-07-27T16:32:37Z",
+      "closed_at": "2017-01-30T14:05:19Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/fasseg/exp4j/pull/68"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 68,
+          "title": "Get a list of variables before evaluation",
+          "url": "https://github.com/fasseg/exp4j/pull/68",
+          "repository": "fasseg/exp4j",
+          "merged_at": "2016-10-13T06:49:02Z",
+          "impacted_files": [
+            "src/main/java/net/objecthunter/exp4j/Expression.java",
+            "src/test/java/net/objecthunter/exp4j/VariablesTest.java"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    }
+  ]
+}

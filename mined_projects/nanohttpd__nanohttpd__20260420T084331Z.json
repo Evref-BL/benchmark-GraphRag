@@ -1,0 +1,281 @@
+{
+  "project_name": "nanohttpd/nanohttpd",
+  "github_url": "https://github.com/NanoHttpd/nanohttpd",
+  "mined_at": "2026-04-20T08:43:31.534094+00:00",
+  "total_closed_issues_scanned": 201,
+  "total_relevant_issues": 10,
+  "issues": [
+    {
+      "number": 23,
+      "title": "Simplify request handling code",
+      "url": "https://github.com/NanoHttpd/nanohttpd/issues/23",
+      "created_at": "2013-05-13T18:01:19Z",
+      "closed_at": "2015-05-25T14:03:33Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NanoHttpd/nanohttpd/pull/180"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 180,
+          "title": "Faster getBoundaryPositions() with block reads",
+          "url": "https://github.com/NanoHttpd/nanohttpd/pull/180",
+          "repository": "nanohttpd/nanohttpd",
+          "merged_at": "2015-05-18T06:26:20Z",
+          "impacted_files": [
+            "core/src/main/java/fi/iki/elonen/NanoHTTPD.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 25,
+      "title": "Request headers appear to get corrupted when using ajax post",
+      "url": "https://github.com/NanoHttpd/nanohttpd/issues/25",
+      "created_at": "2013-05-17T19:49:20Z",
+      "closed_at": "2015-09-13T06:01:27Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NanoHttpd/nanohttpd/pull/207"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 207,
+          "title": "fixes #25 add basic CORS support",
+          "url": "https://github.com/NanoHttpd/nanohttpd/pull/207",
+          "repository": "nanohttpd/nanohttpd",
+          "merged_at": "2015-09-13T06:01:26Z",
+          "impacted_files": [
+            "README.md",
+            "webserver/src/main/java/fi/iki/elonen/SimpleWebServer.java",
+            "webserver/src/test/java/fi/iki/elonen/AbstractTestHttpServer.java",
+            "webserver/src/test/java/fi/iki/elonen/TestCorsHttpServer.java",
+            "webserver/src/test/java/fi/iki/elonen/TestCorsHttpServerWithSingleOrigin.java",
+            "webserver/src/test/java/fi/iki/elonen/TestHttpServer.java"
+          ],
+          "impacted_files_count": 6
+        }
+      ]
+    },
+    {
+      "number": 41,
+      "title": "while I tried to upload a very large file via NanoHttpd, it lost in getBoundaryPositions().",
+      "url": "https://github.com/NanoHttpd/nanohttpd/issues/41",
+      "created_at": "2013-06-28T10:19:21Z",
+      "closed_at": "2015-05-18T06:26:20Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NanoHttpd/nanohttpd/pull/180"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 180,
+          "title": "Faster getBoundaryPositions() with block reads",
+          "url": "https://github.com/NanoHttpd/nanohttpd/pull/180",
+          "repository": "nanohttpd/nanohttpd",
+          "merged_at": "2015-05-18T06:26:20Z",
+          "impacted_files": [
+            "core/src/main/java/fi/iki/elonen/NanoHTTPD.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 91,
+      "title": "File Uploads Cause the App to crash with StackOverflowError",
+      "url": "https://github.com/NanoHttpd/nanohttpd/issues/91",
+      "created_at": "2013-12-26T11:44:02Z",
+      "closed_at": "2015-05-24T07:56:04Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NanoHttpd/nanohttpd/pull/96"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 96,
+          "title": "Avoid stack overflow on long-living connections",
+          "url": "https://github.com/NanoHttpd/nanohttpd/pull/96",
+          "repository": "nanohttpd/nanohttpd",
+          "merged_at": "2014-01-29T04:41:26Z",
+          "impacted_files": [
+            "core/src/main/java/fi/iki/elonen/NanoHTTPD.java",
+            "core/src/test/java/fi/iki/elonen/HttpKeepAliveTest.java"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    },
+    {
+      "number": 112,
+      "title": "getBoundaryPositions() too slow",
+      "url": "https://github.com/NanoHttpd/nanohttpd/issues/112",
+      "created_at": "2014-05-01T15:18:59Z",
+      "closed_at": "2015-05-18T06:26:20Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NanoHttpd/nanohttpd/pull/180"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 180,
+          "title": "Faster getBoundaryPositions() with block reads",
+          "url": "https://github.com/NanoHttpd/nanohttpd/pull/180",
+          "repository": "nanohttpd/nanohttpd",
+          "merged_at": "2015-05-18T06:26:20Z",
+          "impacted_files": [
+            "core/src/main/java/fi/iki/elonen/NanoHTTPD.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 213,
+      "title": "NanoHTTPD newXXXLengthResponse methods",
+      "url": "https://github.com/NanoHttpd/nanohttpd/issues/213",
+      "created_at": "2015-07-20T14:09:03Z",
+      "closed_at": "2015-09-13T18:10:43Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NanoHttpd/nanohttpd/pull/215"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 215,
+          "title": "Add simple router example. Issue #214 - NanoHTTPD uri router",
+          "url": "https://github.com/NanoHttpd/nanohttpd/pull/215",
+          "repository": "nanohttpd/nanohttpd",
+          "merged_at": "2015-09-11T05:54:50Z",
+          "impacted_files": [
+            "samples/src/main/java/fi/iki/elonen/router/App.java",
+            "samples/src/main/java/fi/iki/elonen/router/DefaultHandler.java",
+            "samples/src/main/java/fi/iki/elonen/router/GeneralHandler.java",
+            "samples/src/main/java/fi/iki/elonen/router/RouterNanoHTTPD.java",
+            "samples/src/main/java/fi/iki/elonen/router/RouterResponse.java",
+            "samples/src/main/java/fi/iki/elonen/router/StringUtils.java",
+            "samples/src/main/java/fi/iki/elonen/router/UriPart.java",
+            "samples/src/main/java/fi/iki/elonen/router/UriResource.java",
+            "samples/src/main/java/fi/iki/elonen/router/UriResponder.java",
+            "samples/src/main/java/fi/iki/elonen/router/UriRouter.java",
+            "samples/src/main/java/fi/iki/elonen/router/UserHandler.java"
+          ],
+          "impacted_files_count": 11
+        }
+      ]
+    },
+    {
+      "number": 214,
+      "title": "NanoHTTPD uri router",
+      "url": "https://github.com/NanoHttpd/nanohttpd/issues/214",
+      "created_at": "2015-07-21T07:41:24Z",
+      "closed_at": "2015-09-27T04:37:11Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NanoHttpd/nanohttpd/pull/215"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 215,
+          "title": "Add simple router example. Issue #214 - NanoHTTPD uri router",
+          "url": "https://github.com/NanoHttpd/nanohttpd/pull/215",
+          "repository": "nanohttpd/nanohttpd",
+          "merged_at": "2015-09-11T05:54:50Z",
+          "impacted_files": [
+            "samples/src/main/java/fi/iki/elonen/router/App.java",
+            "samples/src/main/java/fi/iki/elonen/router/DefaultHandler.java",
+            "samples/src/main/java/fi/iki/elonen/router/GeneralHandler.java",
+            "samples/src/main/java/fi/iki/elonen/router/RouterNanoHTTPD.java",
+            "samples/src/main/java/fi/iki/elonen/router/RouterResponse.java",
+            "samples/src/main/java/fi/iki/elonen/router/StringUtils.java",
+            "samples/src/main/java/fi/iki/elonen/router/UriPart.java",
+            "samples/src/main/java/fi/iki/elonen/router/UriResource.java",
+            "samples/src/main/java/fi/iki/elonen/router/UriResponder.java",
+            "samples/src/main/java/fi/iki/elonen/router/UriRouter.java",
+            "samples/src/main/java/fi/iki/elonen/router/UserHandler.java"
+          ],
+          "impacted_files_count": 11
+        }
+      ]
+    },
+    {
+      "number": 242,
+      "title": "Name Consistency & Refactoring Ideas",
+      "url": "https://github.com/NanoHttpd/nanohttpd/issues/242",
+      "created_at": "2015-10-14T01:10:27Z",
+      "closed_at": "2015-10-23T09:26:46Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NanoHttpd/nanohttpd/pull/246"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 246,
+          "title": "WebSocket refactoring",
+          "url": "https://github.com/NanoHttpd/nanohttpd/pull/246",
+          "repository": "nanohttpd/nanohttpd",
+          "merged_at": "2015-10-23T04:52:24Z",
+          "impacted_files": [
+            "websocket/src/main/java/fi/iki/elonen/NanoWSD.java",
+            "websocket/src/main/java/fi/iki/elonen/samples/echo/DebugWebSocketServer.java",
+            "websocket/src/main/java/fi/iki/elonen/samples/echo/EchoSocketSample.java",
+            "websocket/src/test/java/fi/iki/elonen/WebSocketResponseHandlerTest.java",
+            "websocket/src/test/java/fi/iki/elonen/samples/echo/EchoWebSocketsTest.java"
+          ],
+          "impacted_files_count": 5
+        }
+      ]
+    },
+    {
+      "number": 392,
+      "title": " EPIPE (Broken pipe) on android platform",
+      "url": "https://github.com/NanoHttpd/nanohttpd/issues/392",
+      "created_at": "2016-11-06T09:29:53Z",
+      "closed_at": "2016-11-11T22:32:20Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NanoHttpd/nanohttpd/pull/394"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 394,
+          "title": "Added exception handling to the sendBody method.  ",
+          "url": "https://github.com/NanoHttpd/nanohttpd/pull/394",
+          "repository": "nanohttpd/nanohttpd",
+          "merged_at": "2016-11-11T22:26:05Z",
+          "impacted_files": [
+            "core/src/main/java/org/nanohttpd/protocols/http/response/Response.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 524,
+      "title": "Issue #392 wasn't properly fixed",
+      "url": "https://github.com/NanoHttpd/nanohttpd/issues/524",
+      "created_at": "2018-11-22T11:30:13Z",
+      "closed_at": "2018-11-25T21:39:14Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NanoHttpd/nanohttpd/pull/394",
+        "https://github.com/NanoHttpd/nanohttpd/pull/525"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 394,
+          "title": "Added exception handling to the sendBody method.  ",
+          "url": "https://github.com/NanoHttpd/nanohttpd/pull/394",
+          "repository": "nanohttpd/nanohttpd",
+          "merged_at": "2016-11-11T22:26:05Z",
+          "impacted_files": [
+            "core/src/main/java/org/nanohttpd/protocols/http/response/Response.java"
+          ],
+          "impacted_files_count": 1
+        },
+        {
+          "number": 525,
+          "title": "Proper exception handling",
+          "url": "https://github.com/NanoHttpd/nanohttpd/pull/525",
+          "repository": "nanohttpd/nanohttpd",
+          "merged_at": "2018-11-23T20:13:59Z",
+          "impacted_files": [
+            "core/src/main/java/org/nanohttpd/protocols/http/response/Response.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    }
+  ]
+}

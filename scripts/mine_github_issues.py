@@ -35,6 +35,7 @@ API_REPO_URL_RE = re.compile(
     re.IGNORECASE,
 )
 DEFAULT_ENV_FILENAME = ".env.github"
+DEFAULT_OUTPUT_DIRNAME = "mined_projects"
 PLACEHOLDER_TOKENS = {
     "YOUR_GITHUB_TOKEN_HERE",
     "YOUR_TOKEN_HERE",
@@ -394,6 +395,12 @@ def make_output_filename(owner: str, repo: str) -> str:
     return f"{safe_owner}__{safe_repo}__{timestamp}.json"
 
 
+def default_output_dir() -> str:
+    """Return the default output directory anchored to project root."""
+    project_root = Path(__file__).resolve().parent.parent
+    return str(project_root / DEFAULT_OUTPUT_DIRNAME)
+
+
 def parse_env_line_for_var(line: str, var_name: str) -> Optional[str]:
     stripped = line.strip()
     if not stripped or stripped.startswith("#"):
@@ -489,8 +496,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "-o",
         "--output-dir",
-        default="mined_projects",
-        help="Directory where project mining JSON files will be written.",
+        default=default_output_dir(),
+        help=(
+            "Directory where project mining JSON files will be written. "
+            "Default: project-root/mined_projects."
+        ),
     )
     parser.add_argument(
         "--token",
