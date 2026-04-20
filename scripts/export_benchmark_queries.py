@@ -9,7 +9,7 @@ from pathlib import Path
 import re
 from typing import Any, Dict, List
 
-from evaluate_graphrag_benchmark import (
+from evaluator_core import (
     DEFAULT_ISSUE_PROMPT,
     build_expected_index,
     build_query_text,

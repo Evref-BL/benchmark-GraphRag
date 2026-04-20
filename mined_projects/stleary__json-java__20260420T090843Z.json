@@ -1,7 +1,7 @@
 {
   "project_name": "stleary/json-java",
   "github_url": "https://github.com/stleary/JSON-java",
-  "mined_at": "2026-04-20T08:48:51.142491+00:00",
+  "mined_at": "2026-04-20T09:08:43.016487+00:00",
   "total_closed_issues_scanned": 201,
   "total_relevant_issues": 71,
   "issues": [
@@ -9,6 +9,7 @@
       "number": 296,
       "title": "JSONObject(Map) handling of null values has changed",
       "url": "https://github.com/stleary/JSON-java/issues/296",
+      "description_message": "Before 2010-12 the JSONObject-constructor\n    public JSONObject(Map<?, ?> map)\naccepted null values in the map and transformed them to JSONObject.NULL\n\ni.e.:\n\n```\n    public static void main(String[] args) throws UnknownHostException {\n        Map<String, Object> test = new HashMap<String, Object>();\n        test.put(\"foo\", null);\n        System.out.println(new JSONObject(test));\n    }\n```\n\nwould give \n`{ foo: null }`\n\nSince then, there is a \n                if (value != null) {\nline in the constructor which prevents that and thus the program above gives:\n`{}`\n\nThis has broken the logic in our software quite fundamentally.\n\nWhat is more, it also seems to be inconsistent with JSONObject.wrap, where null-values are expected:\n\n```\n            if (object == null) {\n                return NULL;\n            }\n```\n\nIs there any chance that the old (and IMO better) behaviour is restored?\n",
       "created_at": "2016-10-24T13:32:34Z",
       "closed_at": "2025-04-05T18:43:03Z",
       "linked_merged_pull_request_urls": [
@@ -36,6 +37,7 @@
       "number": 537,
       "title": "Issue while converting xml to json",
       "url": "https://github.com/stleary/JSON-java/issues/537",
+      "description_message": "xml: <tag>Hypersegmented &#X7C; Bld-Ser-Pla</tag>\r\n\r\nCaller method:\r\nJSONObject xmlJSONObj = XML.toJSONObject(xml, true);\r\n\r\nError:\r\nCaused by: java.lang.NumberFormatException: For input string: \"X7C\"\r\n\tat java.lang.NumberFormatException.forInputString(NumberFormatException.java:65) ~[na:1.8.0_201]\r\n\tat java.lang.Integer.parseInt(Integer.java:580) ~[na:1.8.0_201]\r\n\tat java.lang.Integer.parseInt(Integer.java:615) ~[na:1.8.0_201]\r\n\tat org.json.XML.unescape(XML.java:200) ~[json-20170516.jar:na]\r\n\tat org.json.XML.parse(XML.java:398) ~[json-20170516.jar:na]\r\n\tat org.json.XML.parse(XML.java:403) ~[json-20170516.jar:na]\r\n\tat org.json.XML.toJSONObject(XML.java:485) ~[json-20170516.jar:na]\r\n\r\nError at calle:\r\nat org.json.XML.  public static String unescape(String string) \r\n\r\nError prone code piece\r\n if (entity.charAt(1) == 'x') {\r\n                            // hex encoded unicode\r\n                            cp = Integer.parseInt(entity.substring(2), 16);\r\n                        } else {\r\n                            // decimal encoded unicode\r\n                            cp = Integer.parseInt(entity.substring(1));\r\n                        }",
       "created_at": "2020-07-18T15:19:50Z",
       "closed_at": "2020-07-23T16:02:15Z",
       "linked_merged_pull_request_urls": [
@@ -63,6 +65,7 @@
       "number": 561,
       "title": "Queries involving keys containing four backslashes (\"\\\\\\\\\") failing. ",
       "url": "https://github.com/stleary/JSON-java/issues/561",
+      "description_message": "I encountered a problem with an application when JSON keys contained four backslashes (\\\\\\\\).\r\n\r\nAfter a lot of debugging I found that JSONPointer (used in my app) was returning null when queried. Stepping through the code it seems that the token used for the key may be double unescaped; I saw the same token unescaped() on line 173 when the JSONPointer was built, then on line 213 when the pointer was used in a query.\r\n\r\nhttps://github.com/stleary/JSON-java/blob/master/src/main/java/org/json/JSONPointer.java#L173\r\nhttps://github.com/stleary/JSON-java/blob/master/src/main/java/org/json/JSONPointer.java#L213\r\n\r\nThis example test will fail on the trunk version of the library:\r\n\r\nhttps://github.com/jimblackler/JSON-java/commit/8d6e1d85ff581e0934b839df04554b10f6f9ab29#diff-b4df778ff5909ef85877e003ed15b3beR279\r\n\r\n(Note there are eight double slashes in the literal in the test, because it's escaped for the Java string literal)\r\n\r\nI'm not 100% sure of my understanding of the issue or the correct behavior. I'd be grateful if someone who is familiar with the practices handling these strings could comment or confirm, and also advise if the fix in the patch above is something that I should submit.",
       "created_at": "2020-08-25T18:34:21Z",
       "closed_at": "2021-11-02T16:45:52Z",
       "linked_merged_pull_request_urls": [
@@ -86,6 +89,7 @@
       "number": 563,
       "title": "JSONPointer: Encoding quotes not required?",
       "url": "https://github.com/stleary/JSON-java/issues/563",
+      "description_message": "JSONPointer encodes quotes as \\\\\"\r\n\r\nhttps://github.com/stleary/JSON-java/blob/7abd89b4bcc321152c178af5504da7ea4ac66693/src/main/java/org/json/JSONPointer.java#L271\r\n\r\nHowever I can't find a requirement for that in https://tools.ietf.org/html/rfc6901#section-3 or elsewhere.\r\n\r\nIt causes a conflict in an application that expects the canonical form of the URL not to be escaped in this way. For use in fragment identifiers RFC 3986 allows %22 to encode \". \r\n",
       "created_at": "2020-09-19T12:17:33Z",
       "closed_at": "2022-11-18T01:27:35Z",
       "linked_merged_pull_request_urls": [
@@ -110,6 +114,7 @@
       "number": 573,
       "title": "Support equality testing",
       "url": "https://github.com/stleary/JSON-java/issues/573",
+      "description_message": "It would be great if the library would support `equals` for `JSONObject`.  \r\n\r\nAn important use case would be equality/regression testing. See [here ](https://github.com/holgerbrandl/kalasim/blob/b5d9416d48ce959b4a3e637db54cd93fe24968ce/src/test/kotlin/org/github/holgerbrandl/kalasim/examples/kalasim/SalabimExampleTests.kt#L65) for an example which hacks around the problem by using toString (which somehow works in this particular case but is certainly not good practise).\r\n\r\nAnother use case would be the use of `JSONObject` as map keys.\r\n\r\nSince there seems to be just a single data fields (`map`) in `JSONObject`, it may be possible to simple delegate to `HashMap.equals`. Clearly, also JSONArray would need to be equipped with an `equals` (see  https://stackoverflow.com/questions/4082416/equality-between-2-hashmap or https://www.baeldung.com/java-compare-hashmaps).\r\n\r\nAlternatively, the docs https://github.com/stleary/JSON-java#notes shall detail out better why an `equals` implementation can not be provided. \r\n",
       "created_at": "2020-11-15T18:56:15Z",
       "closed_at": "2020-11-22T21:23:03Z",
       "linked_merged_pull_request_urls": [
@@ -137,6 +142,7 @@
       "number": 593,
       "title": "how to make a pretty-printed XML text from JSONObject?",
       "url": "https://github.com/stleary/JSON-java/issues/593",
+      "description_message": "org.json.JSONObject#toString(int) has an indentFactor parameter, but org.json.XML.toString does not have an indentFactor parameter",
       "created_at": "2021-03-12T01:41:22Z",
       "closed_at": "2022-12-23T18:34:38Z",
       "linked_merged_pull_request_urls": [
@@ -175,6 +181,7 @@
       "number": 614,
       "title": "Is it time for Java8+ support?",
       "url": "https://github.com/stleary/JSON-java/issues/614",
+      "description_message": "Oracle itself has ended support for Java8 and many companies are starting to move off of 8 and onto at least 11 (the next [and current] LTS after 8). Oracle has the next LTS at 17 due Sept 2021.\r\n\r\nJava 8 was released in 2014 and Java 11 in 2018. Java 6 was release first in 2006 and java 7 released in 2011. This puts us at requiring a fairly ancient version at this point. The last public release of Java6 was 2015 (6 years ago)\r\n\r\nSome of the main reasons for us originally maintaining such an old version were:\r\n1. Use of Java6 in some embedded devices that could not be upgraded\r\n2. Requirement of Java6 APIs by Android.\r\n\r\nI think at this time we can probably just drop the \"embedded\" limitation. Many of those devices are extremely old, and older versions of the library should be usable in those environments.\r\n\r\nFor Android, I did some digging, and it looks like Java 8 is still the \"best\" supported version, but Java 11 is supported through a \"desugaring\" tool that Android provides\r\n* https://developer.android.com/studio/releases/platforms\r\n* https://developer.android.com/studio/write/java8-support\r\n* https://jakewharton.com/androids-java-8-support/ - indicates that Android API level 26 - Android 8 circa 2017 fully supports Java 8 bytecode through \"desugaring\". May be possible to target as far back as API 24 - circa 2016\r\n* https://jakewharton.com/androids-java-9-10-11-and-12-support/ - indicates that moving to the latest LTS Java11 should be possible for us to do. (The outstanding issue for \"desugaring\" java 11 nested class changes now works - https://issuetracker.google.com/issues/130529338)\r\n\r\nIt appears that for now, bumping from Java 6 to 8 (or better 11) is a good move. Android also appears to be moving away from \"java\" as a language and instead to Kotlin. This may mean that if we switch to a higher language version (12+), Android may not support some newer APIs included in the new version (like the addition of `java.time` in Java 8)\r\n* https://jeroenmols.com/blog/2021/03/17/share-code-kotlin-multiplatform/\r\n\r\nI think moving to at least Java 8 (preferably Java 11) would be beneficial in supporting the following options:\r\n\r\n* Introduced with Java 7\r\n    1. `try-with-resources`\r\n    2. Multi-catch exceptions\r\n    3. Type inference syntactic sugar\r\n    4. Value literal syntactic sugar\r\n* Introduced with Java 8 (LTS until 2022-03)\r\n    1. Lambda support\r\n    2. `Optional` support (feature requests #177, #409)\r\n    3. Method references\r\n    4. New Date/Time classes (possibly adding new `opt`/`get` functions for them?)\r\n    5. Improved type inference syntactic sugar\r\n    6. New `stream` classes\r\n    7. Performance improvements with `HashMap` key collisions\r\n* Introduced in Java 9\r\n    1. Modules (Feature requests #431, #451, #478, #513) (Bug #480 - not working in modularized project)\r\n* Introduced in Java 10\r\n    1. Improved type inference syntactic sugar\r\n* Introduced in Java 11 (LTS until 2023-09)\r\n    1. Improves Lambda local variable support\r\n    2. Improved bytecode output for nested classes : No more $Outer$Inner.class generation and removal of synthetic accessors for nested elements (This should improve our performance of the `JSONObject.NULL` object)\r\n\r\n\r\n* Introduced with Java 12\r\n    1. Switch Expressions and Pattern Matching\r\n    2. Pattern Matching of `instanceof`\r\n    3. Better GC performance for some use-cases\r\n* Introduced with Java 13\r\n    1. Text Blocks -> could be helpful for simplifying the look/feel of test data in test cases\r\n    2. Improvements for Switch expressions from Java 12\r\n    3. More GC improvements\r\n* Introduced with Java 14\r\n    1. Records -> We should ensure that our Bean->JSONObject code works for this new type\r\n        1. There are new reflection points to make working with Records easy\r\n    2. Better NPE messages, although we hopefully don't have anything that generates these\r\n* Introduced with Java 15\r\n    1. New \"sealed\" classes... not sure this is actually useful to us.\r\n    2. New \"hidden\" classes, again not sure if this has any actual use for us\r\n* Introduced with Java 16\r\n    1. \"Primitive Classes\" -> Value based classes that act as primitives (i.e. `Integer` class would be treated as `int` primitive as far as the compiler/JVM are concerned). This would reduce boxing efforts when working with wrapper classes\r\n* Introduced with Java 17 (LTS until 2026-09 or later, date subject to change)\r\n    1. Nothing really new here not mentioned above to v12. Some of the items above are still labeled \"incubator\" or \"preview\" and are not fully supported in the LTS (\"primitive classes\" is one example)\r\n",
       "created_at": "2021-07-18T17:36:13Z",
       "closed_at": "2023-09-04T13:39:11Z",
       "linked_merged_pull_request_urls": [
@@ -201,6 +208,7 @@
       "number": 616,
       "title": "Issue with JSONObject::similar",
       "url": "https://github.com/stleary/JSON-java/issues/616",
+      "description_message": "After upgrading from 20200518 to 20210307 some of our tests that are using JSONObject::similar started to fail.\r\n\r\nThis case reproduces the problem:\r\n\r\n```\r\n        JSONObject a = new JSONObject();\r\n        a.put(\"a\", 1.1);\r\n        JSONObject b = new JSONObject(\"{\\\"a\\\":1.1}\");\r\n        System.out.println(\"a: \" + a.toString(0));\r\n        System.out.println(\"b: \" + b.toString(0));\r\n        System.out.println(a.similar(b));\r\n```\r\n\r\nThis creates two JSONObjects whose value is just `{\"a\":1.1}`.\r\n\r\nThe output of this snippet on 20200518 is\r\n```\r\na: {\"a\":1.1}\r\nb: {\"a\":1.1}\r\ntrue\r\n```\r\n\r\nbut on version 20210307 the similar call suddenly returns false, even though the string representations of the objects are the same:\r\n```\r\na: {\"a\":1.1}\r\nb: {\"a\":1.1}\r\nfalse\r\n```\r\n",
       "created_at": "2021-07-22T17:26:26Z",
       "closed_at": "2021-07-26T22:47:03Z",
       "linked_merged_pull_request_urls": [
@@ -229,6 +237,7 @@
       "number": 636,
       "title": "Readme should be reorganized",
       "url": "https://github.com/stleary/JSON-java/issues/636",
+      "description_message": "The readme has too much unrelated content.\r\nThese sections should remain:\r\nHeader (image, title, Maven links)\r\nOverview\r\nIf you would like to contribute\r\nBuild instructions\r\n\r\nThese sections should be removed. Leave a copy of the section header, but add a line that links to the new .md file. See the *If you would like to contribute* section for an example of how to do this.\r\nNotes: Extract content, move to a new NOTES.md file\r\nFiles: Extract content, move to a new FILES.md file\r\nRelease History: Extract content, move to a new RELEASES.md file",
       "created_at": "2021-10-16T14:27:06Z",
       "closed_at": "2021-10-18T01:44:46Z",
       "linked_merged_pull_request_urls": [
@@ -257,6 +266,7 @@
       "number": 641,
       "title": "Integrate fuzzing into JSON-java by way of OSS-fuzz",
       "url": "https://github.com/stleary/JSON-java/issues/641",
+      "description_message": "Hi!\r\n\r\nI was wondering if you would be interested in getting JSON-java fuzzed by OSS-Fuzz? Fuzzing is a technique for stress-testing applications and OSS-Fuzz is a free service run by Google for fuzzing important open source projects, and it would be great to get JSON-java integrated with OSS-Fuzz. OSS-Fuzz will run the fuzzers continuously and report back with bug reports when bugs are found. These reports will have full stack traces, input triggers and more. If you are interested, then the only thing needed is an email(s) connected to a Google account that can be used for receiving the bugs reports, which can be put in the configuration file (`project.yaml`) over at the OSS-Fuzz repository.\r\n\r\nI have set up an initial integration with OSS-Fuzz here: https://github.com/google/oss-fuzz/pull/6733 and this PR on the OSS-Fuzz repository includes a simple initial fuzzer. We can always extend with more fuzzers if you are happy to integrate. I would just need an email and then get this PR merged, following that we should be good to go and down the line we can also migrate fuzzers from OSS-Fuzz to JSON-java owns repository.\r\n",
       "created_at": "2021-11-01T21:07:42Z",
       "closed_at": "2021-11-06T13:27:28Z",
       "linked_merged_pull_request_urls": [
@@ -295,6 +305,7 @@
       "number": 649,
       "title": "Suggestion: more helpful wrong-type errors",
       "url": "https://github.com/stleary/JSON-java/issues/649",
+      "description_message": "Currently the exception just states that the value was the wrong type, for example:\r\n```\r\norg.json.JSONException: JSONObject[\"layers\"] is not a JSONArray.\r\n```\r\n\r\nIt would be helpful if the exception told us what the type actually was as well. Was it null? JSONObject? something else?",
       "created_at": "2021-11-22T17:45:52Z",
       "closed_at": "2022-03-25T01:32:31Z",
       "linked_merged_pull_request_urls": [
@@ -323,6 +334,7 @@
       "number": 654,
       "title": "java.lang.StackOverflowError in `org.json.JSONTokener.nextValue::JSONTokener.java:431` json-java 20210307",
       "url": "https://github.com/stleary/JSON-java/issues/654",
+      "description_message": "# java.lang.StackOverflowError in `org.json.JSONTokener.nextValue::JSONTokener.java:431` json-java 20210307\r\n\r\nThis vulnerability is of java.lang.StackOverflowError, and can be triggered in latest version json-java (20210307).\r\nIt is caused by triggering infinite recursive function calls under crafted user input file and can be used for attackers to launch DoS (Denial of Service) attack to exhaust the system resources for any java program that uses this library (CWE-121: Stack-based Buffer Overflow).\r\n\r\nLikely, the root cause of this crash is in `org.json.JSONTokener.nextValue::JSONTokener.java:431`.\r\nSee more detail from the following crash stack.\r\n\r\n# Crash stack:\r\nThe crash thread's stack is as follows:\r\n\r\n```\r\njava.base/java.lang.StringUTF16.checkIndex::StringUTF16.java:1470\r\njava.base/java.lang.StringUTF16.charAt::StringUTF16.java:1267\r\njava.base/java.lang.String.charAt::String.java:695\r\njava.base/java.io.StringReader.read::StringReader.java:72\r\norg.json.JSONTokener.next::JSONTokener.java:199\r\norg.json.JSONTokener.nextClean::JSONTokener.java:292\r\norg.json.JSONObject.<init>::JSONObject.java:225\r\norg.json.JSONTokener.nextValue::JSONTokener.java:431\r\norg.json.JSONObject.<init>::JSONObject.java:233\r\norg.json.JSONTokener.nextValue::JSONTokener.java:431\r\norg.json.JSONObject.<init>::JSONObject.java:233\r\norg.json.JSONTokener.nextValue::JSONTokener.java:431\r\norg.json.JSONObject.<init>::JSONObject.java:233\r\norg.json.JSONTokener.nextValue::JSONTokener.java:431\r\norg.json.JSONObject.<init>::JSONObject.java:233\r\norg.json.JSONTokener.nextValue::JSONTokener.java:431\r\norg.json.JSONObject.<init>::JSONObject.java:233\r\norg.json.JSONTokener.nextValue::JSONTokener.java:431\r\norg.json.JSONObject.<init>::JSONObject.java:233\r\norg.json.JSONTokener.nextValue::JSONTokener.java:431\r\norg.json.JSONObject.<init>::JSONObject.java:233\r\norg.json.JSONTokener.nextValue::JSONTokener.java:431\r\n```\r\n\r\n\r\n# Steps to reproduce:\r\n\r\n1. Build the following java code with the corresponding json-java library (version 20210307).\r\n\r\n```\r\n## Download java-json_env_reproduce.zip from https://drive.google.com/file/d/1c0Zw2YWrOeZ08T49hmxnfh2FiNNDAImN/view?usp=sharing\r\nunzip java-json_env_reproduce.zip\r\ncd java-json_env_reproduce\r\nbash build.sh\r\n```\r\n\r\n2. Run the built program to see the crash by feeding one of the poc file contained in the pocs.tar.gz\r\n(poc file and report can be downloaded from https://drive.google.com/drive/folders/1J3HBq-qGi1YxfwVTCS9y5rgelqgkhUQB?usp=sharing)\r\ne.g. :\r\n\r\n```bash\r\njava -jar target/Entry-1.0-SNAPSHOT-jar-with-dependencies.jar pocs/crash-a8aa8af68cf0c2e0853dfb9b0ad97f30a09a22d6\r\n```\r\n\r\nAny further discussion for this vulnerability including fix is welcomed!\r\nFeel free to contact us at:\r\n[Huang Wenjie](https://github.com/ZanderHuang) \r\n[Zhang Cen](https://github.com/occia)\r\n[Zhang Xiaohan](https://github.com/Han0nly)",
       "created_at": "2021-12-13T09:39:43Z",
       "closed_at": "2022-01-31T14:54:54Z",
       "linked_merged_pull_request_urls": [
@@ -353,6 +365,7 @@
       "number": 657,
       "title": "Unit tests should check various number formats ",
       "url": "https://github.com/stleary/JSON-java/issues/657",
+      "description_message": "Unit tests should check various number formats (hex, scientific/exponent, floating point hex, octal, standard decimal) and make sure we have coverage. Checks should be performed when parsing JSON documents and when calling functions like getLong() and optLong().",
       "created_at": "2021-12-21T22:36:43Z",
       "closed_at": "2022-11-18T01:23:33Z",
       "linked_merged_pull_request_urls": [
@@ -376,6 +389,7 @@
       "number": 670,
       "title": "Documentation on JSONPropertyIgnore doesn't show on the website",
       "url": "https://github.com/stleary/JSON-java/issues/670",
+      "description_message": "In https://github.com/stleary/JSON-java/blob/master/src/main/java/org/json/JSONPropertyIgnore.java  the class has documentation, but the docs doesn't show on the website http://stleary.github.io/JSON-java/org/json/JSONPropertyIgnore.html.\r\n\r\nCan it get fixed?",
       "created_at": "2022-03-07T07:57:42Z",
       "closed_at": "2022-11-05T22:38:17Z",
       "linked_merged_pull_request_urls": [
@@ -400,6 +414,7 @@
       "number": 678,
       "title": "> JSONObject(Map): Throws NPE if key is null",
       "url": "https://github.com/stleary/JSON-java/issues/678",
+      "description_message": "> JSONObject(Map): Throws NPE if key is null\r\n\r\nA bit late here, but I would consider throwing an exception for an input that used to be accepted a breaking API change. In my company's codebase we had some tests that verified this behavior that were broken as a result, and a currently unknown amount of code that could actually be depending on this behavior.\r\n\r\nObviously this ship has already sailed (and rejecting null keys makes much more sense), but can we at least point out the breaking change in the release history documentation? Would be very useful as a heads-up for anyone trying to upgrade from an old version.\r\n\r\n_Originally posted by @data-enabler in https://github.com/stleary/JSON-java/issues/405#issuecomment-1113714068_",
       "created_at": "2022-04-30T14:50:08Z",
       "closed_at": "2022-11-05T22:39:14Z",
       "linked_merged_pull_request_urls": [
@@ -438,6 +453,7 @@
       "number": 695,
       "title": "XML.toJSONObject - xml content trimmed",
       "url": "https://github.com/stleary/JSON-java/issues/695",
+      "description_message": "when create a JSONObject from XML String like \r\n\r\n`<?xml version=\"1.0\" encoding=\"utf-8\"?><tagA>  :  </tagA>`\r\n\r\nspaces at then begin and at the end of string are trimmed\r\n\r\n```\r\n\tpublic static void main(String[] args) {\r\n\t\tString xml = \"<?xml version=\\\"1.0\\\" encoding=\\\"utf-8\\\"?><tagA>  :</tagA>\";\r\n\t\tJSONObject jo = XML.toJSONObject(xml, true);\r\n\t\tSystem.out.println(\"Test 1\");\r\n\t\tSystem.out.println(jo.toString());\r\n\r\n\t\txml = \"<?xml version=\\\"1.0\\\" encoding=\\\"utf-8\\\"?><tagA>  :  </tagA>\";\r\n\t\tjo = XML.toJSONObject(xml, true);\r\n\t\tSystem.out.println(\"Test 2\");\r\n\t\tSystem.out.println(jo.toString());\r\n\r\n\t\txml = \"<?xml version=\\\"1.0\\\" encoding=\\\"utf-8\\\"?><tagA>:  </tagA>\";\r\n\t\tjo = XML.toJSONObject(xml, true);\r\n\t\tSystem.out.println(\"Test 3\");\r\n\t\tSystem.out.println(jo.toString());\r\n\t}\r\n```\r\n\r\n\r\noutput\r\n```\r\nTest 1\r\n{\"tagA\":\":\"}\r\nTest 2\r\n{\"tagA\":\":\"}\r\nTest 3\r\n{\"tagA\":\":\"}\r\n\r\n```\r\n\r\nis possible add a parameter to avoid trimming ?\r\n\r\ni think that method involved is nextContent() of XMLTokener.java\r\n",
       "created_at": "2022-10-11T10:30:51Z",
       "closed_at": "2025-01-20T17:38:47Z",
       "linked_merged_pull_request_urls": [
@@ -465,6 +481,7 @@
       "number": 701,
       "title": "If the value in map is the map's self, the  new new JSONObject(map) cause StackOverflowError",
       "url": "https://github.com/stleary/JSON-java/issues/701",
+      "description_message": "poc as follw:\r\n\r\n>`  \r\n Map<Object,Object> a=new HashMap<>();\r\n        a.put(\" \",a);\r\n        JSONObject A=new JSONObject(a);\r\n`",
       "created_at": "2022-10-27T09:10:30Z",
       "closed_at": "2025-01-20T17:36:35Z",
       "linked_merged_pull_request_urls": [
@@ -491,6 +508,7 @@
       "number": 706,
       "title": "License change request",
       "url": "https://github.com/stleary/JSON-java/issues/706",
+      "description_message": "@douglascrockford \r\n\r\nThe license was changed to \"Public Domain\" in PR #688. However, the meaning of \"public domain\" is a bit ambiguous (e.g. \"public domain\" is not defined in the law of Japan.)\r\nSo users can't judge whether they can use JSON-java or not. I guess that it opposes your intention.\r\n\r\nTo resolve this problem, could you change the license to 0BSD or MIT-0? Or could you agree to change the license to one of two licenses?\r\n\r\nI asked you because I read [this message](https://github.com/stleary/JSON-java/pull/688#issuecomment-1304654045)\r\n> The original author of the application, Douglas Crockford, selected the license. Please reach out to him if you would like to see any changes.",
       "created_at": "2022-11-10T08:38:29Z",
       "closed_at": "2023-02-16T14:00:11Z",
       "linked_merged_pull_request_urls": [
@@ -2910,6 +2928,7 @@
       "number": 713,
       "title": "JSONObject constructors do not check for non-finite numbers",
       "url": "https://github.com/stleary/JSON-java/issues/713",
+      "description_message": "**Problem**\r\nThe constructors `org.json.JSONObject.JSONObject(Map<?, ?>)` and `org.json.JSONObject.JSONObject(Object)` do not check occuring numbers in values for finiteness and thus allow creating of invalid JSON object which then run into strange behaviour when stringifying.\r\n\r\nThe `Map` constructor even mentiones `@throws JSONException - If a value in the map is non-finite number.` but this exception can only occur here when a nested call throws it, e.g. a value with a `List` containing non-finite numbers.\r\n\r\n**Code example**\r\n```java\r\nimport static org.junit.jupiter.api.Assertions.assertThrows;\r\nimport java.util.Map;\r\nimport org.json.JSONException;\r\nimport org.json.JSONObject;\r\nimport org.junit.jupiter.api.Test;\r\n\r\nclass JSONObjectTest {\r\n    @Test void jsonObject_map() {\r\n        assertThrows(JSONException.class, () -> new JSONObject(Map.of(\"a\", Double.POSITIVE_INFINITY)));\r\n    }\r\n\r\n    @Test void jsonObject_bean() {\r\n        assertThrows(JSONException.class, () -> new JSONObject(new MyBean()));\r\n    }\r\n    public static class MyBean {\r\n        public double getA() { return Double.POSITIVE_INFINITY; }\r\n    }\r\n}\r\n```\r\nBoth tests fail and instead the constructors return an instance of a `JSONObject` with a key `\"a\"` mapped to a non-finite double.\r\n\r\n**Cascading problems**\r\nCalling `toString()` on the returned `JSONObject` will internally throw a `JSONException` in `toString(0)` while writing the non-finite value and this will be catched resulting in a `null` returned from the method. `obj.getDouble(\"a\")` on the other hand will return the non-finite double.\r\n\r\n**Idea**\r\nWhile `JSONObject.put(String, Object)` checks for finiteness before putting the value to the map https://github.com/stleary/JSON-java/blob/5920eca2d7694c8d9a714bb280f31007ff64ade4/src/main/java/org/json/JSONObject.java#L1870-L1871 the other two calls https://github.com/stleary/JSON-java/blob/5920eca2d7694c8d9a714bb280f31007ff64ade4/src/main/java/org/json/JSONObject.java#L291 https://github.com/stleary/JSON-java/blob/5920eca2d7694c8d9a714bb280f31007ff64ade4/src/main/java/org/json/JSONObject.java#L1552 just `wrap()` the value so it might be a good idea to do the finiteness-check there and document the JSONException.",
       "created_at": "2022-12-13T13:29:47Z",
       "closed_at": "2023-10-08T22:08:33Z",
       "linked_merged_pull_request_urls": [
@@ -2935,6 +2954,7 @@
       "number": 722,
       "title": "JSONObject/Array should be protected from stack overflow exceptions caused by recursion",
       "url": "https://github.com/stleary/JSON-java/issues/722",
+      "description_message": "See #720 for an example of this might be done.",
       "created_at": "2023-02-09T17:58:47Z",
       "closed_at": "2023-02-17T19:47:38Z",
       "linked_merged_pull_request_urls": [
@@ -2978,6 +2998,7 @@
       "number": 739,
       "title": "JSONTokener(InputStream) violates rfc8259#section-8.1",
       "url": "https://github.com/stleary/JSON-java/issues/739",
+      "description_message": "The constructor uses InputStreamReader w/o supplying an encoding. The RFC mandates that is *must* be UTF-8 which can lead to `IOExceptions`.",
       "created_at": "2023-05-24T09:36:35Z",
       "closed_at": "2023-05-28T19:11:43Z",
       "linked_merged_pull_request_urls": [
@@ -3001,6 +3022,7 @@
       "number": 742,
       "title": "Configure Java 11 as the minimum required version",
       "url": "https://github.com/stleary/JSON-java/issues/742",
+      "description_message": "I suggest establishing Java 11 as the minimum required version for the library.\r\n\r\nhttps://github.com/stleary/JSON-java/pull/741",
       "created_at": "2023-05-29T08:07:31Z",
       "closed_at": "2023-09-04T13:40:09Z",
       "linked_merged_pull_request_urls": [
@@ -3027,6 +3049,7 @@
       "number": 743,
       "title": "Stack overflow error caused by json-java serialization Map",
       "url": "https://github.com/stleary/JSON-java/issues/743",
+      "description_message": "# Stack overflow error caused by json-java serialization Map\r\n\r\n## Description\r\n\r\njson-java before v20230227 was discovered to contain a stack overflow via the map parameter. This vulnerability allows attackers to cause a Denial of Service (DoS) via a crafted string.\r\n\r\n## Error Log\r\n\r\n```\r\nException in thread \"main\" java.lang.StackOverflowError\r\n\tat org.json.JSONObject.<init>(JSONObject.java:284)\r\n\tat org.json.JSONObject.wrap(JSONObject.java:2480)\r\n\tat org.json.JSONObject.wrap(JSONObject.java:2452)\r\n\tat org.json.JSONObject.<init>(JSONObject.java:291)\r\n\tat org.json.JSONObject.wrap(JSONObject.java:2480)\r\n\tat org.json.JSONObject.wrap(JSONObject.java:2452)\r\n\tat org.json.JSONObject.<init>(JSONObject.java:291)\r\n\tat org.json.JSONObject.wrap(JSONObject.java:2480)\r\n\tat org.json.JSONObject.wrap(JSONObject.java:2452)\r\n\tat org.json.JSONObject.<init>(JSONObject.java:291)\r\n\tat org.json.JSONObject.wrap(JSONObject.java:2480)\r\n\tat org.json.JSONObject.wrap(JSONObject.java:2452)\r\n\tat org.json.JSONObject.<init>(JSONObject.java:291)\r\n\tat org.json.JSONObject.wrap(JSONObject.java:2480)\r\n\tat org.json.JSONObject.wrap(JSONObject.java:2452)\r\n\tat org.json.JSONObject.<init>(JSONObject.java:291)\r\n\tat org.json.JSONObject.wrap(JSONObject.java:2480)\r\n\tat org.json.JSONObject.wrap(JSONObject.java:2452)\r\n\tat org.json.JSONObject.<init>(JSONObject.java:291)\r\n\tat org.json.JSONObject.wrap(JSONObject.java:2480)\r\n\tat org.json.JSONObject.wrap(JSONObject.java:2452)\r\n\tat org.json.JSONObject.<init>(JSONObject.java:291)\r\n```\r\n\r\n## PoC\r\n```xml\r\n        <dependency>\r\n            <groupId>org.json</groupId>\r\n            <artifactId>json</artifactId>\r\n            <version>20230227</version>\r\n        </dependency>\r\n```\r\n\r\n\r\n```java\r\nimport org.json.JSONObject;\r\n\r\nimport java.util.HashMap;\r\n\r\npublic class PoC2 {\r\n\r\n    public static void main(String[] args) {\r\n        HashMap<String,Object> map=new HashMap<>();\r\n        map.put(\"t\",map);\r\n        JSONObject jsonObject = new JSONObject(map);\r\n        String jsonString = jsonObject.toString();\r\n    }\r\n}\r\n```\r\n\r\n## Rectification Solution\r\n1. Refer to the solution of jackson-databind: Add the depth variable to record the current parsing depth. If the parsing depth exceeds a certain threshold, an exception is thrown. (https://github.com/FasterXML/jackson-databind/commit/fcfc4998ec23f0b1f7f8a9521c2b317b6c25892b)\r\n\r\n2. Refer to the GSON solution: Change the recursive processing on deeply nested arrays or JSON objects to stack+iteration processing.(（https://github.com/google/gson/commit/2d01d6a20f39881c692977564c1ea591d9f39027）)\r\n\r\n## References\r\n\r\n1. https://github.com/jettison-json/jettison/issues/52 \r\n2. https://github.com/jettison-json/jettison/pull/53/files",
       "created_at": "2023-06-08T07:41:12Z",
       "closed_at": "2025-01-20T17:27:31Z",
       "linked_merged_pull_request_urls": [
@@ -3069,6 +3092,7 @@
       "number": 745,
       "title": "org.json.junit.XMLTest.testIssue537CaseSensitiveHexEscapeFullFile fails",
       "url": "https://github.com/stleary/JSON-java/issues/745",
+      "description_message": "I'm having problems compiling, as testIssue537CaseSensitiveHexEscapeFullFile fails. I'm using:\r\n- Windows 11 64bit\r\n- Netbeans 16\r\n- JDK1.8\r\n\r\nThe error I get is:\r\n```\r\norg.json.junit.XMLTest.testIssue537CaseSensitiveHexEscapeFullFile -- Time elapsed: 0.056 s <<< FAILURE!\r\norg.junit.ComparisonFailure: values should be equal expected:<... sensitive CRP, IL-1[?])> but was:<... sensitive CRP, IL-1[╬▓])>\r\n\tat org.junit.Assert.assertEquals(Assert.java:117)\r\n\tat org.json.junit.Util.compareActualVsExpectedObjects(Util.java:93)\r\n\tat org.json.junit.Util.compareActualVsExpectedJsonObjects(Util.java:52)\r\n\tat org.json.junit.Util.compareActualVsExpectedObjects(Util.java:68)\r\n\tat org.json.junit.Util.compareActualVsExpectedJsonArrays(Util.java:33)\r\n\tat org.json.junit.Util.compareActualVsExpectedObjects(Util.java:74)\r\n\tat org.json.junit.Util.compareActualVsExpectedJsonObjects(Util.java:52)\r\n\tat org.json.junit.Util.compareActualVsExpectedObjects(Util.java:68)\r\n\tat org.json.junit.Util.compareActualVsExpectedJsonObjects(Util.java:52)\r\n\tat org.json.junit.XMLTest.testIssue537CaseSensitiveHexEscapeFullFile(XMLTest.java:923)\r\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\r\n\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n\tat java.lang.reflect.Method.invoke(Method.java:498)\r\n\tat org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)\r\n\tat org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)\r\n\tat org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)\r\n\tat org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)\r\n\tat org.junit.rules.ExternalResource$1.evaluate(ExternalResource.java:54)\r\n\tat org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)\r\n\tat org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)\r\n\tat org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)\r\n\tat org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)\r\n\tat org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)\r\n\tat org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)\r\n\tat org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)\r\n\tat org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)\r\n\tat org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)\r\n\tat org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)\r\n\tat org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)\r\n\tat org.junit.runners.ParentRunner.run(ParentRunner.java:413)\r\n\tat org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:316)\r\n\tat org.apache.maven.surefire.junit4.JUnit4Provider.executeWithRerun(JUnit4Provider.java:240)\r\n\tat org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:214)\r\n\tat org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:155)\r\n\tat org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:385)\r\n\tat org.apache.maven.surefire.booter.ForkedBooter.execute(ForkedBooter.java:162)\r\n\tat org.apache.maven.surefire.booter.ForkedBooter.run(ForkedBooter.java:507)\r\n\tat org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:495)\r\n```\r\n\r\nThis is using the latest version of the code. I have also gone back to previous releases and tried compiling them, as follows:\r\n20220924 - success, no issues\r\n20230227 - fails, but at a different test\r\n\r\nI'm just wondering whether it's something to do with the mod in JSONTokener.java line 60, where a recent change now explicitly uses UTF-8?\r\n",
       "created_at": "2023-06-12T20:21:26Z",
       "closed_at": "2023-07-05T05:26:04Z",
       "linked_merged_pull_request_urls": [
@@ -3092,6 +3116,7 @@
       "number": 746,
       "title": "Compatibility with Java 17",
       "url": "https://github.com/stleary/JSON-java/issues/746",
+      "description_message": "Hello,\r\n\r\nI want to use latest version (20230227) of JSON-Java in my project, is it compatible with Java 17?\r\n\r\nRight now document says as below - https://github.com/stleary/JSON-java/\r\n **> Designed and tested to use on Java versions 1.6 - 1.11**\r\n\r\nPlease suggest the way forward.\r\n\r\nRgds,\r\nKamal",
       "created_at": "2023-06-13T12:00:33Z",
       "closed_at": "2023-09-30T17:29:18Z",
       "linked_merged_pull_request_urls": [
@@ -3118,6 +3143,7 @@
       "number": 756,
       "title": "Update License information in the wiki",
       "url": "https://github.com/stleary/JSON-java/issues/756",
+      "description_message": "https://github.com/stleary/JSON-java/pull/688 and https://github.com/stleary/JSON-java/issues/686 changed the license but https://github.com/stleary/JSON-java/wiki/The-JSON-Java-license still refers to the old license. \r\n\r\nThere is also a non functional link in https://github.com/stleary/JSON-java/wiki/FAQ\r\n - [Can you change the license to remove the \"The Software shall be used for Good, not Evil.\" line?](https://github.com/stleary/JSON-java/wiki/FAQ#can-you-change-the-license-to-remove-the-the-software-shall-be-used-for-good-not-evil-line) ",
       "created_at": "2023-07-24T21:20:56Z",
       "closed_at": "2023-07-25T11:57:02Z",
       "linked_merged_pull_request_urls": [
@@ -3201,6 +3227,7 @@
       "number": 758,
       "title": "Confusion between `\\0` and EOF can lead to OutOfMemoryError",
       "url": "https://github.com/stleary/JSON-java/issues/758",
+      "description_message": "`JSONTokener.next()` [uses](https://github.com/stleary/JSON-java/blob/402db6ad84353c84e4747510a8ac5322b32a8df4/src/main/java/org/json/JSONTokener.java#L182) a 0 return to indicate EOF. But 0 is also returned when an actual `\\0` character is read. In some circumstances that can be used to circumvent parser checks. Parsing untrusted input could then potentially lead to OutOfMemoryError even for quite small input strings.",
       "created_at": "2023-08-01T18:29:19Z",
       "closed_at": "2023-08-05T13:33:27Z",
       "linked_merged_pull_request_urls": [
@@ -3265,6 +3292,7 @@
       "number": 760,
       "title": "JLink support",
       "url": "https://github.com/stleary/JSON-java/issues/760",
+      "description_message": "This is effectively a duplicate of #513 \r\n\r\nBecause this does not have a `module-info.java` in the packaged release, it cannot be used with `jlink` without manual configuration\r\n\r\n```\r\n$ jlink --module-path json-20230618.jar --add-modules ALL-MODULE-PATH --output out\r\nError: automatic module cannot be used with jlink: org.json from file:///Users/emccue/Downloads/json-20230618.jar\r\n```\r\n\r\nThis, in turn, means every downstream library cannot be used with `jlink` without manual configuration. So if I am using redis and want to use [Jedis](https://github.com/redis/jedis) I need to manually figure out what modules that requires.\r\n\r\nI can't ask Jedis to fix that until their dependencies fix it, ... its a PITA.\r\n\r\nThe commands to make this work are relatively straight forward, so it *should* just be a matter of configuring maven and gradle + updating the wiki. (I know how to do it for maven, not gradle). It will mean that people who want to build from source would need java 9, but consumers won't.\r\n\r\nGiven [this is one of the most popular libraries](https://github.com/sormuras/modules/blob/main/doc/Top1000-2022.txt.md) and is often deep in a dependency tree, its a one of many needed steps if the ecosystem writ. large is ever going to adopt modules more widely.\r\n\r\n```java\r\nmodule org.json {\r\n    exports org.json;\r\n}\r\n```\r\n\r\n",
       "created_at": "2023-08-16T02:54:41Z",
       "closed_at": "2023-09-03T15:35:44Z",
       "linked_merged_pull_request_urls": [
@@ -3303,6 +3331,7 @@
       "number": 766,
       "title": "Compilation warnings in Java 17",
       "url": "https://github.com/stleary/JSON-java/issues/766",
+      "description_message": "```\r\n[INFO] Compiling 42 source files with javac [debug target 1.8] to target/test-classes\r\nWarning:  bootstrap class path not set in conjunction with -source 8\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[307,28] Boolean(boolean) in java.lang.Boolean has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[308,29] Boolean(boolean) in java.lang.Boolean has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[[31](https://github.com/stleary/JSON-java/actions/runs/6007074183/job/16416765888?pr=741#step:5:32)1,27] Long(long) in java.lang.Long has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[312,30] Double(double) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[573,28] Boolean(boolean) in java.lang.Boolean has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[574,29] Boolean(boolean) in java.lang.Boolean has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[578,27] Long(long) in java.lang.Long has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[579,30] Double(double) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[999,43] Double(java.lang.String) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[1009,43] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[1013,43] Long(long) in java.lang.Long has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[1015,38] Long(long) in java.lang.Long has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[1262,31] Double(double) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[1263,31] Double(double) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[1716,21] Double(double) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[1717,21] Double(java.lang.String) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[1720,125] Double(java.lang.String) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[1720,1[37](https://github.com/stleary/JSON-java/actions/runs/6007074183/job/16416765888?pr=741#step:5:38)] Float(float) in java.lang.Float has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[1720,97] Double(double) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[1725,149] Double(double) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[1728,25] Float(float) in java.lang.Float has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[2043,24] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[2044,24] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[2045,24] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[2050,29] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[2050,45] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[2050,61] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[2088,22] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[2115,24] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[2116,24] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[2117,24] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[2128,29] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[2128,45] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONObjectTest.java:[2128,61] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[371,17] Double(double) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[373,17] Double(double) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[375,17] Float(float) in java.lang.Float has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[378,17] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[[38](https://github.com/stleary/JSON-java/actions/runs/6007074183/job/16416765888?pr=741#step:5:39)0,17] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[388,17] Long(long) in java.lang.Long has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[[39](https://github.com/stleary/JSON-java/actions/runs/6007074183/job/16416765888?pr=741#step:5:40)0,17] Long(long) in java.lang.Long has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[548,17] Double(double) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[550,17] Double(double) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[552,12] Double(double) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[562,17] Float(double) in java.lang.Float has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[564,17] Float(float) in java.lang.Float has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[566,12] Float(float) in java.lang.Float has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[578,17] Double(double) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[580,12] Double(double) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[583,17] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[585,17] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[1014,17] Double(double) in java.lang.Double has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[1017,17] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[1019,17] Integer(int) in java.lang.Integer has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[1028,17] Long(long) in java.lang.Long has been deprecated and marked for removal\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/test/java/org/json/junit/JSONArrayTest.java:[1030,17] Long(long) in java.lang.Long has been deprecated and marked for removal\r\n```",
       "created_at": "2023-09-02T04:47:04Z",
       "closed_at": "2023-09-16T13:31:28Z",
       "linked_merged_pull_request_urls": [
@@ -3327,6 +3356,7 @@
       "number": 771,
       "title": "Logic to exclude object keys that are themselves objects is imperfect",
       "url": "https://github.com/stleary/JSON-java/issues/771",
+      "description_message": "`JSONObject` contains [this logic](https://github.com/stleary/JSON-java/blob/01727fd0ed00c1f1f5582bdc97244356ac029f3b/src/main/java/org/json/JSONObject.java#L218-L222) to prevent a key in a JSON object from being another JSON object or an array:\r\n```java\r\n            case '{':\r\n            case '[':\r\n                if(prev=='{') {\r\n                    throw x.syntaxError(\"A JSON Object can not directly nest another JSON Object or JSON Array.\");\r\n                }\r\n```\r\nHowever this doesn't cover all cases. For example, `JSONObject` currently accepts this string:\r\n```\r\n{\"a\":1, [{\"b\": 2}]: 3}\r\n```\r\nwhich it interprets as an object with two keys, one that is the string `a` and one that is the string `[{\"b\":2}]`.\r\n\r\nStrict JSON, of course, only accepts string literals as keys in objects. JSON-java is more liberal, but it does balk at nested objects since the fix for #654. The example above suggests that that fix was incomplete. I think it would make sense to disallow nested objects or arrays as keys always. They're not valid JSON and it's unlikely that anyone is relying on them for legitimate purposes. Meanwhile they can straightforwardly be used for DoS attacks, similar to #654 and #758.\r\n\r\nI have a proposed fix which I will send shortly.",
       "created_at": "2023-09-20T17:48:30Z",
       "closed_at": "2023-10-01T16:04:41Z",
       "linked_merged_pull_request_urls": [
@@ -3379,6 +3409,7 @@
       "number": 789,
       "title": "CVE-2023-5072 - Denial of Service in JSON-Java versions up to and including 20230618.",
       "url": "https://github.com/stleary/JSON-java/issues/789",
+      "description_message": "https://nvd.nist.gov/vuln/detail/CVE-2023-5072\r\n\r\nhttps://github.com/advisories/GHSA-rm7j-f5g5-27vv",
       "created_at": "2023-10-13T01:09:36Z",
       "closed_at": "2025-01-19T17:55:24Z",
       "linked_merged_pull_request_urls": [
@@ -3402,6 +3433,7 @@
       "number": 811,
       "title": "Question regarding CVE-2023-5072",
       "url": "https://github.com/stleary/JSON-java/issues/811",
+      "description_message": "Hey!\r\nWe just got a report that our version of Json in Java - 20131018 , has a new CVE threat.\r\nWe were wondering, is it compatible to port the changes which fix the CVE to its code and re-compile?\r\n\r\nhttps://github.com/eamonnmcmanus/JSON-java/commit/c8a9e15a57886dbf3e51cd450bde8e0c4599bff3#diff-ef151e65679a81ad727c5af36a8d84dd867146a5da1dede68b4c37f4866ab57b\r\n\r\nhttps://github.com/eamonnmcmanus/JSON-java/commit/661114c50dcfd53bb041aab66f14bb91e0a87c8a#diff-ef151e65679a81ad727c5af36a8d84dd867146a5da1dede68b4c37f4866ab57b\r\n\r\nWould you consider that safe for this older version? For various reasons we cannot update to the newest one.\r\nThanks!\r\nVelitchko",
       "created_at": "2023-10-19T13:05:14Z",
       "closed_at": "2025-01-19T17:56:33Z",
       "linked_merged_pull_request_urls": [
@@ -3429,6 +3461,7 @@
       "number": 813,
       "title": "Number parsing - de-duplication of logic",
       "url": "https://github.com/stleary/JSON-java/issues/813",
+      "description_message": "Logic to parse number is duplicated in XML and JSON parser.\r\nThey can be moved to single place and be referred by both.",
       "created_at": "2023-10-22T05:34:15Z",
       "closed_at": "2023-10-31T22:40:19Z",
       "linked_merged_pull_request_urls": [
@@ -3456,6 +3489,7 @@
       "number": 821,
       "title": "Flaky test fails intermittently in GitHub Action",
       "url": "https://github.com/stleary/JSON-java/issues/821",
+      "description_message": "Test case passes on some runs and fails on others: `org.json.junit.JSONObjectTest.issue654StackOverflowInputWellFormed`\r\n\r\n- Test Run: https://github.com/stleary/JSON-java/actions/runs/6644866305/job/18054932906#step:5:79\r\n- Code Link: https://github.com/stleary/JSON-java/blob/b5b9f636ff150fbad9dce3cd3e77a2747ac73190/src/test/java/org/json/junit/JSONObjectTest.java#L3668-L3676\r\n\r\nAppears to be due to differences in resources available on each run. The exception expected is a \"JSONException\", but that's because it is wrapping a \"StackOverflowError\". StackOverflowError is going to be dependent on the environment and may not hit consistently.",
       "created_at": "2023-10-27T13:38:08Z",
       "closed_at": "2023-11-10T17:27:19Z",
       "linked_merged_pull_request_urls": [
@@ -3480,6 +3514,7 @@
       "number": 829,
       "title": "Upgrade json-path version to avoid dependency conflicts.",
       "url": "https://github.com/stleary/JSON-java/issues/829",
+      "description_message": "# Problem Description \r\njson-path:2.1.0 introduces json-smart:2.2, accessors-smart:1.1 and asm:5.0.3. But these jar files contain conflict classes with the same full qualified name, making it a mess.\r\n```\r\n[INFO] +- com.jayway.jsonpath:json-path:jar:2.1.0:test\r\n[INFO] |  \\- net.minidev:json-smart:jar:2.2:test\r\n[INFO] |     \\- net.minidev:accessors-smart:jar:1.1:test\r\n[INFO] |        \\- org.ow2.asm:asm:jar:5.0.3:test\r\n```\r\nAll three dependencies contain conflict asm classes like\r\n```\r\n[org.objectweb.asm.ClassWriter, org.objectweb.asm.AnnotationVisitor,org.objectweb.asm.MethodVisitor,org.objectweb.asm.FieldWriter, ...]\r\n```\r\nTo make matters worth, json-smart and accessor-smart contain addtional conflict classes like \r\n```\r\n[net.minidev.asm.ASMUtil, net.minidev.asm.ex.NoSuchFieldException, net.minidev.asm.ConvertDate, ...]\r\n```\r\n# Possible Solution \r\n\r\nFortunately, json-path:2.4.0 uses upgraded json-smart and accsessors-smart which remove all the conflict classes. So upgrading to json-path 2.4.0 seems a good choice.\r\n```\r\n[INFO] +- com.jayway.jsonpath:json-path:jar:2.4.0:test\r\n[INFO] |  +- net.minidev:json-smart:jar:2.3:test\r\n[INFO] |  |  \\- net.minidev:accessors-smart:jar:1.2:test\r\n[INFO] |  |     \\- org.ow2.asm:asm:jar:5.0.4:test\r\n```\r\n\r\nI upgrade the json-path version from 2.1.0 to 2.4.0 and run the tests. The test results are just as they were, everything seems fine.",
       "created_at": "2023-11-17T13:30:49Z",
       "closed_at": "2023-11-25T19:51:09Z",
       "linked_merged_pull_request_urls": [
@@ -3504,6 +3539,7 @@
       "number": 840,
       "title": "Duplicate key processing?",
       "url": "https://github.com/stleary/JSON-java/issues/840",
+      "description_message": "Currently, the JSON library simply throws JSONException when meeting duplicate keys, although most of the time it doesn't happen, but it's inconvenient when I want to process some *imperfect* JSON data.\r\n\r\nSo I think it's a good idea to add some methods to set the processing strategy, decides whether to override or skip or throw a exception.\r\n\r\nUm, I think the method can be added to the constructor, just like the following code:\r\n```java\r\nnew JSONObject(jsonStr, DuplicateStrategy.OVERRIDE);\r\n```\r\n\r\n(My native language isn't English, so maybe there're some grammar mistakes, thanks.)",
       "created_at": "2023-12-17T07:48:22Z",
       "closed_at": "2024-03-09T15:20:07Z",
       "linked_merged_pull_request_urls": [
@@ -3530,6 +3566,7 @@
       "number": 841,
       "title": "Separate Control for Type Conversion of Numbers and Booleans in XML to JSON Conversion",
       "url": "https://github.com/stleary/JSON-java/issues/841",
+      "description_message": "Hello JSON-java maintainers,\r\n\r\nI'm reaching out regarding the `keepStrings` flag. Currently, this flag controls the type conversion for both numbers and booleans uniformly. In my use case, I require more flexibility to sometimes convert numbers but keep booleans as strings, or vice versa, depending on the particular data representation I need when converting XML to JSON. \r\n\r\nSo, I am wondering about your thoughts to allow separate control over the type conversion for numbers and booleans.\r\n\r\nI believe this change would align with the project's goals to address a major user inconvenience and could be achieved without breaking existing behavior (I'm still reviewing the source code, and would appreciate your comments on feasibility of such a change). Allowing users more control over the data representation would be highly beneficial. Thanks.",
       "created_at": "2023-12-19T17:49:42Z",
       "closed_at": "2025-05-18T16:31:26Z",
       "linked_merged_pull_request_urls": [
@@ -3555,6 +3592,7 @@
       "number": 852,
       "title": "Information is lost when converting hexadecimal value from xml to json.",
       "url": "https://github.com/stleary/JSON-java/issues/852",
+      "description_message": "While parsing an XML which has hexadecimal value which starts with number (0-9), for example below:\r\n`<color>\r\n    <color_type>primary</color_type>\r\n    <value>008E97</value>\r\n</color>`\r\n\r\nThe equivalent json is formed is:\r\n`\"color\": [\r\n    {\r\n        \"color_type\": \"primary\",\r\n        \"value\": 8e+97\r\n    }\r\n]`\r\n\r\nHowever, if the hexadecimal value starts with string, its equivalent json is also a string.\r\n`<color>\r\n    <color_type>primary</color_type>\r\n    <value>fc4c02</value>\r\n</color>`\r\nThe equivalent json is formed is:\r\n`\"color\": [\r\n    {\r\n        \"color_type\": \"primary\",\r\n        \"value\": \"fc4c02\"\r\n    }\r\n]`\r\n\r\nThe code fails to handle hexadecimal conversion and creates ambiguity by treating it as number and string both. I assume, if there is ambiguities like this, we need to stick to string rather than converting to number.",
       "created_at": "2024-01-30T00:07:34Z",
       "closed_at": "2024-02-28T16:03:19Z",
       "linked_merged_pull_request_urls": [
@@ -3582,6 +3620,7 @@
       "number": 859,
       "title": "JavaDoc warnings in Java 21",
       "url": "https://github.com/stleary/JSON-java/issues/859",
+      "description_message": "```\r\n[INFO] --- maven-javadoc-plugin:3.5.0:jar (attach-javadocs) @ json ---\r\n[INFO] No previous run data found, generating javadoc.\r\nWarning:  Javadoc Warnings\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/main/java/org/json/CDL.java:26: warning: use of default constructor, which does not provide a comment\r\nWarning:  public class CDL {\r\nWarning:  ^\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/main/java/org/json/Cookie.java:16: warning: use of default constructor, which does not provide a comment\r\nWarning:  public class Cookie {\r\nWarning:  ^\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/main/java/org/json/CookieList.java:12: warning: use of default constructor, which does not provide a comment\r\nWarning:  public class CookieList {\r\nWarning:  ^\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/main/java/org/json/HTTP.java:14: warning: use of default constructor, which does not provide a comment\r\nWarning:  public class HTTP {\r\nWarning:  ^\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/main/java/org/json/JSONML.java:15: warning: use of default constructor, which does not provide a comment\r\nWarning:  public class JSONML {\r\nWarning:  ^\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/main/java/org/json/JSONPointer.java:43: warning: use of default constructor, which does not provide a comment\r\nWarning:  public static class Builder {\r\nWarning:  ^\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/main/java/org/json/JSONPropertyName.java:24: warning: no main description\r\nWarning:  * @return The name of the property as to be used in the JSON Object.\r\nWarning:  ^\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/main/java/org/json/Property.java:15: warning: use of default constructor, which does not provide a comment\r\nWarning:  public class Property {\r\nWarning:  ^\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/main/java/org/json/XML.java:25: warning: use of default constructor, which does not provide a comment\r\nWarning:  public class XML {\r\nWarning:  ^\r\nWarning: [WARNING] 9 warnings\r\n```",
       "created_at": "2024-02-14T07:22:53Z",
       "closed_at": "2024-02-23T08:23:13Z",
       "linked_merged_pull_request_urls": [
@@ -3613,6 +3652,7 @@
       "number": 863,
       "title": "Enhancement: Improve toString performance",
       "url": "https://github.com/stleary/JSON-java/issues/863",
+      "description_message": "The toString methods of JSONObject and JSONArray are not very fast, mostly because of the usage of `StringWriter` and the generic code to support an indent, although in the default toString case it is always 0.\r\n\r\nYou can compare the performance of the library e.g. with this comparison project, which also list the results in a graph:\r\nhttps://github.com/fabienrenaud/java-json-benchmark?tab=readme-ov-file#users-model\r\n\r\nMy suggestion is to improve the performance for the default toString method without indent by duplicating by using a `StringBuilder `instead of a `StringWriter`.",
       "created_at": "2024-02-22T22:23:18Z",
       "closed_at": "2024-04-09T16:32:50Z",
       "linked_merged_pull_request_urls": [
@@ -3640,6 +3680,7 @@
       "number": 884,
       "title": "Implement strict mode for JSONObject",
       "url": "https://github.com/stleary/JSON-java/issues/884",
+      "description_message": "Strict mode now works for JSONArray (see #877), but not for JSONObject or for JSONArrays embedded in JSONObjects. \r\nFor example, the following code parses without error:\r\n```\r\n        String str = \"{\\\"a\\\": [b]}\";\r\n        JSONObject jsonObject = new JSONObject(str, new JSONParserConfiguration().withStrictMode(true));\r\n```\r\n\r\nSeveral additional changes should be included with the PR:\r\n* The indentation in nextString(char, boolean) is incorrect.\r\n* ~~There is a compiler warning in JSONTokener that should be fixed:~~ (fixed in #886)\r\n```\r\nWarning:  Javadoc Warnings\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/main/java/org/json/JSONTokener.java:294: warning: no @param for strictMode\r\nWarning:  public String nextString(char quote, boolean strictMode) throws JSONException {\r\nWarning:  ^\r\nWarning: [WARNING] 1 warning\r\n```\r\n",
       "created_at": "2024-04-07T17:40:19Z",
       "closed_at": "2024-11-11T00:01:44Z",
       "linked_merged_pull_request_urls": [
@@ -3699,6 +3740,7 @@
       "number": 887,
       "title": "Complete strictMode for JSONArray",
       "url": "https://github.com/stleary/JSON-java/issues/887",
+      "description_message": "Garbage chars at the end of JSONArray docs are still allowed in strict mode. This needs to be fixed.\r\n\r\nHere is a list of examples of JSON text strings that should be allowed in default mode, but not in strict mode. This is not an exhaustive list. Unit tests should confirm expected behavior when strictMode is true and false.\r\n```\r\n\"[]asdf\",\r\n\"[]]\",\r\n\"[]}\",\r\n\"[][\",\r\n\"[]{\",\r\n\"[],\",\r\n\"[]:\",\r\n\"[],[\",\r\n\"[],{\"\r\n```\r\n\r\n**Note:** It should not be necessary for the code to check for specific trailing chars; strict mode is violated if parsing is completed and there are still chars left in the JSONTokener instance. \r\n",
       "created_at": "2024-04-13T02:05:20Z",
       "closed_at": "2024-05-21T01:19:49Z",
       "linked_merged_pull_request_urls": [
@@ -3733,6 +3775,7 @@
       "number": 891,
       "title": "All unit tests must pass in strict mode",
       "url": "https://github.com/stleary/JSON-java/issues/891",
+      "description_message": "The unit tests should yield the same result for default and strict mode parsing. \r\nTests may fail for the following reasons:\r\n* The test data inadvertently does not include double quotes around some string values. These should be fixed.\r\n* The test is specifically intended to test the parsing of unquoted chars. These should be omitted from the strict mode test run. \r\n* The test has specific conditions (e.g. working with unquoted strings for CDL or XML testing) that are impacted by the strict mode parser changes.\r\n\r\nThe unit tests will be updated as a separate issue from #887 and #888. After merging the unit test fixes, the review of strict mode may continue. ",
       "created_at": "2024-04-28T14:14:19Z",
       "closed_at": "2024-11-11T00:00:50Z",
       "linked_merged_pull_request_urls": [
@@ -3780,6 +3823,7 @@
       "number": 893,
       "title": "Update JsonPath version",
       "url": "https://github.com/stleary/JSON-java/issues/893",
+      "description_message": "Test dependency JsonPath 2.4.0 [seems to have](https://mvnrepository.com/artifact/com.jayway.jsonpath/json-path/2.4.0) 1 direct vulnerability and 58 transitive vulnerabilities.\r\nCan it be updated to 2.9.0 (which has no vulnerabilities as of today) for the next release?\r\nThank you!",
       "created_at": "2024-05-14T08:22:57Z",
       "closed_at": "2024-11-10T23:43:34Z",
       "linked_merged_pull_request_urls": [
@@ -3818,6 +3862,7 @@
       "number": 901,
       "title": "JSONArray has a bug when calling addAll with a collection (infinite recursion)",
       "url": "https://github.com/stleary/JSON-java/issues/901",
+      "description_message": "In Line 1913, the jsonParserConfiguration needs to be passed as last argument",
       "created_at": "2024-07-15T12:33:31Z",
       "closed_at": "2024-11-10T23:58:32Z",
       "linked_merged_pull_request_urls": [
@@ -3858,6 +3903,7 @@
       "number": 902,
       "title": "Inquiry about License Changes for the JSON Library",
       "url": "https://github.com/stleary/JSON-java/issues/902",
+      "description_message": "Dear Author of the JSON Library,\r\n\r\nI am writing to you to inquire about the licensing of the JSON library. I have observed that the license for the library prior to the version dated 20220320 was listed as \"JSON License.\" Forexample ：https://repo1.maven.org/maven2/org/json/json/20170516/json-20170516.pom\r\nHowever, following that version, it appears the license has been changed to \"Public Domain,\" for example：https://repo1.maven.org/maven2/org/json/json/20240205/json-20240205.pom\r\nwith no additional license text provided.\r\n\r\nI have two concerns regarding this change I hope you can clarify:\r\n\r\n1. What prompted the decision to transition from the JSON License to the public domain for the JSON library?\r\n\r\n2. We know that \"public domain\" is not a license and sometimes leads to legal ambiguity. So here we need to double check whether we are allowed to freely use, distribute and modify the source code？\r\n\r\nI appreciate your time and any information you can provide on this matter",
       "created_at": "2024-07-24T05:29:50Z",
       "closed_at": "2024-09-05T06:27:30Z",
       "linked_merged_pull_request_urls": [
@@ -3881,6 +3927,7 @@
       "number": 908,
       "title": "New Release?",
       "url": "https://github.com/stleary/JSON-java/issues/908",
+      "description_message": "My apologies for raising my query as an issue. Could you please confirm when the next release is scheduled? The last release was in March. I'm particularly interested in the `StringBuilderWriter` fix aimed at improving performance. Passing `StringBuilderWriter` from the outside does not achieve the intended effect, as a new `StringWriter` is still being created internally in some places.",
       "created_at": "2024-10-12T16:38:33Z",
       "closed_at": "2025-01-04T14:36:32Z",
       "linked_merged_pull_request_urls": [
@@ -3908,6 +3955,7 @@
       "number": 915,
       "title": "clarify minimum required Java Version 6 or 8",
       "url": "https://github.com/stleary/JSON-java/issues/915",
+      "description_message": "It is a little bit unclear to me, which should be the minimum required Java version for this project. I would like to get clarity on it.\r\n\r\nhttps://github.com/stleary/JSON-java/pull/815 brings back the Java 1.6 build pipeline check after it was removed by https://github.com/stleary/JSON-java/pull/741\r\n\r\n[In the readme is says:](https://github.com/stleary/JSON-java?tab=readme-ov-file#overview)\r\n> Designed and tested to use on Java versions 1.6 - 21\r\n\r\n[In the FAQ is says:](https://github.com/stleary/JSON-java/wiki/FAQ#what-version-of-java-does-this-project-require)\r\n> At the present time Java 8 is required, in order to support pre-existing Java users that are still on 8. It was decided that Android users are probably no longer tied to Java 6. The last release to support Java 6 is 20230618.\r\n\r\nIn the [maven](https://github.com/stleary/JSON-java/blob/2ee5bf13f403a9e95203f794be30732e20929429/pom.xml#L105) and [gradle](https://github.com/stleary/JSON-java/blob/2ee5bf13f403a9e95203f794be30732e20929429/build.gradle#L35) build files it specifies Java 1.8\r\n\r\nI recommend that all stated references should define the same minimum version.\r\n\r\nIf Java 8 should be the minimum, I submitted these 2 PRs:\r\nhttps://github.com/stleary/JSON-java/pull/914\r\nhttps://github.com/stleary/JSON-java/pull/913\r\n\r\nIf Java 1.6 should still be the minimum, please close the PRs, update the FAQ and the build definition.",
       "created_at": "2024-11-18T13:40:47Z",
       "closed_at": "2024-11-18T14:19:42Z",
       "linked_merged_pull_request_urls": [
@@ -3947,6 +3995,7 @@
       "number": 925,
       "title": "Request: Release Notes 20241224: add missing \"Improve toString Performance\"",
       "url": "https://github.com/stleary/JSON-java/issues/925",
+      "description_message": "Thank you for releasing a new version as Christmas present this year.\r\n\r\nI noticed that in the [release notes of version 20241224](https://github.com/stleary/JSON-java/releases/tag/20241224) my PR for [Improving toString Performance](https://github.com/stleary/JSON-java/pull/867) is missing. It would be nice if you could add it to the release notes. Also this version is not yet marked as the \"latest\" version.\r\n\r\nSpeaking of it, I was a little bit confused that you rejected my other contribution to [improve String parsing performance](https://github.com/stleary/JSON-java/pull/916), as it is related to my first contribution mentioned above and makes the whole use case of the performance improvement complete improving the parsing and serialization performance. I also read from [your one comment on the first PR](https://github.com/stleary/JSON-java/pull/867#issuecomment-1977486734) that you first expected an improvement on the parsing, which I wanted to contribute with my second PR.\r\n\r\n[The comment](https://github.com/stleary/JSON-java/issues/908#issue-2583243923) from @anshchauhan shows that there is interest in performance improvements and I would be very happy if you would reconsider to accept my PR to improve the parsing performance.\r\n\r\nRegards, and have a happy new year.",
       "created_at": "2024-12-29T19:55:44Z",
       "closed_at": "2025-01-05T16:53:37Z",
       "linked_merged_pull_request_urls": [
@@ -3974,6 +4023,7 @@
       "number": 926,
       "title": "module-info missing in version 20241224",
       "url": "https://github.com/stleary/JSON-java/issues/926",
+      "description_message": " Version 20241224 is missing the module-info.java, so upgrading the version where a module already has `requires org.json` it fails to compile.",
       "created_at": "2025-01-02T18:15:40Z",
       "closed_at": "2025-01-09T12:40:05Z",
       "linked_merged_pull_request_urls": [
@@ -4011,6 +4061,7 @@
       "number": 927,
       "title": "JSONTokener reference is retained in JSONObject/JSONArray in 20241224",
       "url": "https://github.com/stleary/JSON-java/issues/927",
+      "description_message": "The JSONTokener object can have references to large objects like i/o buffers. And it's not really used after JSONObject/JSONArray constructor finishes. At least references to JSONTokener (and JSONParserConfiguration) can be nulled at the end of constructor.\r\n\r\nOr you can introduce constructor like this:\r\n`private JSONObject(JSONTokener x, JSONParserConfiguration jsonParserConfiguration, boolean requireInputEnd)`\r\nthat checks for the absense of trailing chars (by the way this check is duplicated in `JSONObject(String source)` constructor since it delegates to another constructor which checks for the same thing). This new constructor could use JSONTokener/JSONParserConfiguration without introducing fields.",
       "created_at": "2025-01-04T13:11:35Z",
       "closed_at": "2025-01-15T13:45:52Z",
       "linked_merged_pull_request_urls": [
@@ -4050,6 +4101,7 @@
       "number": 928,
       "title": "There is a Javadoc warning.",
       "url": "https://github.com/stleary/JSON-java/issues/928",
+      "description_message": "Warning:  Javadoc Warnings\r\nWarning:  /home/runner/work/JSON-java/JSON-java/src/main/java/org/json/JSONParserConfiguration.java:107: warning: no main description\r\nWarning:  * @return the current strict mode setting.\r\nWarning:  ^\r\nWarning: [WARNING] 1 warning\r\n",
       "created_at": "2025-01-06T02:31:15Z",
       "closed_at": "2025-01-19T15:07:54Z",
       "linked_merged_pull_request_urls": [
@@ -4073,6 +4125,7 @@
       "number": 933,
       "title": "NullPointerExceptions parsing non-strict JSON using JSONTokener from version 20241224",
       "url": "https://github.com/stleary/JSON-java/issues/933",
+      "description_message": "```Java\r\nString s = \"{\\\"a\\\": [],}\";\r\nvar tokener = new JSONTokener(s);\r\nvar value = tokener.nextValue();\r\n```\r\n\r\n```\r\nException in thread \"main\" java.lang.NullPointerException: Cannot invoke \"org.json.JSONParserConfiguration.isStrictMode()\" because \"jsonParserConfiguration\" is null\r\n\tat org.json.JSONObject.<init>(JSONObject.java:280)\r\n\tat org.json.JSONTokener.nextValue(JSONTokener.java:429)\r\n\tat Scratch.main(scratch_3.java:8)\r\n```\r\n\r\n```Java\r\nString s = \"[1,]\";\r\nvar tokener = new JSONTokener(s);\r\nvar value = tokener.nextValue();\r\n```\r\n\r\n```\r\nException in thread \"main\" java.lang.NullPointerException: Cannot invoke \"org.json.JSONParserConfiguration.isStrictMode()\" because \"jsonParserConfiguration\" is null\r\n\tat org.json.JSONArray.<init>(JSONArray.java:144)\r\n\tat org.json.JSONTokener.nextValue(JSONTokener.java:436)\r\n\tat Scratch.main(scratch_3.java:8)\r\n```\r\n\r\nIt looks like the parsing implementations in the JSONObject and JSONArray constructors that take a JSONTokener don't check if the configuration is null when encountering non-standard JSON input.",
       "created_at": "2025-01-08T15:02:55Z",
       "closed_at": "2025-01-15T13:45:52Z",
       "linked_merged_pull_request_urls": [
@@ -4112,6 +4165,7 @@
       "number": 935,
       "title": "Bug: Strict mode is not checked on constructor using JSONTokener and JSONParserConfiguration",
       "url": "https://github.com/stleary/JSON-java/issues/935",
+      "description_message": " the constructors of JSONObject and JSONArray with JSONTokener as input instead of String do not enforce the strict mode at the end of the object creation, when invalid trailing characters are provided at the end of the input.\r\n\r\nIn demostrated the case in https://github.com/stleary/JSON-java/pull/934 , see the [failing test results](https://github.com/stleary/JSON-java/actions/runs/12679357291/job/35338888436?pr=934).",
       "created_at": "2025-01-08T21:32:55Z",
       "closed_at": "2025-01-15T13:45:51Z",
       "linked_merged_pull_request_urls": [
@@ -4151,6 +4205,7 @@
       "number": 947,
       "title": "Bug: JSONObject constructor with JSONTokener ignores JSONParserConfiguration of JSONTokener",
       "url": "https://github.com/stleary/JSON-java/issues/947",
+      "description_message": "Current behavior:\r\nWhen configuring a JSONParserConfiguration and setting it to JSONTokener, and then passing this Tokener to create a JSONObject, the JSONParserConfiguration is ignored, as it internally creates a new JSONParserConfiguration, which is used instead.\r\n\r\nExpected behaviour the JSONParserConfiguration from the JSONTokener should be used. The existing getter for the JSONParserConfiguration on the JSONTokener could be used, making it not deprecated as suggested in https://github.com/stleary/JSON-java/issues/941",
       "created_at": "2025-01-15T20:29:30Z",
       "closed_at": "2025-01-19T15:09:44Z",
       "linked_merged_pull_request_urls": [
@@ -4177,6 +4232,7 @@
       "number": 952,
       "title": "Refactor JSONObjectTest jsonObjectParsingErrors()",
       "url": "https://github.com/stleary/JSON-java/issues/952",
+      "description_message": "This unit test contains about 2 dozen separate tests. Each try block should be its own unit test.\nSome of the tests will fail when default strictMode is true, and these should be addressed without skipping (see other tests that check isStrictMode before proceeding).",
       "created_at": "2025-02-15T21:48:12Z",
       "closed_at": "2025-04-18T16:48:26Z",
       "linked_merged_pull_request_urls": [
@@ -4200,6 +4256,7 @@
       "number": 967,
       "title": "Update keepStrings flag behavior",
       "url": "https://github.com/stleary/JSON-java/issues/967",
+      "description_message": "`XMLParserConfiguration.withKeepStrings(true)` should set the `keepStrings` flag. It should be cleared if \n`withKeepNumberAsString(false)` or `withKeepBooleanAsString(false)` is called.\nIt can be reset to true if both `withKeepNumberAsString(true)` or `withKeepBooleanAsString(true)` are called.\n\nThis is just to keep isKeepStrings() consistent.",
       "created_at": "2025-04-04T12:51:13Z",
       "closed_at": "2025-04-13T16:00:07Z",
       "linked_merged_pull_request_urls": [
@@ -4224,6 +4281,7 @@
       "number": 976,
       "title": "Release schedule",
       "url": "https://github.com/stleary/JSON-java/issues/976",
+      "description_message": "Hi,\n\nis there a planned release schedule for the project?\n\nWe are observing a bug in our project which may be solved by https://github.com/stleary/JSON-java/pull/937 and would like to know when we can expect a release.\n",
       "created_at": "2025-05-12T13:53:31Z",
       "closed_at": "2025-05-18T16:19:27Z",
       "linked_merged_pull_request_urls": [
@@ -4249,6 +4307,7 @@
       "number": 980,
       "title": "Some strict mode issues",
       "url": "https://github.com/stleary/JSON-java/issues/980",
+      "description_message": "Hi,\n\nwhile performing tests on read-only behavior of many JSON parsers I found some issues with this library, testing strict mode only.\n\nThe following are all \"forgiven\":\n\n```\n{\"a\":True}\n{\"a\":TRUE}\n{true : 3}\n{TRUE : 3}\n{1 : 3}\n```\n\nI noticed occurrences of [equalsIgnoreCase] around the code, which I suspect is the origin. You’ll know better than me, but probably you just need a helper method to choose (equals) based on context and value. The [true] or [1] key cases, I’m not sure about.\n\nAlso, this shouldn’t parse in strict mode, I believe:\n\n```\n{ \"a\" : 0. }\n```\n\nThe good news: only 9 failures out of 124 tests for this lib (only Jackson at zero, after some config and a custom wrapper for duplicate keys, not little work). Fixing these would resolve 6 failures. Of the remaining 3: 2 are for multiple roots (`{} {}`), and 1 for (`{\"a\":[,4,null,8]}`) where the first item is treated as JSON-null; some libs skip it, some (correctly, I think) fail.\n\nThanks,  \nMichele Vivoda\n",
       "created_at": "2025-05-16T14:28:12Z",
       "closed_at": "2025-07-17T12:10:22Z",
       "linked_merged_pull_request_urls": [
@@ -4274,6 +4333,7 @@
       "number": 982,
       "title": "[Proposal] Decide based on JSONParserConfiguration, If a field can be ignored while creating JSONObject from Object type",
       "url": "https://github.com/stleary/JSON-java/issues/982",
+      "description_message": "Hi,\n\nI have a scenario where we are creating a JSONObject for a MAP and there is a possiblity of values being instances of custom class types with no fields initialized. We expect the fields to be retained in JSONObject which is not happening currently. I could think the below line is the reason for the uninitialized fields being ignored. \nhttps://github.com/stleary/JSON-java/blob/24fafcffebf2f217fe7aa2d60438019893a0a509/src/main/java/org/json/JSONObject.java#L1791\n\nIt would be good to consider JSONParserConfiguration.isUseNativeNulls() to decide if the fields can be ignored, just as implemented at below line.\nhttps://github.com/stleary/JSON-java/blob/master/src/main/java/org/json/JSONObject.java#L335\n\nThanks",
       "created_at": "2025-05-21T14:24:28Z",
       "closed_at": "2025-05-31T15:00:17Z",
       "linked_merged_pull_request_urls": [
@@ -4298,6 +4358,7 @@
       "number": 984,
       "title": "Refactoring needed for JSONObject.populateMap()",
       "url": "https://github.com/stleary/JSON-java/issues/984",
+      "description_message": "See this recent SonarQube report:\nhttps://sonarcloud.io/project/issues?issueStatuses=OPEN%2CCONFIRMED&pullRequest=983&id=stleary_JSON-java&open=AZb9I_F8fj3zpl20NBGj\n\nAlso, if the code review comments in #982 are not addressed before merge, include the recommended fixes here.\n\nNote: Start work after #982 is merged",
       "created_at": "2025-05-24T15:24:13Z",
       "closed_at": "2025-07-06T13:31:21Z",
       "linked_merged_pull_request_urls": [
@@ -4334,6 +4395,7 @@
       "number": 986,
       "title": "Regression XML parsing null with keepStrings",
       "url": "https://github.com/stleary/JSON-java/issues/986",
+      "description_message": "<t>null</t> used to be {\"t\":\"null\"} but now its returning {\"t\":null} with useStrings\n\nI expected everything to String as it was in the previous version([20250107](https://github.com/stleary/JSON-java/releases/tag/20250107)",
       "created_at": "2025-06-04T14:21:48Z",
       "closed_at": "2025-07-10T01:18:49Z",
       "linked_merged_pull_request_urls": [
@@ -4358,6 +4420,7 @@
       "number": 1003,
       "title": "Implement JSONObject.fromJson() with unit tests",
       "url": "https://github.com/stleary/JSON-java/issues/1003",
+      "description_message": "Gson has an API method \\<T> fromJson(String, Class\\<T>), which converts a JSON doc to an instance of class T.\nJSON-Java should have a similar capability. \nNew unit tests to thoroughly exercise the functionality should be included.",
       "created_at": "2025-08-16T14:01:07Z",
       "closed_at": "2025-11-12T02:21:05Z",
       "linked_merged_pull_request_urls": [
@@ -4392,6 +4455,7 @@
       "number": 1023,
       "title": "Test does not restore default locale",
       "url": "https://github.com/stleary/JSON-java/issues/1023",
+      "description_message": "https://github.com/stleary/JSON-java/blob/master/src/test/java/org/json/junit/JSONObjectLocaleTest.java\n\nThis test changes the default JVM locale and doesn’t restore it.\nSince Maven runs tests in the same JVM unless forking is enabled, this can influence other tests.\n\nYesterday i checked all the occurrences of Locale.setDefault in my projects and I found also this. It causes subtle problems when running / mvn packaging  many modules together.\n\nIt is of course very low priority and relevant only if one runs many builds in sequence, more for other projects than for this one\n\nThanks\nMichele\n\nPS. today is TimeZone.setDefault day, yes I am having fun... ",
       "created_at": "2025-11-19T11:02:23Z",
       "closed_at": "2025-12-30T01:42:58Z",
       "linked_merged_pull_request_urls": [
@@ -4415,6 +4479,7 @@
       "number": 1032,
       "title": "XMLParserConfiguration's forceList resets the whole array when empty elements present in the middle or end",
       "url": "https://github.com/stleary/JSON-java/issues/1032",
+      "description_message": "Hey folks! \nWhen we use `forceList` and there happens to be either an empty tag or an empty element in the middle or the end of the array, the conversion resets the `context` object without accounting the presence of a previously collected array state.\n### Empty in the end\n```java\n        final String input = \"<root><id>1</id><id/></root>\"; //or ending with a <id></id>\n\n        HashSet<String> forceListCandidates = new HashSet<>();\n        forceListCandidates.add(\"id\");\n        final JSONObject json = XML.toJSONObject(input,\n                new XMLParserConfiguration()\n                        .withKeepStrings(false)\n                        .withcDataTagName(\"content\")\n                        .withForceList(forceListCandidates)\n                        .withConvertNilAttributeToNull(true));\n```\nOutput:\n```json\n{\"root\":{\"id\":[]}}\n```\n### Empty in the middle\n```java\n        final String input = \"<root><id>1</id><id/><id>2</id></root>\"; //or <id></id> in the middle\n\n        HashSet<String> forceListCandidates = new HashSet<>();\n        forceListCandidates.add(\"id\");\n        final JSONObject json = XML.toJSONObject(input,\n                new XMLParserConfiguration()\n                        .withKeepStrings(false)\n                        .withcDataTagName(\"content\")\n                        .withForceList(forceListCandidates)\n                        .withConvertNilAttributeToNull(true));\n```\nOutput: \n```json\n{\"root\":{\"id\":[2]}}\n```\nCode snippet responsible for empty element\n<img width=\"561\" height=\"91\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/9f632953-3ea2-47d2-b77d-a921b8a0ed2f\" />\n\nCode snippet responsible for empty tag\n\n<img width=\"554\" height=\"201\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/24e5c643-eaa3-420b-93dd-15827e2a26c9\" />\n\nI've done the fixes on my local branch so if you don't mind I'm ready to pick this up after we've gone through this together!\n\nThanks!",
       "created_at": "2026-01-02T16:40:28Z",
       "closed_at": "2026-02-03T17:15:59Z",
       "linked_merged_pull_request_urls": [
@@ -4439,6 +4504,7 @@
       "number": 1034,
       "title": "ClassCastException in JSONML.toJSONArray due to Unsafe Type Cast",
       "url": "https://github.com/stleary/JSON-java/issues/1034",
+      "description_message": "## Summary\n\n`JSONML.toJSONArray()` performs an unsafe cast of the return value from the internal `parse()` method. When processing malformed XML input, `parse()` returns a `String` instead of `JSONArray`, causing `ClassCastException` and crashing applications that don't explicitly catch this unchecked exception.\n\n## Root Cause\n\nThe `parse()` method returns `Object` type, but `toJSONArray()` casts directly without type checking:\n\n### Vulnerable Code (JSONML.java:279)\n```java\npublic static JSONArray toJSONArray(String string) throws JSONException {\n    // parse() returns Object, but may actually return String for malformed input\n    return (JSONArray)parse(new XMLTokener(string), true, null,\n                           JSONMLParserConfiguration.ORIGINAL, 0);\n    // No type check before cast!\n}\n```\n\n## PoC\n\n### Trigger file\n\nA crafted `crash_input.bin` file (13 bytes) containing malformed XML:\n- Starts with `<\\n/` (open tag with newline and slash)\n- Contains invalid UTF-8 bytes `0xFF`\n- Causes `parse()` to return String instead of JSONArray\n\n### How to generate crash_input.bin\n\n```bash\n# Base64 decode\necho \"PAov//////////8+Qg==\" | base64 -d > crash_input.bin\n\n# Verify (should be 13 bytes)\nxxd crash_input.bin\n# Output: 3c0a 2fff ffff ffff ffff ff3e 42\n```\n\n```python\n# crash_gen.py\nimport base64\n\npayload = base64.b64decode(\"PAov//////////8+Qg==\")\nwith open(\"crash_input.bin\", \"wb\") as f:\n    f.write(payload)\n\nprint(f\"Generated crash_input.bin ({len(payload)} bytes)\")\n```\n\n---\n\n## Trigger Method 1: Direct API Call (Library Usage)\n\nSince json-java is a library, applications trigger this by calling the API directly:\n\n```java\nimport org.json.JSONML;\nimport java.nio.file.Files;\nimport java.nio.file.Path;\n\npublic class ReproduceJSONML {\n    public static void main(String[] args) throws Exception {\n        // Read crash input\n        byte[] data = Files.readAllBytes(Path.of(\"crash_input.bin\"));\n        String input = new String(data);\n\n        // This throws ClassCastException\n        JSONML.toJSONArray(input);\n    }\n}\n```\n\n**Build and run:**\n```bash\n# Compile json-java library\njavac -d . src/main/java/org/json/*.java\n\n# Compile and run reproduction\njavac -cp . ReproduceJSONML.java\njava -cp . ReproduceJSONML\n```\n\n**Output:**\n```\njava.lang.ClassCastException: class java.lang.String cannot be cast to class org.json.JSONArray\n    at org.json.JSONML.toJSONArray(JSONML.java:279)\n    at ReproduceJSONML.main(ReproduceJSONML.java:10)\n```\n\n---\n\n## Trigger Method 2: Fuzzer (Jazzer)\n\n```java\n// Copyright 2025 O2Lab\n// SPDX-License-Identifier: Apache-2.0\n\nimport org.json.JSONML;\nimport org.json.JSONException;\nimport java.nio.charset.StandardCharsets;\n\npublic class JsonMLFuzzer {\n    public static void fuzzerTestOneInput(byte[] data) {\n        String input = new String(data, StandardCharsets.UTF_8);\n        try {\n            JSONML.toJSONArray(input);\n        } catch (JSONException e) {\n            // Expected parsing errors - ignore\n        }\n        // ClassCastException is NOT caught - will crash fuzzer\n    }\n}\n```\n\n**Build and run with Jazzer:**\n```bash\n# Build with oss-fuzz / Jazzer\npython3 infra/helper.py build_fuzzers --clean json-java\n\n# Run fuzzer\n./JsonMLFuzzer -rss_limit_mb=2048 corpus/\n```\n\n---\n\n## Impact\n\n| Aspect | Details |\n|--------|---------|\n| **Type** | Denial of Service (DoS) |\n| **Severity** | Medium |\n| **Attack Vector** | Malformed XML input to `JSONML.toJSONArray()` |\n| **Affected Components** | `JSONML.toJSONArray()`, `JSONML.toJSONArray(XMLTokener)` |\n| **Affected Versions** | All versions up to 20251224 |\n| **CWE** | CWE-704 (Incorrect Type Conversion or Cast) |\n\n---\n\n## Suggested Fix\n\nAdd type checking before the cast:\n\n```java\npublic static JSONArray toJSONArray(String string) throws JSONException {\n    Object result = parse(new XMLTokener(string), true, null,\n                         JSONMLParserConfiguration.ORIGINAL, 0);\n    if (result instanceof JSONArray) {\n        return (JSONArray) result;\n    }\n    throw new JSONException(\"Expected JSONArray but got \" +\n                           result.getClass().getSimpleName());\n}\n```\n\n---\n\nContribution: This potential vulnerability was found by AI-Based Vuln Detection system FuzzingBrain https://github.com/o2lab/afc-crs-all-you-need-is-a-fuzzing-brain.\n",
       "created_at": "2026-01-27T11:15:09Z",
       "closed_at": "2026-01-30T14:12:17Z",
       "linked_merged_pull_request_urls": [
@@ -4463,6 +4529,7 @@
       "number": 1035,
       "title": "StringIndexOutOfBoundsException in XMLTokener.unescapeEntity due to Missing Length Check",
       "url": "https://github.com/stleary/JSON-java/issues/1035",
+      "description_message": "## Summary\n\n`XMLTokener.unescapeEntity()` does not validate the length of numeric character references before accessing the second character. When processing empty entities like `&#;`, the code attempts to access `e.charAt(1)` on a string of length 1, causing `StringIndexOutOfBoundsException` and crashing applications that don't catch this unchecked exception.\n\n## Root Cause\n\nThe code accesses `e.charAt(1)` without checking string length:\n\n### Vulnerable Code (XMLTokener.java:162-164)\n```java\nprivate String unescapeEntity(String e) {\n    if (e.charAt(0) == '#') {\n        if (e.charAt(1) == 'x' || e.charAt(1) == 'X') {  // NO LENGTH CHECK!\n            cp = Integer.parseInt(e.substring(2), 16);\n        }\n        // ...\n    }\n}\n```\n\nFor input `&#;`, `e` = \"#\" (length 1), accessing `e.charAt(1)` throws exception.\n\n## PoC\n\n### Trigger file\n\nMinimal input that triggers the vulnerability:\n```\n<a>&#;</a>\n```\n\n### How to generate crash_input.bin\n\n```bash\necho '<a>&#;</a>' > crash_input.bin\n```\n\n```python\n# crash_gen.py\nwith open(\"crash_input.bin\", \"w\") as f:\n    f.write(\"<a>&#;</a>\")\n```\n\n---\n\n## Trigger Method 1: Direct API Call (Library Usage)\n\n```java\nimport org.json.XML;\n\npublic class ReproduceXML {\n    public static void main(String[] args) {\n        // Minimal PoC - empty numeric entity\n        String poc = \"<a>&#;</a>\";\n        XML.toJSONObject(poc);  // throws StringIndexOutOfBoundsException\n    }\n}\n```\n\n**Build and run:**\n```bash\njavac -cp . ReproduceXML.java\njava -cp . ReproduceXML\n```\n\n**Output:**\n```\njava.lang.StringIndexOutOfBoundsException: Index 1 out of bounds for length 1\n    at java.lang.String.charAt(String.java:1555)\n    at org.json.XMLTokener.unescapeEntity(XMLTokener.java:164)\n    at org.json.XMLTokener.nextEntity(XMLTokener.java:148)\n    at org.json.XML.toJSONObject(XML.java:784)\n```\n\n---\n\n## Trigger Method 2: Fuzzer (Jazzer)\n\n```java\n// Copyright 2025 O2Lab\n// SPDX-License-Identifier: Apache-2.0\n\nimport org.json.XML;\nimport org.json.JSONException;\nimport java.nio.charset.StandardCharsets;\n\npublic class XmlToJsonFuzzer {\n    public static void fuzzerTestOneInput(byte[] data) {\n        String input = new String(data, StandardCharsets.UTF_8);\n        try {\n            XML.toJSONObject(input);\n        } catch (JSONException e) {\n            // Expected parsing errors - ignore\n        }\n        // StringIndexOutOfBoundsException is NOT caught - will crash fuzzer\n    }\n}\n```\n\n**Build and run:**\n```bash\npython3 infra/helper.py build_fuzzers --clean json-java\n./XmlToJsonFuzzer corpus/\n```\n\n---\n\n## Impact\n\n| Aspect | Details |\n|--------|---------|\n| **Type** | Denial of Service (DoS) |\n| **Severity** | Medium |\n| **Attack Vector** | Malformed XML entity `&#;` (empty numeric reference) |\n| **Affected Components** | `XML.toJSONObject()`, `XMLTokener.unescapeEntity()` |\n| **Affected Versions** | All versions up to 20251224 |\n| **CWE** | CWE-129 (Improper Validation of Array Index) |\n\n---\n\n## Suggested Fix\n\nAdd length check before accessing second character:\n\n```java\nprivate String unescapeEntity(String e) {\n    if (e.charAt(0) == '#') {\n        if (e.length() < 2) {\n            return \"\";  // or throw JSONException for invalid entity\n        }\n        if (e.charAt(1) == 'x' || e.charAt(1) == 'X') {\n            cp = Integer.parseInt(e.substring(2), 16);\n        } else {\n            cp = Integer.parseInt(e.substring(1));\n        }\n        // ...\n    }\n}\n```\n\nRelated to: #1036 \n\n---\n\nContribution: This potential vulnerability was found by AI-Based Vuln Detection system FuzzingBrain https://github.com/o2lab/afc-crs-all-you-need-is-a-fuzzing-brain.\n",
       "created_at": "2026-01-27T11:15:42Z",
       "closed_at": "2026-01-30T14:13:35Z",
       "linked_merged_pull_request_urls": [
@@ -4488,6 +4555,7 @@
       "number": 1036,
       "title": "NumberFormatException in XMLTokener.unescapeEntity due to Missing Input Validation",
       "url": "https://github.com/stleary/JSON-java/issues/1036",
+      "description_message": "## Summary\n\n`XMLTokener.unescapeEntity()` does not validate that numeric character references (e.g., `&#123;`) contain valid digits before calling `Integer.parseInt()`. When processing malformed entities like `&#txx;`, the code attempts to parse \"txx\" as a number, causing `NumberFormatException` and crashing applications that don't catch this unchecked exception.\n\n## Root Cause\n\nThe code calls `Integer.parseInt()` without validating the input contains only digits:\n\n### Vulnerable Code (XMLTokener.java:169)\n```java\nprivate String unescapeEntity(String e) {\n    if (e.charAt(0) == '#') {\n        if (e.charAt(1) == 'x' || e.charAt(1) == 'X') {\n            cp = Integer.parseInt(e.substring(2), 16);  // hex\n        } else {\n            cp = Integer.parseInt(e.substring(1));  // decimal - NO VALIDATION!\n        }\n    }\n    // ...\n}\n```\n\nFor input `&#txx;`, `e` = \"#txx\", `e.substring(1)` = \"txx\", which is not a valid number.\n\n## PoC\n\n### Trigger file\n\nMinimal input that triggers the vulnerability:\n```\n<a>&#txx;</a>\n```\n\nOr use the original crash input (27 bytes, base64):\n```\nvj94eHg7TlgAXT4mI3R4eDtOWABdPiZydWUv\n```\n\n### How to generate crash_input.bin\n\n```bash\necho \"vj94eHg7TlgAXT4mI3R4eDtOWABdPiZydWUv\" | base64 -d > crash_input.bin\n```\n\n```python\n# crash_gen.py - Minimal PoC\nwith open(\"crash_input.bin\", \"w\") as f:\n    f.write(\"<a>&#txx;</a>\")\n```\n\n---\n\n## Trigger Method 1: Direct API Call (Library Usage)\n\n```java\nimport org.json.XML;\n\npublic class ReproduceXML {\n    public static void main(String[] args) {\n        // Minimal PoC - just need &#<non-digit>\n        String poc = \"<a>&#txx;</a>\";\n        XML.toJSONObject(poc);  // throws NumberFormatException\n    }\n}\n```\n\n**Build and run:**\n```bash\njavac -cp . ReproduceXML.java\njava -cp . ReproduceXML\n```\n\n**Output:**\n```\njava.lang.NumberFormatException: For input string: \"txx\"\n    at java.lang.Integer.parseInt(Integer.java:662)\n    at org.json.XMLTokener.unescapeEntity(XMLTokener.java:169)\n    at org.json.XMLTokener.nextEntity(XMLTokener.java:148)\n    at org.json.XML.toJSONObject(XML.java:784)\n```\n\n---\n\n## Trigger Method 2: Fuzzer (Jazzer)\n\n```java\n// Copyright 2025 O2Lab\n// SPDX-License-Identifier: Apache-2.0\n\nimport org.json.XML;\nimport org.json.JSONException;\nimport java.nio.charset.StandardCharsets;\n\npublic class XmlToJsonFuzzer {\n    public static void fuzzerTestOneInput(byte[] data) {\n        String input = new String(data, StandardCharsets.UTF_8);\n        try {\n            XML.toJSONObject(input);\n        } catch (JSONException e) {\n            // Expected parsing errors - ignore\n        }\n        // NumberFormatException is NOT caught - will crash fuzzer\n    }\n}\n```\n\n**Build and run:**\n```bash\npython3 infra/helper.py build_fuzzers --clean json-java\n./XmlToJsonFuzzer corpus/\n```\n\n---\n\n## Impact\n\n| Aspect | Details |\n|--------|---------|\n| **Type** | Denial of Service (DoS) |\n| **Severity** | Medium |\n| **Attack Vector** | Malformed XML entity `&#<non-digit>` |\n| **Affected Components** | `XML.toJSONObject()`, `XMLTokener.unescapeEntity()` |\n| **Affected Versions** | All versions up to 20251224 |\n| **CWE** | CWE-20 (Improper Input Validation) |\n\n---\n\n## Suggested Fix\n\nValidate input before parsing:\n\n```java\nprivate String unescapeEntity(String e) {\n    if (e.charAt(0) == '#') {\n        String numStr;\n        int radix;\n        if (e.length() > 1 && (e.charAt(1) == 'x' || e.charAt(1) == 'X')) {\n            numStr = e.substring(2);\n            radix = 16;\n        } else {\n            numStr = e.substring(1);\n            radix = 10;\n        }\n        // Validate before parsing\n        if (numStr.isEmpty() || !numStr.chars().allMatch(c -> Character.digit(c, radix) >= 0)) {\n            return \"\";  // or throw JSONException\n        }\n        cp = Integer.parseInt(numStr, radix);\n    }\n    // ...\n}\n```\n\nRelated to: #1035 \n\n---\n\nContribution: This potential vulnerability was found by AI-Based Vuln Detection system FuzzingBrain https://github.com/o2lab/afc-crs-all-you-need-is-a-fuzzing-brain.\n",
       "created_at": "2026-01-27T11:16:25Z",
       "closed_at": "2026-01-30T14:13:35Z",
       "linked_merged_pull_request_urls": [
@@ -4513,6 +4581,7 @@
       "number": 1040,
       "title": "XMLParserConfiguration forceList initial empty tag should be consistent with default processing",
       "url": "https://github.com/stleary/JSON-java/issues/1040",
+      "description_message": "See discussion in #1039: https://github.com/stleary/JSON-java/pull/1039#issuecomment-3820758269\n\nWhen a tag is in forceList, and the first element is empty, the first element is dropped, but the default non-forceList behavior is to insert an initial empty string. ForceList and default processing in this case should have the same result.\n\nAlthough this breaks existing behavior, it is a corner case of XML parsing, and I believe it should be fixed. \nNote that after the fix is made, in the case where there is only one instance of an empty tag, default processing results in an empty string value, but forceList processing will create an array with a single empty string as content. This is acceptable.\n\nFixing this will break several existing tests in XMLConfigurationTest.java:\ntestEmptyTagForceList()\ntestEmptyForceList()\n",
       "created_at": "2026-01-30T19:11:56Z",
       "closed_at": "2026-02-03T17:16:00Z",
       "linked_merged_pull_request_urls": [
@@ -4537,6 +4606,7 @@
       "number": 1043,
       "title": "Potentially unsafe deserialization in JSONObject#fromJson() static fields are not excluded",
       "url": "https://github.com/stleary/JSON-java/issues/1043",
+      "description_message": "This behavior may be security-relevant when `JSONObject#fromJson(Class<T>)` is used on untrusted input, so I am reporting it here as a public issue in line with the repository's published vulnerability-reporting guidance.\n\nIn release `20251224`, `JSONObject#fromJson(Class<T>)` iterates `clazz.getDeclaredFields()`, calls `Field#setAccessible(true)`, and assigns matching JSON values without excluding `static` fields:\n\nhttps://github.com/stleary/JSON-java/blob/cf653682be81e5ff630c8ac5527a5060b9a813e8/src/main/java/org/json/JSONObject.java#L3365-L3378\n\nAs a result, deserialization can write not only per-instance state but also mutable declared class-level state on the caller-selected target type, subject to normal runtime access restrictions. That expands the binding surface beyond ordinary object population and may have integrity implications in applications that use `fromJson()` with untrusted JSON.\n\nIf helpful, I can provide a minimal reproducer and a regression test. A straightforward mitigation appears to be skipping static fields during binding.",
       "created_at": "2026-03-10T18:12:31Z",
       "closed_at": "2026-03-16T14:24:26Z",
       "linked_merged_pull_request_urls": [
@@ -4562,6 +4632,7 @@
       "number": 1045,
       "title": "XML.toJSONObject() throws uncaught IllegalArgumentException for out-of-range numeric character references",
       "url": "https://github.com/stleary/JSON-java/issues/1045",
+      "description_message": "In line with the repository's published vulnerability-reporting guidance, I am reporting this issue here as a public issue.\n\n### Summary\n\nWhen parsing crafted XML containing an out-of-range numeric character reference such as `&#x110000;`, `XML#toJSONObject()` throws an uncaught `IllegalArgumentException` instead of a controlled parsing exception such as `JSONException`.\n\nAs a result, applications that parse attacker-controlled XML may encounter an uncaught runtime exception. Depending on the integration, this may result in request failure or denial of service.\n\nI reproduced this in release `20251224`.\n\n### Details\n\nThe apparent root cause is in `XMLTokener#unescapeEntity()`, where a decoded numeric character reference is passed to string construction without first validating that it is a valid Unicode code point:\n\nhttps://github.com/stleary/JSON-java/blob/cf653682be81e5ff630c8ac5527a5060b9a813e8/src/main/java/org/json/XMLTokener.java#L162-L171\n\n#### Minimal PoC\n```java\nXML.toJSONObject(\"<a>&#x110000;</a>\");\n```\n\nI also checked a few closely related inputs while narrowing this down:\n- `&#1114112;` reproduces the same behavior.\n- The same behavior is also reachable from an attribute value, e.g. `<a b=\"&#x110000;\"/>`.\n- `&#xD800;` did not reproduce the same uncaught exception in my testing.\n\nThis suggests that the immediate issue here is specifically the handling of out-of-range Unicode code points during string construction, rather than XML-invalid numeric character references in general.\n\n#### Observed Result\n```text\njava.lang.IllegalArgumentException: 1114112\n        at java.base/java.lang.StringUTF16.toBytes(Unknown Source)\n        at java.base/java.lang.String.<init>(Unknown Source)\n        at org.json.XMLTokener.unescapeEntity(XMLTokener.java:171)\n        at org.json.XMLTokener.nextEntity(XMLTokener.java:148)\n        at org.json.XMLTokener.nextContent(XMLTokener.java:117)\n        at org.json.XML.parse(XML.java:407)\n        at org.json.XML.toJSONObject(XML.java:780)\n        at org.json.XML.toJSONObject(XML.java:866)\n        at org.json.XML.toJSONObject(XML.java:665)\n        at PoC.main(PoC.java:7)\n```\n",
       "created_at": "2026-03-23T18:51:01Z",
       "closed_at": "2026-03-26T16:52:51Z",
       "linked_merged_pull_request_urls": [
