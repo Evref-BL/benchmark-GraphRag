@@ -1,0 +1,284 @@
+{
+  "project_name": "traccar/traccar",
+  "github_url": "https://github.com/traccar/traccar",
+  "mined_at": "2026-04-20T08:09:09.048697+00:00",
+  "total_closed_issues_scanned": 201,
+  "total_relevant_issues": 11,
+  "issues": [
+    {
+      "number": 5307,
+      "title": "Add UDP support for tlt2h protocol (e.g. Mictrack MT710)",
+      "url": "https://github.com/traccar/traccar/issues/5307",
+      "created_at": "2024-04-25T01:32:48Z",
+      "closed_at": "2024-06-13T16:43:52Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/traccar/traccar/pull/5344"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 5344,
+          "title": "tlt2h protocol: Enable UDP",
+          "url": "https://github.com/traccar/traccar/pull/5344",
+          "repository": "traccar/traccar",
+          "merged_at": "2024-06-13T16:43:51Z",
+          "impacted_files": [
+            "src/main/java/org/traccar/protocol/Tlt2hProtocol.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 5315,
+      "title": "Feature request: Micodus devices voltage and alarm messages decoding",
+      "url": "https://github.com/traccar/traccar/issues/5315",
+      "created_at": "2024-05-04T19:09:10Z",
+      "closed_at": "2025-07-04T13:27:20Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/traccar/traccar/pull/5595"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 5595,
+          "title": "Extend support for Micodus MV710G and MV810G devices",
+          "url": "https://github.com/traccar/traccar/pull/5595",
+          "repository": "traccar/traccar",
+          "merged_at": "2025-07-04T13:27:19Z",
+          "impacted_files": [
+            "src/main/java/org/traccar/protocol/HuabaoProtocolDecoder.java",
+            "src/test/java/org/traccar/protocol/HuabaoProtocolDecoderTest.java"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    },
+    {
+      "number": 5402,
+      "title": "Sms for teltonika devices",
+      "url": "https://github.com/traccar/traccar/issues/5402",
+      "created_at": "2024-09-08T15:24:58Z",
+      "closed_at": "2024-09-08T16:11:02Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/traccar/traccar/pull/5403"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 5403,
+          "title": "remove trim on sms body",
+          "url": "https://github.com/traccar/traccar/pull/5403",
+          "repository": "traccar/traccar",
+          "merged_at": "2024-09-08T15:51:39Z",
+          "impacted_files": [
+            "src/main/java/org/traccar/sms/HttpSmsClient.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 5465,
+      "title": "Server Title in Chinese Appears as Garbled Text Due to Missing charset=utf-8 in Response",
+      "url": "https://github.com/traccar/traccar/issues/5465",
+      "created_at": "2024-11-13T10:19:49Z",
+      "closed_at": "2024-11-18T01:56:18Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/traccar/traccar/pull/5466"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 5466,
+          "title": "Fix: Set UTF-8 Encoding for Proper Rendering of Chinese Characters in Server Title",
+          "url": "https://github.com/traccar/traccar/pull/5466",
+          "repository": "traccar/traccar",
+          "merged_at": "2024-11-18T01:56:17Z",
+          "impacted_files": [
+            "src/main/java/org/traccar/web/OverrideFilter.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 5511,
+      "title": "report.ignoreOdometer not working at device level",
+      "url": "https://github.com/traccar/traccar/issues/5511",
+      "created_at": "2025-02-16T19:08:04Z",
+      "closed_at": "2025-02-18T19:39:12Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/traccar/traccar/pull/5512"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 5512,
+          "title": "Fix report.ignoreOdometer by device",
+          "url": "https://github.com/traccar/traccar/pull/5512",
+          "repository": "traccar/traccar",
+          "merged_at": "2025-02-17T03:37:08Z",
+          "impacted_files": [
+            "src/main/java/org/traccar/config/Keys.java",
+            "src/main/java/org/traccar/reports/SummaryReportProvider.java",
+            "src/main/java/org/traccar/reports/common/ReportUtils.java",
+            "src/main/java/org/traccar/reports/common/TripsConfig.java",
+            "src/test/java/org/traccar/handler/events/MotionEventHandlerTest.java"
+          ],
+          "impacted_files_count": 5
+        }
+      ]
+    },
+    {
+      "number": 5603,
+      "title": "Streaming positions",
+      "url": "https://github.com/traccar/traccar/issues/5603",
+      "created_at": "2025-07-09T00:17:22Z",
+      "closed_at": "2025-07-15T02:33:26Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/traccar/traccar/pull/5605",
+        "https://github.com/traccar/traccar/pull/5610"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 5605,
+          "title": "Streaming in storage layer",
+          "url": "https://github.com/traccar/traccar/pull/5605",
+          "repository": "traccar/traccar",
+          "merged_at": "2025-07-13T03:06:31Z",
+          "impacted_files": [
+            "src/main/java/org/traccar/storage/QueryBuilder.java"
+          ],
+          "impacted_files_count": 1
+        },
+        {
+          "number": 5610,
+          "title": "Streaming in PositionResource",
+          "url": "https://github.com/traccar/traccar/pull/5610",
+          "repository": "traccar/traccar",
+          "merged_at": "2025-07-15T02:22:25Z",
+          "impacted_files": [
+            "src/main/java/org/traccar/api/StreamWriter.java",
+            "src/main/java/org/traccar/api/resource/PositionResource.java",
+            "src/main/java/org/traccar/helper/model/PositionUtil.java",
+            "src/main/java/org/traccar/web/WebServer.java",
+            "src/test/java/org/traccar/reports/ReportUtilsTest.java"
+          ],
+          "impacted_files_count": 5
+        }
+      ]
+    },
+    {
+      "number": 5647,
+      "title": "[Feature Request] User email in audit report",
+      "url": "https://github.com/traccar/traccar/issues/5647",
+      "created_at": "2025-08-25T10:52:15Z",
+      "closed_at": "2025-12-08T14:22:32Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/traccar/traccar/pull/5719"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 5719,
+          "title": "fix: Implemented user email in audit logs with batch fetching (#5647)",
+          "url": "https://github.com/traccar/traccar/pull/5719",
+          "repository": "traccar/traccar",
+          "merged_at": "2025-12-08T14:22:31Z",
+          "impacted_files": [
+            "src/main/java/org/traccar/api/resource/AuditResource.java",
+            "src/main/java/org/traccar/model/Action.java"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    },
+    {
+      "number": 5684,
+      "title": "Bulk import via OsmAnd causes stack overflow",
+      "url": "https://github.com/traccar/traccar/issues/5684",
+      "created_at": "2025-10-09T22:11:19Z",
+      "closed_at": "2025-10-10T20:15:00Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/traccar/traccar/pull/5685"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 5685,
+          "title": "Fix stack overflow, flatten various recursive paths",
+          "url": "https://github.com/traccar/traccar/pull/5685",
+          "repository": "traccar/traccar",
+          "merged_at": "2025-10-10T20:14:59Z",
+          "impacted_files": [
+            "src/main/java/org/traccar/ProcessingHandler.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 5687,
+      "title": "Include `com.kohlschutter.junixsocket` to allow UNIX domain socket based connection to Postgres servers",
+      "url": "https://github.com/traccar/traccar/issues/5687",
+      "created_at": "2025-10-15T19:11:55Z",
+      "closed_at": "2025-10-27T13:12:58Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/traccar/traccar/pull/5692"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 5692,
+          "title": "feat: add junixsocket",
+          "url": "https://github.com/traccar/traccar/pull/5692",
+          "repository": "traccar/traccar",
+          "merged_at": "2025-10-27T13:12:57Z",
+          "impacted_files": [
+            "build.gradle"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 5714,
+      "title": "[Feature request] Enable UniversalGeolocationProvider to Support BeaconDB as a Geolocation Provider",
+      "url": "https://github.com/traccar/traccar/issues/5714",
+      "created_at": "2025-11-27T17:49:42Z",
+      "closed_at": "2025-12-09T04:23:36Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/traccar/traccar/pull/5721"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 5721,
+          "title": "fix: Enable UniversalGeolocationProvider to support various geolocation providers ",
+          "url": "https://github.com/traccar/traccar/pull/5721",
+          "repository": "traccar/traccar",
+          "merged_at": "2025-12-09T04:23:35Z",
+          "impacted_files": [
+            "src/main/java/org/traccar/MainModule.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 5791,
+      "title": "SQL Server Connection String with Managed Identity fails",
+      "url": "https://github.com/traccar/traccar/issues/5791",
+      "created_at": "2026-02-17T14:08:11Z",
+      "closed_at": "2026-02-17T14:19:31Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/traccar/traccar/pull/5792"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 5792,
+          "title": "add azure-identity package to support managed identity authentication",
+          "url": "https://github.com/traccar/traccar/pull/5792",
+          "repository": "traccar/traccar",
+          "merged_at": "2026-02-17T14:19:30Z",
+          "impacted_files": [
+            "build.gradle"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    }
+  ]
+}

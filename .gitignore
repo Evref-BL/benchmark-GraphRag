@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Local secrets/config
+.env
+.env.*
+.env.github
+
+# OS/editor noise
+.DS_Store
+.idea/
+.vscode/

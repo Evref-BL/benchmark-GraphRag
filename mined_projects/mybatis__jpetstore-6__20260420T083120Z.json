@@ -1,0 +1,343 @@
+{
+  "project_name": "mybatis/jpetstore-6",
+  "github_url": "https://github.com/mybatis/jpetstore-6",
+  "mined_at": "2026-04-20T08:31:20.663200+00:00",
+  "total_closed_issues_scanned": 184,
+  "total_relevant_issues": 11,
+  "issues": [
+    {
+      "number": 42,
+      "title": "Use cargo-maven2-plugin",
+      "url": "https://github.com/mybatis/jpetstore-6/issues/42",
+      "created_at": "2016-10-14T02:45:49Z",
+      "closed_at": "2016-10-15T04:18:54Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/mybatis/jpetstore-6/pull/43",
+        "https://github.com/mybatis/jpetstore-6/pull/44"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 43,
+          "title": "Modify to use cargo-maven2-plugin instead of tomcat-maven-plugin",
+          "url": "https://github.com/mybatis/jpetstore-6/pull/43",
+          "repository": "mybatis/jpetstore-6",
+          "merged_at": "2016-10-14T03:12:33Z",
+          "impacted_files": [
+            "README.md",
+            "pom.xml"
+          ],
+          "impacted_files_count": 2
+        },
+        {
+          "number": 44,
+          "title": "Update docs",
+          "url": "https://github.com/mybatis/jpetstore-6/pull/44",
+          "repository": "mybatis/jpetstore-6",
+          "merged_at": "2016-10-15T04:18:54Z",
+          "impacted_files": [
+            "src/site/es/xdoc/index.xml",
+            "src/site/ja/xdoc/index.xml",
+            "src/site/ko/xdoc/index.xml",
+            "src/site/xdoc/index.xml"
+          ],
+          "impacted_files_count": 4
+        }
+      ]
+    },
+    {
+      "number": 88,
+      "title": "Add integration test",
+      "url": "https://github.com/mybatis/jpetstore-6/issues/88",
+      "created_at": "2017-03-25T13:10:40Z",
+      "closed_at": "2017-03-27T18:41:48Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/mybatis/jpetstore-6/pull/89",
+        "https://github.com/mybatis/jpetstore-6/pull/90"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 89,
+          "title": "Add integration tests",
+          "url": "https://github.com/mybatis/jpetstore-6/pull/89",
+          "repository": "mybatis/jpetstore-6",
+          "merged_at": "2017-03-25T18:28:25Z",
+          "impacted_files": [
+            ".gitignore",
+            ".travis.yml",
+            "README.md",
+            "pom.xml",
+            "src/test/java/org/mybatis/jpetstore/ScreenTransitionIT.java"
+          ],
+          "impacted_files_count": 5
+        },
+        {
+          "number": 90,
+          "title": "Change to use WebDriverManager instead of maven-download-plugin for downloading geckodriver",
+          "url": "https://github.com/mybatis/jpetstore-6/pull/90",
+          "repository": "mybatis/jpetstore-6",
+          "merged_at": "2017-03-27T18:41:48Z",
+          "impacted_files": [
+            ".gitignore",
+            ".travis.yml",
+            "README.md",
+            "pom.xml",
+            "src/test/java/org/mybatis/jpetstore/ScreenTransitionIT.java",
+            "src/test/resources/webdrivermanager.properties"
+          ],
+          "impacted_files_count": 6
+        }
+      ]
+    },
+    {
+      "number": 97,
+      "title": "Change to use AssertJ",
+      "url": "https://github.com/mybatis/jpetstore-6/issues/97",
+      "created_at": "2017-04-17T22:43:22Z",
+      "closed_at": "2017-04-18T17:29:08Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/mybatis/mybatis-3/pull/977"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 977,
+          "title": "[ci] Use assertj/fluent exceptions for cleaner unit testing",
+          "url": "https://github.com/mybatis/mybatis-3/pull/977",
+          "repository": "mybatis/mybatis-3",
+          "merged_at": "2017-04-17T00:43:57Z",
+          "impacted_files": [
+            "pom.xml",
+            "src/test/java/org/apache/ibatis/autoconstructor/AutoConstructorTest.java",
+            "src/test/java/org/apache/ibatis/binding/FlushTest.java",
+            "src/test/java/org/apache/ibatis/builder/ParameterExpressionTest.java",
+            "src/test/java/org/apache/ibatis/builder/XmlConfigBuilderTest.java",
+            "src/test/java/org/apache/ibatis/builder/XmlMapperBuilderTest.java",
+            "src/test/java/org/apache/ibatis/executor/ResultExtractorTest.java",
+            "src/test/java/org/apache/ibatis/jdbc/SQLTest.java",
+            "src/test/java/org/apache/ibatis/logging/jdbc/BaseJdbcLoggerTest.java",
+            "src/test/java/org/apache/ibatis/mapping/CacheBuilderTest.java",
+            "src/test/java/org/apache/ibatis/parsing/PropertyParserTest.java",
+            "src/test/java/org/apache/ibatis/reflection/ReflectorTest.java",
+            "src/test/java/org/apache/ibatis/scripting/LanguageDriverRegistryTest.java",
+            "src/test/java/org/apache/ibatis/scripting/defaults/DefaultParameterHandlerTest.java",
+            "src/test/java/org/apache/ibatis/session/AutoMappingUnknownColumnBehaviorTest.java",
+            "src/test/java/org/apache/ibatis/submitted/cache/CacheTest.java",
+            "src/test/java/org/apache/ibatis/submitted/call_setters_on_nulls_again/MyBatisTest.java",
+            "src/test/java/org/apache/ibatis/submitted/enumtypehandler_on_annotation/EnumTypeHandlerUsingAnnotationTest.java",
+            "src/test/java/org/apache/ibatis/submitted/foreach/ForEachTest.java",
+            "src/test/java/org/apache/ibatis/submitted/global_variables_defaults/AnnotationMapperTest.java",
+            "src/test/java/org/apache/ibatis/submitted/global_variables_defaults/ConfigurationTest.java",
+            "src/test/java/org/apache/ibatis/submitted/global_variables_defaults/CustomizationTest.java",
+            "src/test/java/org/apache/ibatis/submitted/global_variables_defaults/XmlMapperTest.java",
+            "src/test/java/org/apache/ibatis/submitted/keygen/Jdbc3KeyGeneratorTest.java",
+            "src/test/java/org/apache/ibatis/submitted/lazy_deserialize/LazyDeserializeTest.java",
+            "src/test/java/org/apache/ibatis/submitted/mapper_extend/MapperExtendTest.java",
+            "src/test/java/org/apache/ibatis/submitted/named_constructor_args/InvalidNamedConstructorArgsTest.java",
+            "src/test/java/org/apache/ibatis/submitted/nested_query_cache/NestedQueryCacheTest.java",
+            "src/test/java/org/apache/ibatis/submitted/results_id/IdConflictTest.java",
+            "src/test/java/org/apache/ibatis/submitted/sqlprovider/SqlProviderTest.java",
+            "src/test/java/org/apache/ibatis/type/BlobByteObjectArrayTypeHandlerTest.java",
+            "src/test/java/org/apache/ibatis/type/BlobInputStreamTypeHandlerTest.java",
+            "src/test/java/org/apache/ibatis/type/ByteObjectArrayTypeHandlerTest.java",
+            "src/test/java/org/apache/ibatis/type/ClobReaderTypeHandlerTest.java",
+            "src/test/java/org/apache/ibatis/type/usesjava8/Jsr310TypeHandlerRegistryTest.java"
+          ],
+          "impacted_files_count": 35
+        }
+      ]
+    },
+    {
+      "number": 110,
+      "title": "Can't deploy package",
+      "url": "https://github.com/mybatis/jpetstore-6/issues/110",
+      "created_at": "2017-06-12T15:20:25Z",
+      "closed_at": "2017-06-15T00:17:05Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/mybatis/jpetstore-6/pull/112"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 112,
+          "title": "[pom] Update mybatis-parent to 29 - fixes #110",
+          "url": "https://github.com/mybatis/jpetstore-6/pull/112",
+          "repository": "mybatis/jpetstore-6",
+          "merged_at": "2017-06-15T00:17:05Z",
+          "impacted_files": [
+            "pom.xml"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 132,
+      "title": "Upgrade to Spring 4.3.12.RELEASE",
+      "url": "https://github.com/mybatis/jpetstore-6/issues/132",
+      "created_at": "2017-10-11T13:43:03Z",
+      "closed_at": "2017-11-26T06:19:53Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/mybatis/jpetstore-6/pull/134"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 134,
+          "title": "Update maven wrapper and various dependencies",
+          "url": "https://github.com/mybatis/jpetstore-6/pull/134",
+          "repository": "mybatis/jpetstore-6",
+          "merged_at": "2017-11-26T06:19:53Z",
+          "impacted_files": [
+            ".mvn/wrapper/maven-wrapper.jar",
+            ".mvn/wrapper/maven-wrapper.properties",
+            "mvnw",
+            "mvnw.cmd",
+            "pom.xml"
+          ],
+          "impacted_files_count": 5
+        }
+      ]
+    },
+    {
+      "number": 133,
+      "title": "Upgrade to Spring Framework 5.0",
+      "url": "https://github.com/mybatis/jpetstore-6/issues/133",
+      "created_at": "2017-11-22T13:02:38Z",
+      "closed_at": "2018-04-29T02:37:06Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/mybatis/jpetstore-6/pull/144"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 144,
+          "title": "Support Spring 5",
+          "url": "https://github.com/mybatis/jpetstore-6/pull/144",
+          "repository": "mybatis/jpetstore-6",
+          "merged_at": "2018-04-29T02:02:47Z",
+          "impacted_files": [
+            "pom.xml"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 149,
+      "title": "Add build using JDK10 on Travis CI",
+      "url": "https://github.com/mybatis/jpetstore-6/issues/149",
+      "created_at": "2018-04-28T16:16:22Z",
+      "closed_at": "2018-04-29T14:06:17Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/mybatis/jpetstore-6/pull/160"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 160,
+          "title": "Support JDK10 on Travis CI",
+          "url": "https://github.com/mybatis/jpetstore-6/pull/160",
+          "repository": "mybatis/jpetstore-6",
+          "merged_at": "2018-04-29T14:06:17Z",
+          "impacted_files": [
+            ".travis.yml",
+            "README.md",
+            "pom.xml"
+          ],
+          "impacted_files_count": 3
+        }
+      ]
+    },
+    {
+      "number": 202,
+      "title": "Support JKD 12 on Travis CI",
+      "url": "https://github.com/mybatis/jpetstore-6/issues/202",
+      "created_at": "2019-03-31T16:39:04Z",
+      "closed_at": "2019-03-31T18:38:42Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/mybatis/jpetstore-6/pull/215"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 215,
+          "title": "Support JDK 12 on Travis CI",
+          "url": "https://github.com/mybatis/jpetstore-6/pull/215",
+          "repository": "mybatis/jpetstore-6",
+          "merged_at": "2019-03-31T18:38:42Z",
+          "impacted_files": [
+            ".travis.yml"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 234,
+      "title": "Support integration test for all application server on Travis CI",
+      "url": "https://github.com/mybatis/jpetstore-6/issues/234",
+      "created_at": "2019-07-17T23:20:18Z",
+      "closed_at": "2019-07-17T23:51:32Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/mybatis/jpetstore-6/pull/235"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 235,
+          "title": "Support integration test for all application server on Travis CI",
+          "url": "https://github.com/mybatis/jpetstore-6/pull/235",
+          "repository": "mybatis/jpetstore-6",
+          "merged_at": "2019-07-17T23:51:32Z",
+          "impacted_files": [
+            ".travis.yml",
+            "travis/after_success.sh"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    },
+    {
+      "number": 378,
+      "title": "Upgrade to Selenide 5.15.1",
+      "url": "https://github.com/mybatis/jpetstore-6/issues/378",
+      "created_at": "2020-11-14T03:51:50Z",
+      "closed_at": "2020-11-14T05:30:35Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/mybatis/jpetstore-6/pull/379"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 379,
+          "title": "Upgrade to Selenide 5.15.1",
+          "url": "https://github.com/mybatis/jpetstore-6/pull/379",
+          "repository": "mybatis/jpetstore-6",
+          "merged_at": "2020-11-14T05:30:35Z",
+          "impacted_files": [
+            "pom.xml",
+            "src/test/java/org/mybatis/jpetstore/ScreenTransitionIT.java",
+            "src/test/java/org/mybatis/jpetstore/web/actions/CatalogActionBeanTest.java"
+          ],
+          "impacted_files_count": 3
+        }
+      ]
+    },
+    {
+      "number": 991,
+      "title": "[FIX] Improve safety in CartActionBean: null workingItemId check + narrow exception handling",
+      "url": "https://github.com/mybatis/jpetstore-6/issues/991",
+      "created_at": "2025-09-23T05:53:46Z",
+      "closed_at": "2026-01-25T17:31:47Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/mybatis/jpetstore-6/pull/1052"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 1052,
+          "title": "Fix #991: Add input validation and improve error handling in CartActionBean",
+          "url": "https://github.com/mybatis/jpetstore-6/pull/1052",
+          "repository": "mybatis/jpetstore-6",
+          "merged_at": "2026-01-25T17:31:46Z",
+          "impacted_files": [
+            "src/main/java/org/mybatis/jpetstore/web/actions/CartActionBean.java",
+            "src/test/java/org/mybatis/jpetstore/web/actions/CartActionBeanTest.java"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    }
+  ]
+}
