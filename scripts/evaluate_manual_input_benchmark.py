@@ -6,6 +6,9 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 from pathlib import Path
+import select
+import shutil
+import subprocess
 import sys
 from typing import Any, Dict, List
 
@@ -81,6 +84,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Build prompts but skip manual input and prediction parsing.",
     )
+    parser.add_argument(
+        "--no-copy-query-to-clipboard",
+        action="store_true",
+        help="Disable automatic copy of each issue query to clipboard.",
+    )
     return parser.parse_args()
 
 
@@ -90,6 +98,50 @@ class ManualInputEvaluator(BaseBenchmarkEvaluator):
     def __init__(self, args: argparse.Namespace) -> None:
         super().__init__(args)
         self.end_token = args.end_token
+        self.copy_query_to_clipboard = not args.no_copy_query_to_clipboard
+
+    def _copy_to_clipboard(self, text: str) -> bool:
+        payload = text or ""
+        commands: List[List[str]] = []
+        if shutil.which("pbcopy"):
+            commands.append(["pbcopy"])
+        if shutil.which("wl-copy"):
+            commands.append(["wl-copy"])
+        if shutil.which("xclip"):
+            commands.append(["xclip", "-selection", "clipboard"])
+        if shutil.which("xsel"):
+            commands.append(["xsel", "--clipboard", "--input"])
+        if shutil.which("clip"):
+            commands.append(["clip"])
+
+        for cmd in commands:
+            try:
+                subprocess.run(
+                    cmd,
+                    input=payload,
+                    text=True,
+                    capture_output=True,
+                    check=True,
+                )
+                return True
+            except Exception:  # noqa: BLE001
+                continue
+        return False
+
+    def _stdin_has_buffered_data(self, timeout_seconds: float = 0.05) -> bool:
+        """Return True when additional stdin data is already buffered.
+
+        This helps distinguish:
+        - user pressed Enter to finish input (no buffered data),
+        - a pasted block containing blank lines (more data buffered).
+        """
+        try:
+            if not hasattr(sys.stdin, "fileno"):
+                return False
+            ready, _, _ = select.select([sys.stdin], [], [], timeout_seconds)
+            return bool(ready)
+        except Exception:  # noqa: BLE001
+            return False
 
     def evaluator_label(self) -> str:
         return "manual_input"
@@ -107,6 +159,11 @@ class ManualInputEvaluator(BaseBenchmarkEvaluator):
             if line.strip().upper() == STOP_TOKEN:
                 raise EvaluationStopped("Stopped by user request.")
             if line.strip() == "":
+                # If stdin already has more buffered data, this empty line is very
+                # likely part of a pasted block; keep reading instead of ending.
+                if self._stdin_has_buffered_data():
+                    lines.append("")
+                    continue
                 break
             if self.end_token.strip() and line.strip() == self.end_token:
                 break
@@ -123,6 +180,15 @@ class ManualInputEvaluator(BaseBenchmarkEvaluator):
         print("Query to send to the model:\n")
         print(query)
         print("-" * 100)
+        if self.copy_query_to_clipboard:
+            copied = self._copy_to_clipboard(query)
+            if copied:
+                print("[INFO] Query copied to clipboard.", file=sys.stderr)
+            else:
+                print(
+                    "[WARN] Unable to copy query to clipboard automatically on this environment.",
+                    file=sys.stderr,
+                )
         print(
             (
                 "Paste the model output below, then press Enter on an empty line to continue. "
@@ -132,6 +198,17 @@ class ManualInputEvaluator(BaseBenchmarkEvaluator):
             flush=True,
         )
         manual_response = self._read_multiline_response()
+        print(
+            f"[INFO] Manual response captured for issue #{issue_number}:",
+            file=sys.stderr,
+        )
+        if manual_response:
+            print("-----BEGIN MANUAL RESPONSE-----", file=sys.stderr)
+            print(manual_response, file=sys.stderr)
+            print("-----END MANUAL RESPONSE-----", file=sys.stderr)
+        else:
+            print("[INFO] (empty response)", file=sys.stderr)
+
         if not manual_response:
             print(
                 "[WARN] Empty manual response received; this issue will have zero predicted classes.",
@@ -158,6 +235,7 @@ class ManualInputEvaluator(BaseBenchmarkEvaluator):
             "include_empty_java": self.include_empty_java,
             "keep_raw_response": self.keep_raw_response,
             "end_token": self.end_token,
+            "copy_query_to_clipboard": self.copy_query_to_clipboard,
             "dry_run": self.dry_run,
         }
 

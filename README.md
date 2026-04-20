@@ -326,8 +326,10 @@ python3 scripts/evaluate_manual_input_benchmark.py \
 
 Mode de saisie:
 - le script affiche la query,
+- la query est automatiquement copiée dans le presse-papier (si supporté par l’environnement),
 - tu colles la réponse multi-ligne,
 - tu termines en faisant simplement `Entrée` sur une ligne vide,
+- les lignes vides internes dans un gros collage multi-ligne sont désormais tolérées (le script évite de passer involontairement à l’issue suivante),
 - optionnellement, tu peux aussi terminer avec `EOF` (ou un token custom via `--end-token`),
 - si tu tapes `STOP` sur une ligne, l’évaluation s’arrête immédiatement et un fichier de résultats partiels est généré avec les données déjà collectées.
 
@@ -336,6 +338,7 @@ Options utiles:
 - `--include-empty-java`
 - `--keep-raw-response`
 - `--end-token DONE`
+- `--no-copy-query-to-clipboard`
 
 Format de sortie (par entrée):
 - `issue_number`
