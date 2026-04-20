@@ -370,6 +370,7 @@ def mine_repository(
                 "number": issue.get("number"),
                 "title": issue.get("title"),
                 "url": issue.get("html_url"),
+                "description_message": issue.get("body"),
                 "created_at": issue.get("created_at"),
                 "closed_at": issue.get("closed_at"),
                 "linked_merged_pull_request_urls": [pr["url"] for pr in merged_prs if pr.get("url")],
