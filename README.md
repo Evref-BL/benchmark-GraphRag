@@ -19,6 +19,7 @@ benchmark-graphRag/
 ├── scripts/
 │   ├── mine_github_issues.py
 │   ├── evaluate_graphrag_benchmark.py
+│   ├── evaluate_llm_api_benchmark.py
 │   └── export_benchmark_queries.py
 ├── mined_projects/              # sorties JSON (ignoré par git)
 ├── evaluation_results/          # rapports evaluator (ignoré par git)
@@ -245,6 +246,55 @@ Options utiles:
 - `--issue-limit N`
 - `--include-empty-java`
 - `--extra-prompt "..."`
+
+## 4) Évaluation Via API LLM (Ollama/OpenAI/Mistral)
+
+Script: `scripts/evaluate_llm_api_benchmark.py`
+
+Objectif:
+- évaluer le benchmark sans passer par `graphrag query`,
+- interroger directement une API LLM (Ollama local, OpenAI, Mistral),
+- calculer les mêmes métriques (`precision`, `recall`, `f1`).
+
+Exemples:
+
+Ollama (local):
+
+```bash
+python3 scripts/evaluate_llm_api_benchmark.py \
+  mined_projects/mybatis__jpetstore-6__20260420T093019Z.json \
+  --provider ollama \
+  --model gemma2 \
+  --keep-raw-response
+```
+
+OpenAI:
+
+```bash
+export OPENAI_API_KEY="..."
+python3 scripts/evaluate_llm_api_benchmark.py \
+  mined_projects/mybatis__jpetstore-6__20260420T093019Z.json \
+  --provider openai \
+  --model gpt-4.1-mini
+```
+
+Mistral:
+
+```bash
+export MISTRAL_API_KEY="..."
+python3 scripts/evaluate_llm_api_benchmark.py \
+  mined_projects/mybatis__jpetstore-6__20260420T093019Z.json \
+  --provider mistral \
+  --model mistral-small-latest
+```
+
+Options utiles:
+- `--base-url` pour un endpoint custom,
+- `--api-key` pour surcharger la clé env,
+- `--temperature`, `--max-tokens`,
+- `--issue-limit`,
+- `--keep-raw-response`,
+- `--dry-run`.
 
 Format de sortie (par entrée):
 - `issue_number`
