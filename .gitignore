@@ -20,6 +20,7 @@ env/
 # Generated benchmark outputs
 mined_projects/
 evaluation_results/
+queries/
 
 # OS/editor noise
 .DS_Store

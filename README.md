@@ -18,9 +18,11 @@ La vérité terrain est dérivée des fichiers modifiés dans les PR mergées li
 benchmark-graphRag/
 ├── scripts/
 │   ├── mine_github_issues.py
-│   └── evaluate_graphrag_benchmark.py
+│   ├── evaluate_graphrag_benchmark.py
+│   └── export_benchmark_queries.py
 ├── mined_projects/              # sorties JSON (ignoré par git)
 ├── evaluation_results/          # rapports evaluator (ignoré par git)
+├── queries/                     # queries LLM exportées (ignoré par git)
 ├── .env.github                  # token GitHub local (ignoré par git)
 └── README.md
 ```
@@ -216,6 +218,39 @@ Le rapport contient:
    - `python3 scripts/evaluate_graphrag_benchmark.py <mined-file.json> --graphrag-dir <path> --method local`
 4. Comparer les résultats entre `local`, `drift`, `global`.
 
+## 3) Export des queries LLM
+
+Script: `scripts/export_benchmark_queries.py`
+
+Objectif:
+- générer un JSON contenant uniquement les queries à envoyer au LLM,
+- en réutilisant la même construction de prompt que l’evaluator,
+- inclure le contexte d’issue et les chemins de classes attendues.
+
+Sortie:
+- par défaut dans `queries/`,
+- un fichier nommé selon le projet benchmark, par exemple:
+  - `queries/mybatis__jpetstore-6__queries.json`
+
+Commande type:
+
+```bash
+python3 scripts/export_benchmark_queries.py \
+  mined_projects/mybatis__jpetstore-6__20260420T093019Z.json
+```
+
+Options utiles:
+- `--output-dir /path/folder`
+- `--output-file /path/file.json`
+- `--issue-limit N`
+- `--include-empty-java`
+- `--extra-prompt "..."`
+
+Format de sortie (par entrée):
+- `issue_number`
+- `query`
+- `expected_classes_paths`
+
 ## Troubleshooting
 
 - Erreur `API rate limit exceeded`:
@@ -233,5 +268,6 @@ Le rapport contient:
 
 - `mined_projects/` est ignoré par git.
 - `evaluation_results/` est ignoré par git.
+- `queries/` est ignoré par git.
 - `.env.github` est ignoré par git.
 - Le projet privilégie des outputs JSON pour faciliter l’analyse offline et les comparaisons de runs.
