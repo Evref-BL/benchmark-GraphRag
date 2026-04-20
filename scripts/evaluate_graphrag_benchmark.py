@@ -13,7 +13,7 @@ import subprocess
 import sys
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
-DEFAULT_RESPONSE_TYPE = "{\"classes\":[{\"path\":\"<java_file_path>.java\",\"role\":\"<short_role>\",\"relations\":[\"<related_class_or_path>\"]}],\"unmatched\":[]}. No markdown, no explanation, no extra keys."
+DEFAULT_RESPONSE_TYPE = "{\"classes\":[{\"path\":\"<java_file_path>.java\"}]}\". No markdown, no explanation, no extra keys."
 REQUIRED_PRE_PROMPT = (
     "MANDATORY OUTPUT FORMAT:\n"
     "Follow STRICTLY the response_type specification below:\n"
