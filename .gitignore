@@ -18,7 +18,6 @@ env/
 .env.github
 
 # Generated benchmark outputs
-mined_projects/
 evaluation_results/
 queries/
 

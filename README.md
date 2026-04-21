@@ -18,8 +18,10 @@ La vérité terrain est dérivée des fichiers modifiés dans les PR mergées li
 benchmark-graphRag/
 ├── scripts/
 │   ├── mine_github_issues.py
+│   ├── evaluator_core.py
 │   ├── evaluate_graphrag_benchmark.py
 │   ├── evaluate_llm_api_benchmark.py
+│   ├── evaluate_manual_input_benchmark.py
 │   └── export_benchmark_queries.py
 ├── mined_projects/              # sorties JSON (ignoré par git)
 ├── evaluation_results/          # rapports evaluator (ignoré par git)
@@ -34,6 +36,13 @@ benchmark-graphRag/
 - `uv` (pour lancer GraphRAG)
 - Un projet GraphRAG déjà indexé, avec un dossier `output` exploitable.
 - Optionnel mais fortement recommandé: un token GitHub (sinon rate limits API très bas).
+
+## Architecture Evaluators
+
+Les évaluateurs reposent sur une base commune:
+- `BaseBenchmarkEvaluator` dans `scripts/evaluator_core.py` gère le pipeline séquentiel complet (chargement benchmark, filtrage, prompts, métriques, rapport).
+- `evaluate_graphrag_benchmark.py` est une spécialisation GraphRAG (appel `uv run ... graphrag query`).
+- `evaluate_llm_api_benchmark.py` est une spécialisation API LLM (Ollama/OpenAI/Mistral).
 
 ## Configuration du token GitHub
 
@@ -295,6 +304,41 @@ Options utiles:
 - `--issue-limit`,
 - `--keep-raw-response`,
 - `--dry-run`.
+
+## 5) Évaluation Semi-Automatique (saisie manuelle)
+
+Script: `scripts/evaluate_manual_input_benchmark.py`
+
+Objectif:
+- lire un benchmark,
+- construire la query pour chaque issue,
+- afficher cette query à l’utilisateur,
+- attendre la réponse manuelle (copier/coller depuis un LLM/GraphRAG),
+- calculer automatiquement les métriques.
+
+Commande type:
+
+```bash
+python3 scripts/evaluate_manual_input_benchmark.py \
+  mined_projects/mybatis__jpetstore-6__20260420T093019Z.json \
+  --keep-raw-response
+```
+
+Mode de saisie:
+- le script affiche la query,
+- la query est automatiquement copiée dans le presse-papier (si supporté par l’environnement),
+- tu colles la réponse multi-ligne,
+- tu termines en faisant simplement `Entrée` sur une ligne vide,
+- les lignes vides internes dans un gros collage multi-ligne sont désormais tolérées (le script évite de passer involontairement à l’issue suivante),
+- optionnellement, tu peux aussi terminer avec `EOF` (ou un token custom via `--end-token`),
+- si tu tapes `STOP` sur une ligne, l’évaluation s’arrête immédiatement et un fichier de résultats partiels est généré avec les données déjà collectées.
+
+Options utiles:
+- `--issue-limit N`
+- `--include-empty-java`
+- `--keep-raw-response`
+- `--end-token DONE`
+- `--no-copy-query-to-clipboard`
 
 Format de sortie (par entrée):
 - `issue_number`

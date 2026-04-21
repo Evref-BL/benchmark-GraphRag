@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evaluate benchmark issues by querying an LLM API (Ollama/OpenAI/Mistral)."""
+"""Evaluate benchmark issues via LLM API (specialization of BaseBenchmarkEvaluator)."""
 
 from __future__ import annotations
 
@@ -7,27 +7,23 @@ import argparse
 import datetime as dt
 import json
 import os
-from dataclasses import dataclass
 from pathlib import Path
 import re
-import sys
 import urllib.error
 import urllib.parse
 import urllib.request
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
-from evaluate_graphrag_benchmark import (
+from evaluator_core import (
+    BaseBenchmarkEvaluator,
     DEFAULT_EVAL_OUTPUT_DIRNAME,
     DEFAULT_ISSUE_PROMPT,
     DEFAULT_RESPONSE_TYPE,
-    build_expected_index,
-    build_query_text,
-    compute_metrics,
+    DEFAULT_TIMEOUT_SECONDS,
+    PredictionResult,
     extract_predicted_classes,
-    load_mined_json,
 )
 
-DEFAULT_TIMEOUT_SECONDS = 180
 DEFAULT_PROVIDER = "ollama"
 PROVIDER_CHOICES = ("ollama", "openai", "mistral")
 PROVIDER_DEFAULT_BASE_URL = {
@@ -47,30 +43,7 @@ DEFAULT_SYSTEM_PROMPT = (
 
 
 class LLMAPIError(RuntimeError):
-    """Raised when LLM API call fails."""
-
-
-@dataclass
-class IssueEvaluation:
-    issue_number: int
-    issue_title: str
-    issue_url: str
-    expected_java_files: List[str]
-    predicted_classes: List[str]
-    true_positives: int
-    false_positives: int
-    false_negatives: int
-    precision: float
-    recall: float
-    f1: float
-    query: str
-    prompt_exact_passed_to_llm: str
-    status: str
-    error: Optional[str]
-    raw_response: Optional[str]
-    llm_content: Optional[str]
-    request_url: Optional[str]
-    request_payload: Optional[Dict[str, Any]]
+    """Raised when an LLM API call fails."""
 
 
 def parse_args() -> argparse.Namespace:
@@ -209,7 +182,7 @@ def extract_message_content(api_response: Dict[str, Any]) -> str:
                 if isinstance(content, str):
                     return content
                 if isinstance(content, list):
-                    parts: List[str] = []
+                    parts = []
                     for item in content:
                         if isinstance(item, dict):
                             text = item.get("text")
@@ -277,232 +250,86 @@ def safe_model_for_filename(model: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", model.strip().lower()) or "model"
 
 
-def default_report_path(mined_file: Path, output_dir: Path, provider: str, model: str) -> Path:
-    timestamp = dt.datetime.now(tz=dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    return output_dir / (
-        f"{mined_file.stem}__{provider}__{safe_model_for_filename(model)}__llm_eval__{timestamp}.json"
-    )
+class LLMAPIEvaluator(BaseBenchmarkEvaluator):
+    """LLM API specialization of the shared evaluator flow."""
 
+    def __init__(self, args: argparse.Namespace) -> None:
+        super().__init__(args)
+        self.provider = args.provider
+        self.model = args.model
+        self.temperature = args.temperature
+        self.max_tokens = args.max_tokens
+        self.timeout_seconds = args.timeout_seconds
+        self.system_prompt = args.system_prompt
+        self.base_url = resolve_base_url(args.provider, args.base_url)
+        self.request_url = build_chat_completions_url(self.base_url) if not self.dry_run else None
+        self.api_key = resolve_api_key(args.provider, args.api_key)
 
-def evaluate_issue(
-    issue: Dict[str, Any],
-    user_prompt: str,
-    args: argparse.Namespace,
-    request_url: Optional[str],
-    api_key: Optional[str],
-) -> IssueEvaluation:
-    expected = build_expected_index(issue)
-    issue_number = int(issue.get("number", -1))
-    issue_title = str(issue.get("title", "") or "")
-    issue_url = str(issue.get("url", "") or "")
+    def evaluator_label(self) -> str:
+        return f"llm_api:{self.provider}"
 
-    predicted_objects = []
-    raw_response: Optional[str] = None
-    llm_content: Optional[str] = None
-    request_payload: Optional[Dict[str, Any]] = None
-    status = "ok"
-    error: Optional[str] = None
-
-    try:
-        if args.dry_run:
-            status = "dry_run"
-        else:
-            request_payload, response_json, llm_content = call_chat_completions_api(
-                url=request_url or "",
-                api_key=api_key,
-                model=args.model,
-                system_prompt=args.system_prompt,
-                user_prompt=user_prompt,
-                temperature=args.temperature,
-                max_tokens=args.max_tokens,
-                timeout_seconds=args.timeout_seconds,
+    def validate_runtime(self) -> None:
+        if self.dry_run:
+            return
+        if self.provider in {"openai", "mistral"} and not self.api_key:
+            env_key = PROVIDER_ENV_KEY[self.provider]
+            raise RuntimeError(
+                f"Missing API key for provider '{self.provider}'. Use --api-key or set {env_key}."
             )
-            raw_response = json.dumps(response_json, ensure_ascii=False)
-            predicted_objects = extract_predicted_classes(llm_content, DEFAULT_RESPONSE_TYPE)
-    except Exception as exc:  # noqa: BLE001
-        status = "error"
-        error = str(exc)
-        predicted_objects = []
 
-    tp, fp, fn, precision, recall, f1, _ = compute_metrics(expected, predicted_objects)
-    predicted_classes = sorted(pred.prediction_id for pred in predicted_objects)
-    expected_java_files = sorted(target.file_path for target in expected.targets.values())
+    def predict_for_issue(self, issue: Dict[str, Any], query: str) -> PredictionResult:
+        payload, response_json, content = call_chat_completions_api(
+            url=self.request_url or "",
+            api_key=self.api_key,
+            model=self.model,
+            system_prompt=self.system_prompt,
+            user_prompt=query,
+            temperature=self.temperature,
+            max_tokens=self.max_tokens,
+            timeout_seconds=self.timeout_seconds,
+        )
+        predicted = extract_predicted_classes(content, DEFAULT_RESPONSE_TYPE)
+        return PredictionResult(
+            predicted_objects=predicted,
+            raw_response=json.dumps(response_json, ensure_ascii=False),
+            llm_content=content,
+            request_url=self.request_url,
+            request_payload=payload,
+        )
 
-    return IssueEvaluation(
-        issue_number=issue_number,
-        issue_title=issue_title,
-        issue_url=issue_url,
-        expected_java_files=expected_java_files,
-        predicted_classes=predicted_classes,
-        true_positives=tp,
-        false_positives=fp,
-        false_negatives=fn,
-        precision=precision,
-        recall=recall,
-        f1=f1,
-        query=user_prompt,
-        prompt_exact_passed_to_llm=user_prompt,
-        status=status,
-        error=error,
-        raw_response=raw_response if args.keep_raw_response else None,
-        llm_content=llm_content,
-        request_url=request_url,
-        request_payload=request_payload,
-    )
+    def default_report_path(self, mined_path: Path, output_dir: Path) -> Path:
+        timestamp = dt.datetime.now(tz=dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        return output_dir / (
+            f"{mined_path.stem}__{self.provider}__{safe_model_for_filename(self.model)}__llm_eval__{timestamp}.json"
+        )
 
+    def settings(self) -> Dict[str, Any]:
+        return {
+            "provider": self.provider,
+            "model": self.model,
+            "base_url": self.base_url,
+            "request_url": self.request_url,
+            "response_type": DEFAULT_RESPONSE_TYPE,
+            "extra_prompt": self.extra_prompt,
+            "system_prompt": self.system_prompt,
+            "temperature": self.temperature,
+            "max_tokens": self.max_tokens,
+            "timeout_seconds": self.timeout_seconds,
+            "issue_limit": self.issue_limit,
+            "output_dir": str(self.output_dir),
+            "dry_run": self.dry_run,
+            "include_empty_java": self.include_empty_java,
+            "keep_raw_response": self.keep_raw_response,
+        }
 
-def compute_global_metrics(results: List[IssueEvaluation]) -> Dict[str, Any]:
-    valid = [r for r in results if r.status != "error"]
-    tp = sum(r.true_positives for r in valid)
-    fp = sum(r.false_positives for r in valid)
-    fn = sum(r.false_negatives for r in valid)
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-    f1 = (2.0 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
-    macro_precision = sum(r.precision for r in valid) / len(valid) if valid else 0.0
-    macro_recall = sum(r.recall for r in valid) / len(valid) if valid else 0.0
-    macro_f1 = sum(r.f1 for r in valid) / len(valid) if valid else 0.0
-
-    return {
-        "issues_evaluated": len(valid),
-        "issues_with_errors": len([r for r in results if r.status == "error"]),
-        "micro": {
-            "true_positives": tp,
-            "false_positives": fp,
-            "false_negatives": fn,
-            "precision": precision,
-            "recall": recall,
-            "f1": f1,
-        },
-        "macro": {
-            "precision": macro_precision,
-            "recall": macro_recall,
-            "f1": macro_f1,
-        },
-    }
-
-
-def issue_to_json(issue_eval: IssueEvaluation) -> Dict[str, Any]:
-    return {
-        "issue_number": issue_eval.issue_number,
-        "issue_title": issue_eval.issue_title,
-        "issue_url": issue_eval.issue_url,
-        "status": issue_eval.status,
-        "error": issue_eval.error,
-        "request_url": issue_eval.request_url,
-        "request_payload": issue_eval.request_payload,
-        "query": issue_eval.query,
-        "prompt_exact_passed_to_llm": issue_eval.prompt_exact_passed_to_llm,
-        "expected_java_files": issue_eval.expected_java_files,
-        "expected_java_files_count": len(issue_eval.expected_java_files),
-        "predicted_classes": issue_eval.predicted_classes,
-        "predicted_classes_count": len(issue_eval.predicted_classes),
-        "true_positives": issue_eval.true_positives,
-        "false_positives": issue_eval.false_positives,
-        "false_negatives": issue_eval.false_negatives,
-        "precision": issue_eval.precision,
-        "recall": issue_eval.recall,
-        "f1": issue_eval.f1,
-        "llm_content": issue_eval.llm_content,
-        "raw_response": issue_eval.raw_response,
-    }
+    def issue_extra_fields(self, issue_eval) -> Dict[str, Any]:
+        return {"prompt_exact_passed_to_llm": issue_eval.prompt_exact_passed_to_model}
 
 
 def main() -> int:
     args = parse_args()
-    mined_path = Path(args.mined_file).expanduser().resolve()
-    if not mined_path.is_file():
-        print(f"[ERROR] Mined file not found: {mined_path}", file=sys.stderr)
-        return 1
-
-    api_key = resolve_api_key(args.provider, args.api_key)
-    if args.provider in {"openai", "mistral"} and not api_key and not args.dry_run:
-        env_key = PROVIDER_ENV_KEY[args.provider]
-        print(
-            f"[ERROR] Missing API key for provider '{args.provider}'. Use --api-key or set {env_key}.",
-            file=sys.stderr,
-        )
-        return 1
-
-    base_url = resolve_base_url(args.provider, args.base_url)
-    request_url = build_chat_completions_url(base_url) if not args.dry_run else None
-
-    mined_data = load_mined_json(mined_path)
-    issues = mined_data.get("issues", [])
-    if args.issue_limit:
-        issues = issues[: args.issue_limit]
-
-    results: List[IssueEvaluation] = []
-    skipped_zero_java = 0
-    for issue in issues:
-        expected_count = len(build_expected_index(issue).targets)
-        if expected_count == 0 and not args.include_empty_java:
-            skipped_zero_java += 1
-            continue
-
-        issue_number = issue.get("number")
-        title = str(issue.get("title", "") or "")
-        description = issue.get("description_message")
-        prompt = build_query_text(title, description, args.extra_prompt)
-
-        print(f"[INFO] Evaluating issue #{issue_number}...", file=sys.stderr)
-        result = evaluate_issue(issue, prompt, args, request_url, api_key)
-        if result.status == "error":
-            print(f"[WARN] Issue #{issue_number} failed: {result.error}", file=sys.stderr)
-        results.append(result)
-
-    global_metrics = compute_global_metrics(results)
-
-    report = {
-        "generated_at": dt.datetime.now(tz=dt.timezone.utc).isoformat(),
-        "benchmark_source_file": str(mined_path),
-        "project_name": mined_data.get("project_name"),
-        "github_url": mined_data.get("github_url"),
-        "settings": {
-            "provider": args.provider,
-            "model": args.model,
-            "base_url": base_url,
-            "request_url": request_url,
-            "response_type": DEFAULT_RESPONSE_TYPE,
-            "extra_prompt": args.extra_prompt,
-            "system_prompt": args.system_prompt,
-            "temperature": args.temperature,
-            "max_tokens": args.max_tokens,
-            "timeout_seconds": args.timeout_seconds,
-            "issue_limit": args.issue_limit,
-            "output_dir": str(Path(args.output_dir).expanduser().resolve()),
-            "dry_run": args.dry_run,
-            "include_empty_java": args.include_empty_java,
-            "keep_raw_response": args.keep_raw_response,
-        },
-        "summary": {
-            "issues_in_source": len(mined_data.get("issues", [])),
-            "issues_considered": len(issues),
-            "issues_skipped_no_java_targets": skipped_zero_java,
-            **global_metrics,
-        },
-        "issues": [issue_to_json(item) for item in results],
-    }
-
-    output_dir = Path(args.output_dir).expanduser().resolve()
-    output_path = (
-        Path(args.output_file).expanduser().resolve()
-        if args.output_file
-        else default_report_path(mined_path, output_dir, args.provider, args.model)
-    )
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("w", encoding="utf-8") as file:
-        json.dump(report, file, indent=2, ensure_ascii=False)
-
-    micro = report["summary"]["micro"]
-    print(f"Report written to: {output_path}")
-    print(
-        "Micro metrics -> "
-        f"precision: {micro['precision']:.4f}, "
-        f"recall: {micro['recall']:.4f}, "
-        f"f1: {micro['f1']:.4f}"
-    )
-    return 0
+    evaluator = LLMAPIEvaluator(args)
+    return evaluator.run()
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 {
   "project_name": "mybatis/jpetstore-6",
   "github_url": "https://github.com/mybatis/jpetstore-6",
-  "mined_at": "2026-04-20T08:31:20.663200+00:00",
+  "mined_at": "2026-04-20T09:30:19.118463+00:00",
   "total_closed_issues_scanned": 184,
   "total_relevant_issues": 11,
   "issues": [
@@ -9,6 +9,7 @@
       "number": 42,
       "title": "Use cargo-maven2-plugin",
       "url": "https://github.com/mybatis/jpetstore-6/issues/42",
+      "description_message": "Change to use the cargo-maven2-plugin instead of using the tomcat-maven-plugin.\nThe cargo-maven2-plugin is very active and support many application servers and versions. (already supporting the tomcat 8 and 9)\n\nhttps://codehaus-cargo.github.io/cargo/Maven2+plugin.html\n",
       "created_at": "2016-10-14T02:45:49Z",
       "closed_at": "2016-10-15T04:18:54Z",
       "linked_merged_pull_request_urls": [
@@ -48,6 +49,7 @@
       "number": 88,
       "title": "Add integration test",
       "url": "https://github.com/mybatis/jpetstore-6/issues/88",
+      "description_message": "Add integration tests for screen transition using the [Selenide](https://github.com/codeborne/selenide)(Selenium)",
       "created_at": "2017-03-25T13:10:40Z",
       "closed_at": "2017-03-27T18:41:48Z",
       "linked_merged_pull_request_urls": [
@@ -92,6 +94,7 @@
       "number": 97,
       "title": "Change to use AssertJ",
       "url": "https://github.com/mybatis/jpetstore-6/issues/97",
+      "description_message": "See mybatis/mybatis-3#977",
       "created_at": "2017-04-17T22:43:22Z",
       "closed_at": "2017-04-18T17:29:08Z",
       "linked_merged_pull_request_urls": [
@@ -149,6 +152,7 @@
       "number": 110,
       "title": "Can't deploy package",
       "url": "https://github.com/mybatis/jpetstore-6/issues/110",
+      "description_message": "Hi,\r\n\r\nFollowing the instructions when I try to run mvnw clean package I get a maven error for a non-resolvable parent - see errors below. Any ideas?\r\n\r\n```\r\n ./mvnw clean package\r\n/jpetstore-6\r\n[INFO] Scanning for projects...\r\n[ERROR] [ERROR] Some problems were encountered while processing the POMs:\r\n[FATAL] Non-resolvable parent POM for org.mybatis:jpetstore:6.0.3-SNAPSHOT: Could not find artifact org.mybatis:mybatis-parent:pom:29-SNAPSHOT and 'parent.relativePath' points at no local POM @ line 22, column 11\r\n @\r\n[ERROR] The build could not read 1 project -> [Help 1]\r\n[ERROR]\r\n[ERROR]   The project org.mybatis:jpetstore:6.0.3-SNAPSHOT (/jpetstore-6/pom.xml) has 1 error\r\n[ERROR]     Non-resolvable parent POM for org.mybatis:jpetstore:6.0.3-SNAPSHOT: Could not find artifact org.mybatis:mybatis-parent:pom:29-SNAPSHOT and 'parent.relativePath' points at no local POM @ line 22, column 11 -> [Help 2]\r\n[ERROR]\r\n[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.\r\n[ERROR] Re-run Maven using the -X switch to enable full debug logging.\r\n[ERROR]\r\n[ERROR] For more information about the errors and possible solutions, please read the following articles:\r\n[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/ProjectBuildingException\r\n[ERROR] [Help 2] http://cwiki.apache.org/confluence/display/MAVEN/UnresolvableModelException\r\nubuntu@ip-172-31-30-28:/jpetstore-6$ ./mvnw cargo:run -P tomcat85\r\n/jpetstore-6\r\n[INFO] Scanning for projects...\r\n[ERROR] [ERROR] Some problems were encountered while processing the POMs:\r\n[FATAL] Non-resolvable parent POM for org.mybatis:jpetstore:6.0.3-SNAPSHOT: Could not find artifact org.mybatis:mybatis-parent:pom:29-SNAPSHOT and 'parent.relativePath' points at no local POM @ line 22, column 11\r\n @\r\n[ERROR] The build could not read 1 project -> [Help 1]\r\n[ERROR]\r\n[ERROR]   The project org.mybatis:jpetstore:6.0.3-SNAPSHOT (/jpetstore-6/pom.xml) has 1 error\r\n[ERROR]     Non-resolvable parent POM for org.mybatis:jpetstore:6.0.3-SNAPSHOT: Could not find artifact org.mybatis:mybatis-parent:pom:29-SNAPSHOT and 'parent.relativePath' points at no local POM @ line 22, column 11 -> [Help 2]\r\n[ERROR]\r\n[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.\r\n[ERROR] Re-run Maven using the -X switch to enable full debug logging.\r\n[ERROR]\r\n[ERROR] For more information about the errors and possible solutions, please read the following articles:\r\n[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/ProjectBuildingException\r\n[ERROR] [Help 2] http://cwiki.apache.org/confluence/display/MAVEN/UnresolvableModelException\r\n```",
       "created_at": "2017-06-12T15:20:25Z",
       "closed_at": "2017-06-15T00:17:05Z",
       "linked_merged_pull_request_urls": [
@@ -172,6 +176,7 @@
       "number": 132,
       "title": "Upgrade to Spring 4.3.12.RELEASE",
       "url": "https://github.com/mybatis/jpetstore-6/issues/132",
+      "description_message": "",
       "created_at": "2017-10-11T13:43:03Z",
       "closed_at": "2017-11-26T06:19:53Z",
       "linked_merged_pull_request_urls": [
@@ -199,6 +204,7 @@
       "number": 133,
       "title": "Upgrade to Spring Framework 5.0",
       "url": "https://github.com/mybatis/jpetstore-6/issues/133",
+      "description_message": "@mybatis/committers\r\nI want to upgrade to Spring Framework 5.0.\r\n\r\nWhich is better?\r\n\r\n* Update major version up on this project. (e.g. 7.0.0)\r\n* Create new repository(artifact)? (e.g. jpetstpre-7???)\r\n* other ...\r\n\r\nWhat mean `6` of `jpetstore-6`?\r\n\r\n\r\n",
       "created_at": "2017-11-22T13:02:38Z",
       "closed_at": "2018-04-29T02:37:06Z",
       "linked_merged_pull_request_urls": [
@@ -222,6 +228,7 @@
       "number": 149,
       "title": "Add build using JDK10 on Travis CI",
       "url": "https://github.com/mybatis/jpetstore-6/issues/149",
+      "description_message": "",
       "created_at": "2018-04-28T16:16:22Z",
       "closed_at": "2018-04-29T14:06:17Z",
       "linked_merged_pull_request_urls": [
@@ -247,6 +254,7 @@
       "number": 202,
       "title": "Support JKD 12 on Travis CI",
       "url": "https://github.com/mybatis/jpetstore-6/issues/202",
+      "description_message": "",
       "created_at": "2019-03-31T16:39:04Z",
       "closed_at": "2019-03-31T18:38:42Z",
       "linked_merged_pull_request_urls": [
@@ -270,6 +278,7 @@
       "number": 234,
       "title": "Support integration test for all application server on Travis CI",
       "url": "https://github.com/mybatis/jpetstore-6/issues/234",
+      "description_message": "",
       "created_at": "2019-07-17T23:20:18Z",
       "closed_at": "2019-07-17T23:51:32Z",
       "linked_merged_pull_request_urls": [
@@ -294,6 +303,7 @@
       "number": 378,
       "title": "Upgrade to Selenide 5.15.1",
       "url": "https://github.com/mybatis/jpetstore-6/issues/378",
+      "description_message": "",
       "created_at": "2020-11-14T03:51:50Z",
       "closed_at": "2020-11-14T05:30:35Z",
       "linked_merged_pull_request_urls": [
@@ -319,6 +329,7 @@
       "number": 991,
       "title": "[FIX] Improve safety in CartActionBean: null workingItemId check + narrow exception handling",
       "url": "https://github.com/mybatis/jpetstore-6/issues/991",
+      "description_message": "@hazendaz \nIn CartActionBean:\nValidate workingItemId before use\nMethods like addItemToCart() and removeItemFromCart() assume workingItemId is always set.\nIf it is null or blank (e.g., due to a malformed request), these methods may throw an NPE or return confusing results.\nMy fix will be add a null/blank check early and return an error resolution with a clear message when workingItemId is invalid.\n\n\nNarrow exception handling in updateCartQuantities()\nThe code currently does catch (Exception e) and ignores it.\nThis can swallow unexpected errors.\nProposal: catch only NumberFormatException (the intended case of bad user input) and optionally add guardrails for extreme values\n\nLet me know if I can create a PR and do a quick fix",
       "created_at": "2025-09-23T05:53:46Z",
       "closed_at": "2026-01-25T17:31:47Z",
       "linked_merged_pull_request_urls": [
