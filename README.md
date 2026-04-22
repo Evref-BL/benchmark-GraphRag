@@ -33,7 +33,9 @@ benchmark-graphRag/
 ## Prérequis
 
 - Python 3.10+
-- `uv` (pour lancer GraphRAG)
+- GraphRAG installé:
+  - soit via un `.venv` local contenant `graphrag`,
+  - soit via `uv`.
 - Un projet GraphRAG déjà indexé, avec un dossier `output` exploitable.
 - Optionnel mais fortement recommandé: un token GitHub (sinon rate limits API très bas).
 
@@ -41,7 +43,7 @@ benchmark-graphRag/
 
 Les évaluateurs reposent sur une base commune:
 - `BaseBenchmarkEvaluator` dans `scripts/evaluator_core.py` gère le pipeline séquentiel complet (chargement benchmark, filtrage, prompts, métriques, rapport).
-- `evaluate_graphrag_benchmark.py` est une spécialisation GraphRAG (appel `uv run ... graphrag query`).
+- `evaluate_graphrag_benchmark.py` est une spécialisation GraphRAG (appel `.venv/bin/graphrag query` ou `uv run ...` selon le mode d’exécution).
 - `evaluate_llm_api_benchmark.py` est une spécialisation API LLM (Ollama/OpenAI/Mistral).
 
 ## Configuration du token GitHub
@@ -139,7 +141,8 @@ Le script:
 2. construit une requête par issue avec `title + description + prompt`,
    - ajoute systématiquement un pré-prompt obligatoire aligné sur le `response_type` par défaut du script,
 3. exécute GraphRAG:
-   - `uv run python -m graphrag query "<query>" --root . --method <method> --data ./output --response-type "<valeur par défaut interne du script>"`
+   - en mode `venv`: `<graphrag-dir>/.venv/bin/graphrag query --root . --method <method> --data ./output --response-type "<valeur par défaut interne du script>" "<query>"`
+   - en mode `uv`: `uv run python -m graphrag query --root . --method <method> --data ./output --response-type "<valeur par défaut interne du script>" "<query>"`
 4. extrait les classes prédites,
 5. compare aux fichiers Java attendus,
 6. calcule les métriques par issue et globales.
@@ -152,6 +155,7 @@ Le `response_type` n’est pas paramétrable en ligne de commande: il est fixé 
 python3 scripts/evaluate_graphrag_benchmark.py \
   mined_projects/stleary__json-java__20260420T090843Z.json \
   --graphrag-dir /path/to/graphrag \
+  --execution-mode auto \
   --method local
 ```
 
@@ -161,12 +165,14 @@ python3 scripts/evaluate_graphrag_benchmark.py \
 - `local`
 - `drift`
 - `global`
+- `basic`
 
 Exemples:
 
 ```bash
 python3 scripts/evaluate_graphrag_benchmark.py <mined.json> --graphrag-dir /path/to/graphrag --method drift
 python3 scripts/evaluate_graphrag_benchmark.py <mined.json> --graphrag-dir /path/to/graphrag --method global
+python3 scripts/evaluate_graphrag_benchmark.py <mined.json> --graphrag-dir /path/to/graphrag --method basic
 ```
 
 ### Options utiles
@@ -179,6 +185,10 @@ python3 scripts/evaluate_graphrag_benchmark.py <mined.json> --graphrag-dir /path
 - `--keep-raw-response`: inclut la réponse brute GraphRAG dans le rapport.
 - `--include-empty-java`: inclut aussi les issues sans cible Java.
 - `--dry-run`: n’exécute pas GraphRAG (test pipeline uniquement).
+- `--execution-mode auto|venv|uv`:
+  - `auto` (défaut): essaie d’abord `<graphrag-dir>/.venv/bin/graphrag`, sinon fallback `uv`.
+  - `venv`: force l’usage de `<graphrag-dir>/.venv/bin/graphrag`.
+  - `uv`: force l’usage de `uv run python -m graphrag`.
 
 ### Métriques calculées
 
@@ -225,7 +235,7 @@ Le rapport contient:
 2. Miner un projet:
    - `python3 scripts/mine_github_issues.py "<repo-url>"`
 3. Lancer l’évaluation GraphRAG:
-   - `python3 scripts/evaluate_graphrag_benchmark.py <mined-file.json> --graphrag-dir <path> --method local`
+   - `python3 scripts/evaluate_graphrag_benchmark.py <mined-file.json> --graphrag-dir <path> --execution-mode auto --method local`
 4. Comparer les résultats entre `local`, `drift`, `global`.
 
 ## 3) Export des queries LLM

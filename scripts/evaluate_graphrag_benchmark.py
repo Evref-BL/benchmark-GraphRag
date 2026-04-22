@@ -6,9 +6,10 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 from pathlib import Path
+import shutil
 import subprocess
 import sys
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from evaluator_core import (
     BaseBenchmarkEvaluator,
@@ -24,7 +25,8 @@ from evaluator_core import (
     load_mined_json,
 )
 
-ALLOWED_METHODS = ("local", "drift", "global")
+ALLOWED_METHODS = ("local", "drift", "global", "basic")
+ALLOWED_EXECUTION_MODES = ("auto", "venv", "uv")
 
 
 def parse_args() -> argparse.Namespace:
@@ -36,6 +38,15 @@ def parse_args() -> argparse.Namespace:
                 f"Invalid method '{value}'. Allowed values: {allowed}."
             )
         return method
+
+    def parse_execution_mode(value: str) -> str:
+        mode = (value or "").strip().lower()
+        if mode not in ALLOWED_EXECUTION_MODES:
+            allowed = ", ".join(ALLOWED_EXECUTION_MODES)
+            raise argparse.ArgumentTypeError(
+                f"Invalid execution mode '{value}'. Allowed values: {allowed}."
+            )
+        return mode
 
     project_root = Path(__file__).resolve().parent.parent
     default_graphrag_dir = project_root / "graphrag"
@@ -86,7 +97,16 @@ def parse_args() -> argparse.Namespace:
         "--method",
         type=parse_method,
         default="local",
-        help="GraphRAG query method: local, drift, or global (default: local).",
+        help="GraphRAG query method: local, drift, global, or basic (default: local).",
+    )
+    parser.add_argument(
+        "--execution-mode",
+        type=parse_execution_mode,
+        default="auto",
+        help=(
+            "How to invoke GraphRAG: auto, venv, or uv (default: auto). "
+            "Auto prefers <graphrag-dir>/.venv/bin/graphrag, then falls back to uv."
+        ),
     )
     parser.add_argument(
         "--data-dir",
@@ -118,32 +138,64 @@ class GraphRAGEvaluator(BaseBenchmarkEvaluator):
         super().__init__(args)
         self.graphrag_dir = Path(args.graphrag_dir).expanduser().resolve()
         self.method = args.method
+        self.execution_mode = args.execution_mode
         self.data_dir = args.data_dir
         self.timeout_seconds = args.timeout_seconds
+        self._resolved_command_prefix: Optional[List[str]] = None
+        self._resolved_execution_mode: Optional[str] = None
 
     def evaluator_label(self) -> str:
         return "graphrag"
 
+    def _resolve_command_prefix(self) -> List[str]:
+        if self._resolved_command_prefix is not None:
+            return self._resolved_command_prefix
+
+        venv_graphrag = self.graphrag_dir / ".venv" / "bin" / "graphrag"
+        if self.execution_mode in ("auto", "venv"):
+            if venv_graphrag.is_file():
+                self._resolved_execution_mode = "venv"
+                self._resolved_command_prefix = [str(venv_graphrag)]
+                return self._resolved_command_prefix
+            if self.execution_mode == "venv":
+                raise RuntimeError(f"GraphRAG venv binary not found: {venv_graphrag}")
+
+        if self.execution_mode in ("auto", "uv"):
+            uv_bin = shutil.which("uv")
+            if uv_bin:
+                self._resolved_execution_mode = "uv"
+                self._resolved_command_prefix = [uv_bin, "run", "python", "-m", "graphrag"]
+                return self._resolved_command_prefix
+            if self.execution_mode == "uv":
+                raise RuntimeError("uv executable not found in PATH.")
+
+        raise RuntimeError(
+            "Unable to resolve GraphRAG executable. "
+            "Use --execution-mode venv with a valid .venv/bin/graphrag or install uv."
+        )
+
     def validate_runtime(self) -> None:
-        if self.graphrag_dir.is_dir():
-            return
-        if self.dry_run:
-            print(
-                f"[WARN] GraphRAG directory not found (dry-run mode): {self.graphrag_dir}",
-                file=sys.stderr,
-            )
-            return
-        raise RuntimeError(f"GraphRAG directory not found: {self.graphrag_dir}")
+        if not self.graphrag_dir.is_dir():
+            if self.dry_run:
+                print(
+                    f"[WARN] GraphRAG directory not found (dry-run mode): {self.graphrag_dir}",
+                    file=sys.stderr,
+                )
+                return
+            raise RuntimeError(f"GraphRAG directory not found: {self.graphrag_dir}")
+
+        try:
+            self._resolve_command_prefix()
+        except RuntimeError as error:
+            if self.dry_run:
+                print(f"[WARN] {error}", file=sys.stderr)
+                return
+            raise
 
     def predict_for_issue(self, issue: Dict[str, Any], query: str) -> PredictionResult:
         command = [
-            "uv",
-            "run",
-            "python",
-            "-m",
-            "graphrag",
+            *self._resolve_command_prefix(),
             "query",
-            query,
             "--root",
             ".",
             "--method",
@@ -152,6 +204,7 @@ class GraphRAGEvaluator(BaseBenchmarkEvaluator):
             self.data_dir,
             "--response-type",
             DEFAULT_RESPONSE_TYPE,
+            query,
         ]
         completed = subprocess.run(
             command,
@@ -181,6 +234,9 @@ class GraphRAGEvaluator(BaseBenchmarkEvaluator):
         return {
             "graphrag_dir": str(self.graphrag_dir),
             "method": self.method,
+            "execution_mode": self.execution_mode,
+            "resolved_execution_mode": self._resolved_execution_mode,
+            "resolved_command_prefix": self._resolved_command_prefix,
             "data_dir": self.data_dir,
             "response_type": DEFAULT_RESPONSE_TYPE,
             "required_pre_prompt": REQUIRED_PRE_PROMPT,
