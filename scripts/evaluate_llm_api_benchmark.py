@@ -16,11 +16,14 @@ from typing import Any, Dict, Optional, Tuple
 
 from evaluator_core import (
     BaseBenchmarkEvaluator,
+    DEFAULT_BOOTSTRAP_SAMPLES,
+    DEFAULT_BOOTSTRAP_SEED,
     DEFAULT_EVAL_OUTPUT_DIRNAME,
     DEFAULT_ISSUE_PROMPT,
     DEFAULT_RESPONSE_TYPE,
     DEFAULT_TIMEOUT_SECONDS,
     PredictionResult,
+    collect_repository_file_keys,
     extract_predicted_classes,
 )
 
@@ -97,6 +100,18 @@ def parse_args() -> argparse.Namespace:
         help="Optional cap on number of issues evaluated.",
     )
     parser.add_argument(
+        "--bootstrap-samples",
+        type=int,
+        default=DEFAULT_BOOTSTRAP_SAMPLES,
+        help=f"Bootstrap sample count for 95%% confidence intervals (default: {DEFAULT_BOOTSTRAP_SAMPLES}).",
+    )
+    parser.add_argument(
+        "--bootstrap-seed",
+        type=int,
+        default=DEFAULT_BOOTSTRAP_SEED,
+        help=f"Bootstrap RNG seed for 95%% confidence intervals (default: {DEFAULT_BOOTSTRAP_SEED}).",
+    )
+    parser.add_argument(
         "--timeout-seconds",
         type=int,
         default=DEFAULT_TIMEOUT_SECONDS,
@@ -118,6 +133,14 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=None,
         help="Optional max_tokens for completion.",
+    )
+    parser.add_argument(
+        "--project-root",
+        default=None,
+        help=(
+            "Optional source project root used only for in_repo_only metrics "
+            "(expected files intersected with files present in this project)."
+        ),
     )
     parser.add_argument(
         "--include-empty-java",
@@ -264,18 +287,29 @@ class LLMAPIEvaluator(BaseBenchmarkEvaluator):
         self.base_url = resolve_base_url(args.provider, args.base_url)
         self.request_url = build_chat_completions_url(self.base_url) if not self.dry_run else None
         self.api_key = resolve_api_key(args.provider, args.api_key)
+        self.project_root = (
+            Path(args.project_root).expanduser().resolve() if getattr(args, "project_root", None) else None
+        )
+        self._repo_java_file_keys: Optional[set[str]] = None
 
     def evaluator_label(self) -> str:
         return f"llm_api:{self.provider}"
 
     def validate_runtime(self) -> None:
-        if self.dry_run:
-            return
-        if self.provider in {"openai", "mistral"} and not self.api_key:
+        if self.provider in {"openai", "mistral"} and not self.api_key and not self.dry_run:
             env_key = PROVIDER_ENV_KEY[self.provider]
             raise RuntimeError(
                 f"Missing API key for provider '{self.provider}'. Use --api-key or set {env_key}."
             )
+
+        if self.project_root is not None:
+            if not self.project_root.is_dir():
+                if self.dry_run:
+                    return
+                raise RuntimeError(
+                    f"Project root not found for in_repo_only metrics: {self.project_root}"
+                )
+            self._repo_java_file_keys = collect_repository_file_keys(self.project_root, ".java")
 
     def predict_for_issue(self, issue: Dict[str, Any], query: str) -> PredictionResult:
         payload, response_json, content = call_chat_completions_api(
@@ -314,6 +348,7 @@ class LLMAPIEvaluator(BaseBenchmarkEvaluator):
             "system_prompt": self.system_prompt,
             "temperature": self.temperature,
             "max_tokens": self.max_tokens,
+            "project_root": (str(self.project_root) if self.project_root else None),
             "timeout_seconds": self.timeout_seconds,
             "issue_limit": self.issue_limit,
             "output_dir": str(self.output_dir),
@@ -321,6 +356,9 @@ class LLMAPIEvaluator(BaseBenchmarkEvaluator):
             "include_empty_java": self.include_empty_java,
             "keep_raw_response": self.keep_raw_response,
         }
+
+    def in_repo_reference_keys(self) -> Optional[set[str]]:
+        return self._repo_java_file_keys
 
     def issue_extra_fields(self, issue_eval) -> Dict[str, Any]:
         return {"prompt_exact_passed_to_llm": issue_eval.prompt_exact_passed_to_model}

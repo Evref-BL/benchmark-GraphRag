@@ -21,6 +21,8 @@ benchmark-graphRag/
 │   ├── evaluator_core.py
 │   ├── evaluate_graphrag_benchmark.py
 │   ├── evaluate_llm_api_benchmark.py
+│   ├── evaluate_colgrep_benchmark.py
+│   ├── evaluate_random_benchmark.py
 │   ├── evaluate_manual_input_benchmark.py
 │   └── export_benchmark_queries.py
 ├── mined_projects/              # sorties JSON (ignoré par git)
@@ -45,6 +47,13 @@ Les évaluateurs reposent sur une base commune:
 - `BaseBenchmarkEvaluator` dans `scripts/evaluator_core.py` gère le pipeline séquentiel complet (chargement benchmark, filtrage, prompts, métriques, rapport).
 - `evaluate_graphrag_benchmark.py` est une spécialisation GraphRAG (appel `.venv/bin/graphrag query` ou `uv run ...` selon le mode d’exécution).
 - `evaluate_llm_api_benchmark.py` est une spécialisation API LLM (Ollama/OpenAI/Mistral).
+- `evaluate_colgrep_benchmark.py` est une spécialisation `colgrep` (recherche sémantique embedding + ranking).
+- `evaluate_random_benchmark.py` est une spécialisation baseline aléatoire (tirage de fichiers depuis le projet source).
+
+Nouveautés d’évaluation robustes (communes):
+- `in_repo_only`: métriques recalculées en ne gardant, côté vérité terrain, que les fichiers Java réellement présents dans un projet local de référence.
+- `IC95%`: intervalles de confiance à 95% via bootstrap (micro + macro).
+- reporting enrichi au niveau global et par issue.
 
 ## Configuration du token GitHub
 
@@ -185,6 +194,9 @@ python3 scripts/evaluate_graphrag_benchmark.py <mined.json> --graphrag-dir /path
 - `--keep-raw-response`: inclut la réponse brute GraphRAG dans le rapport.
 - `--include-empty-java`: inclut aussi les issues sans cible Java.
 - `--dry-run`: n’exécute pas GraphRAG (test pipeline uniquement).
+- `--project-root /path/to/source`: active les métriques `in_repo_only` avec ce repo local.
+- `--bootstrap-samples 1000`: nombre de tirages bootstrap pour IC95%.
+- `--bootstrap-seed 42`: seed RNG du bootstrap.
 - `--execution-mode auto|venv|uv`:
   - `auto` (défaut): essaie d’abord `<graphrag-dir>/.venv/bin/graphrag`, sinon fallback `uv`.
   - `venv`: force l’usage de `<graphrag-dir>/.venv/bin/graphrag`.
@@ -203,6 +215,26 @@ Par issue:
 Global:
 - `micro` (agrégation globale TP/FP/FN)
 - `macro` (moyenne des scores par issue)
+- `confidence_interval_95` (IC95% bootstrap pour `micro` et `macro`)
+- `in_repo_only` (même métriques, restreintes aux cibles présentes dans le repo local de référence)
+
+### Détail IC95% (bootstrap)
+
+L’`IC95%` est un intervalle de confiance calculé par bootstrap non paramétrique:
+- on prend la liste des issues évaluées (hors erreurs),
+- on fait `B` rééchantillonnages avec remise (par défaut `B=1000`), chaque échantillon ayant la même taille que le nombre d’issues,
+- à chaque tirage, on recalcule les métriques `micro` et `macro`,
+- on obtient ainsi une distribution de scores,
+- l’IC95% est donné par les percentiles 2.5% (borne basse) et 97.5% (borne haute).
+
+Interprétation rapide:
+- intervalle serré: estimation stable,
+- intervalle large: forte variabilité entre issues.
+
+Dans ce projet:
+- `--bootstrap-samples` règle le nombre de rééchantillonnages,
+- `--bootstrap-seed` fixe la reproductibilité des IC.
+- un IC95% est calculé pour les métriques globales et, quand activé, pour `in_repo_only`.
 
 ### Matching attendu vs prédit
 
@@ -312,6 +344,8 @@ Options utiles:
 - `--api-key` pour surcharger la clé env,
 - `--temperature`, `--max-tokens`,
 - `--issue-limit`,
+- `--project-root` pour activer `in_repo_only`,
+- `--bootstrap-samples`, `--bootstrap-seed` pour IC95%,
 - `--keep-raw-response`,
 - `--dry-run`.
 
@@ -349,11 +383,76 @@ Options utiles:
 - `--keep-raw-response`
 - `--end-token DONE`
 - `--no-copy-query-to-clipboard`
+- `--project-root` pour activer `in_repo_only`
+- `--bootstrap-samples`, `--bootstrap-seed` pour IC95%
 
 Format de sortie (par entrée):
 - `issue_number`
 - `query`
 - `expected_classes_paths`
+
+## 6) Évaluation Baseline Aléatoire
+
+Script: `scripts/evaluate_random_benchmark.py`
+
+Objectif:
+- construire une baseline aléatoire pour comparaison,
+- lister les fichiers d’un projet source selon une extension (par défaut `.java`),
+- pour chaque issue, tirer un nombre `N`, puis tirer `N` fichiers aléatoires dans ce pool,
+- stratégie recommandée par défaut: `size-matched` (N = nombre de cibles attendues présentes dans le repo local),
+- produire le même format de rapport JSON que les autres évaluateurs.
+
+Commande type:
+
+```bash
+python3 scripts/evaluate_random_benchmark.py \
+  mined_projects/stleary__json-java__20260420T090843Z.json \
+  --project-root /path/to/source/project \
+  --file-extension .java \
+  --keep-raw-response
+```
+
+Options utiles:
+- `--project-root /path/to/project` (obligatoire)
+- `--file-extension .java` (défaut: `.java`, configurable)
+- `--sampling-strategy size-matched|uniform` (défaut: `size-matched`)
+- `--random-n-min 1` (défaut: 1)
+- `--random-n-max 50` (défaut: taille totale du pool)
+- `--seed 42` pour rejouer exactement le même tirage
+- `--bootstrap-samples`, `--bootstrap-seed` pour IC95%
+- `--issue-limit N`
+- `--include-empty-java`
+- `--keep-raw-response`
+
+## 7) Évaluation Colgrep (Embedding Search)
+
+Script: `scripts/evaluate_colgrep_benchmark.py`
+
+Objectif:
+- évaluer un moteur de recherche de code basé embeddings (`colgrep`),
+- exécuter une recherche sémantique avec la query issue (titre + description + prompt),
+- récupérer les fichiers retournés et calculer `precision/recall/f1` comme les autres évaluateurs.
+
+Commande type:
+
+```bash
+python3 scripts/evaluate_colgrep_benchmark.py \
+  mined_projects/stleary__json-java__20260420T090843Z.json \
+  --project-root /Users/nicolashlad/Development/Projects/JSON-java \
+  --results 15 \
+  --include-pattern "*.java" \
+  --keep-raw-response
+```
+
+Options utiles:
+- `--project-root /path/to/project` (obligatoire)
+- `--colgrep-bin colgrep` (binaire colgrep custom si besoin)
+- `--results 15` (top-k)
+- `--include-pattern "*.java"` (filtre fichiers)
+- `--bootstrap-samples`, `--bootstrap-seed` pour IC95%
+- `--issue-limit N`
+- `--include-empty-java`
+- `--keep-raw-response`
 
 ## Troubleshooting
 
@@ -375,3 +474,12 @@ Format de sortie (par entrée):
 - `queries/` est ignoré par git.
 - `.env.github` est ignoré par git.
 - Le projet privilégie des outputs JSON pour faciliter l’analyse offline et les comparaisons de runs.
+
+## Références Méthodologiques
+
+Documentation et articles utilisés pour guider la stratégie baseline/évaluation:
+- [scikit-learn: `precision_recall_curve`](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_recall_curve.html)
+- [scikit-learn: `DummyClassifier`](https://sklearn.org/stable/modules/generated/sklearn.dummy.DummyClassifier.html)
+- [SciPy: `scipy.stats.bootstrap`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bootstrap.html)
+- [NIST: Retrieval Evaluation with Incomplete Information (Buckley & Voorhees, 2004)](https://www.nist.gov/publications/retrieval-evaluation-incomplete-information)
+- [NIST TRECVID: Inferred Average Precision (infAP)](https://www-nlpir.nist.gov/projects/tv2006/infAP.html)

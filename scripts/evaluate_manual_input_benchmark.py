@@ -10,15 +10,18 @@ import select
 import shutil
 import subprocess
 import sys
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from evaluator_core import (
     BaseBenchmarkEvaluator,
+    DEFAULT_BOOTSTRAP_SAMPLES,
+    DEFAULT_BOOTSTRAP_SEED,
     DEFAULT_EVAL_OUTPUT_DIRNAME,
     DEFAULT_ISSUE_PROMPT,
     DEFAULT_RESPONSE_TYPE,
     EvaluationStopped,
     PredictionResult,
+    collect_repository_file_keys,
     extract_predicted_classes,
 )
 
@@ -56,6 +59,18 @@ def parse_args() -> argparse.Namespace:
         help="Optional cap on number of issues evaluated.",
     )
     parser.add_argument(
+        "--bootstrap-samples",
+        type=int,
+        default=DEFAULT_BOOTSTRAP_SAMPLES,
+        help=f"Bootstrap sample count for 95%% confidence intervals (default: {DEFAULT_BOOTSTRAP_SAMPLES}).",
+    )
+    parser.add_argument(
+        "--bootstrap-seed",
+        type=int,
+        default=DEFAULT_BOOTSTRAP_SEED,
+        help=f"Bootstrap RNG seed for 95%% confidence intervals (default: {DEFAULT_BOOTSTRAP_SEED}).",
+    )
+    parser.add_argument(
         "--extra-prompt",
         default=DEFAULT_ISSUE_PROMPT,
         help="Prompt suffix appended after title+description.",
@@ -89,6 +104,14 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Disable automatic copy of each issue query to clipboard.",
     )
+    parser.add_argument(
+        "--project-root",
+        default=None,
+        help=(
+            "Optional source project root used only for in_repo_only metrics "
+            "(expected files intersected with files present in this project)."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -99,6 +122,10 @@ class ManualInputEvaluator(BaseBenchmarkEvaluator):
         super().__init__(args)
         self.end_token = args.end_token
         self.copy_query_to_clipboard = not args.no_copy_query_to_clipboard
+        self.project_root = (
+            Path(args.project_root).expanduser().resolve() if getattr(args, "project_root", None) else None
+        )
+        self._repo_java_file_keys: Optional[set[str]] = None
 
     def _copy_to_clipboard(self, text: str) -> bool:
         payload = text or ""
@@ -147,6 +174,12 @@ class ManualInputEvaluator(BaseBenchmarkEvaluator):
         return "manual_input"
 
     def validate_runtime(self) -> None:
+        if self.project_root is not None:
+            if not self.project_root.is_dir():
+                raise RuntimeError(
+                    f"Project root not found for in_repo_only metrics: {self.project_root}"
+                )
+            self._repo_java_file_keys = collect_repository_file_keys(self.project_root, ".java")
         return None
 
     def _read_multiline_response(self) -> str:
@@ -237,7 +270,11 @@ class ManualInputEvaluator(BaseBenchmarkEvaluator):
             "end_token": self.end_token,
             "copy_query_to_clipboard": self.copy_query_to_clipboard,
             "dry_run": self.dry_run,
+            "project_root": (str(self.project_root) if self.project_root else None),
         }
+
+    def in_repo_reference_keys(self) -> Optional[set[str]]:
+        return self._repo_java_file_keys
 
     def run(self) -> int:
         code = super().run()

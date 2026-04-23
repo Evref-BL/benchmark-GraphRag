@@ -13,16 +13,16 @@ from typing import Any, Dict, List, Optional
 
 from evaluator_core import (
     BaseBenchmarkEvaluator,
+    DEFAULT_BOOTSTRAP_SAMPLES,
+    DEFAULT_BOOTSTRAP_SEED,
     DEFAULT_EVAL_OUTPUT_DIRNAME,
     DEFAULT_ISSUE_PROMPT,
     DEFAULT_RESPONSE_TYPE,
     DEFAULT_TIMEOUT_SECONDS,
     REQUIRED_PRE_PROMPT,
     PredictionResult,
-    build_expected_index,
-    build_query_text,
+    collect_repository_file_keys,
     extract_predicted_classes,
-    load_mined_json,
 )
 
 ALLOWED_METHODS = ("local", "drift", "global", "basic")
@@ -83,6 +83,18 @@ def parse_args() -> argparse.Namespace:
         help="Optional cap on number of issues evaluated.",
     )
     parser.add_argument(
+        "--bootstrap-samples",
+        type=int,
+        default=DEFAULT_BOOTSTRAP_SAMPLES,
+        help=f"Bootstrap sample count for 95%% confidence intervals (default: {DEFAULT_BOOTSTRAP_SAMPLES}).",
+    )
+    parser.add_argument(
+        "--bootstrap-seed",
+        type=int,
+        default=DEFAULT_BOOTSTRAP_SEED,
+        help=f"Bootstrap RNG seed for 95%% confidence intervals (default: {DEFAULT_BOOTSTRAP_SEED}).",
+    )
+    parser.add_argument(
         "--timeout-seconds",
         type=int,
         default=DEFAULT_TIMEOUT_SECONDS,
@@ -114,6 +126,14 @@ def parse_args() -> argparse.Namespace:
         help="GraphRAG data directory passed to --data (default: ./output).",
     )
     parser.add_argument(
+        "--project-root",
+        default=None,
+        help=(
+            "Optional source project root used only for in_repo_only metrics "
+            "(expected files intersected with files present in this project)."
+        ),
+    )
+    parser.add_argument(
         "--include-empty-java",
         action="store_true",
         help="Evaluate issues even when no Java files are expected (default: skip).",
@@ -141,6 +161,10 @@ class GraphRAGEvaluator(BaseBenchmarkEvaluator):
         self.execution_mode = args.execution_mode
         self.data_dir = args.data_dir
         self.timeout_seconds = args.timeout_seconds
+        self.project_root = (
+            Path(args.project_root).expanduser().resolve() if getattr(args, "project_root", None) else None
+        )
+        self._repo_java_file_keys: Optional[set[str]] = None
         self._resolved_command_prefix: Optional[List[str]] = None
         self._resolved_execution_mode: Optional[str] = None
 
@@ -175,22 +199,40 @@ class GraphRAGEvaluator(BaseBenchmarkEvaluator):
         )
 
     def validate_runtime(self) -> None:
+        graphrag_dir_ready = True
         if not self.graphrag_dir.is_dir():
             if self.dry_run:
                 print(
                     f"[WARN] GraphRAG directory not found (dry-run mode): {self.graphrag_dir}",
                     file=sys.stderr,
                 )
-                return
-            raise RuntimeError(f"GraphRAG directory not found: {self.graphrag_dir}")
+                graphrag_dir_ready = False
+            else:
+                raise RuntimeError(f"GraphRAG directory not found: {self.graphrag_dir}")
 
-        try:
-            self._resolve_command_prefix()
-        except RuntimeError as error:
-            if self.dry_run:
-                print(f"[WARN] {error}", file=sys.stderr)
-                return
-            raise
+        if graphrag_dir_ready:
+            try:
+                self._resolve_command_prefix()
+            except RuntimeError as error:
+                if self.dry_run:
+                    print(f"[WARN] {error}", file=sys.stderr)
+                else:
+                    raise
+
+        if self.project_root is not None:
+            if not self.project_root.is_dir():
+                if self.dry_run:
+                    print(
+                        f"[WARN] Project root not found for in_repo_only metrics (dry-run mode): "
+                        f"{self.project_root}",
+                        file=sys.stderr,
+                    )
+                else:
+                    raise RuntimeError(
+                        f"Project root not found for in_repo_only metrics: {self.project_root}"
+                    )
+            else:
+                self._repo_java_file_keys = collect_repository_file_keys(self.project_root, ".java")
 
     def predict_for_issue(self, issue: Dict[str, Any], query: str) -> PredictionResult:
         command = [
@@ -238,6 +280,7 @@ class GraphRAGEvaluator(BaseBenchmarkEvaluator):
             "resolved_execution_mode": self._resolved_execution_mode,
             "resolved_command_prefix": self._resolved_command_prefix,
             "data_dir": self.data_dir,
+            "project_root": (str(self.project_root) if self.project_root else None),
             "response_type": DEFAULT_RESPONSE_TYPE,
             "required_pre_prompt": REQUIRED_PRE_PROMPT,
             "extra_prompt": self.extra_prompt,
@@ -248,6 +291,9 @@ class GraphRAGEvaluator(BaseBenchmarkEvaluator):
             "include_empty_java": self.include_empty_java,
             "keep_raw_response": self.keep_raw_response,
         }
+
+    def in_repo_reference_keys(self) -> Optional[set[str]]:
+        return self._repo_java_file_keys
 
     def issue_extra_fields(self, issue_eval) -> Dict[str, Any]:
         return {"prompt_exact_passed_to_graphrag_llm": issue_eval.prompt_exact_passed_to_model}
