@@ -596,6 +596,16 @@ def compute_global_metrics(
     in_repo_with_targets = [
         r for r in in_repo_candidates if (r.expected_java_files_in_repo and len(r.expected_java_files_in_repo) > 0)
     ]
+    expected_file_total = sum(len(r.expected_java_files) for r in in_repo_candidates)
+    expected_file_in_repo_total = sum(
+        len(r.expected_java_files_in_repo or []) for r in in_repo_candidates
+    )
+    discarded_expected_file_total = max(0, expected_file_total - expected_file_in_repo_total)
+    issues_with_discarded_expected_files = sum(
+        1
+        for r in in_repo_candidates
+        if len(r.expected_java_files) > len(r.expected_java_files_in_repo or [])
+    )
     in_repo_rows = [
         (
             int(r.true_positives_in_repo),
@@ -626,6 +636,15 @@ def compute_global_metrics(
             "issues_with_in_repo_targets": len(in_repo_with_targets),
             "issues_without_in_repo_targets": len(in_repo_candidates) - len(in_repo_with_targets),
             "issues_evaluated": in_repo["issues_evaluated"],
+            "original_expected_java_files_total": expected_file_total,
+            "retained_expected_java_files_total": expected_file_in_repo_total,
+            "expected_java_files_total": expected_file_total,
+            "expected_java_files_in_repo_total": expected_file_in_repo_total,
+            "discarded_expected_java_files_total": discarded_expected_file_total,
+            "discarded_expected_java_files_ratio": (
+                discarded_expected_file_total / expected_file_total if expected_file_total > 0 else 0.0
+            ),
+            "issues_with_discarded_expected_java_files": issues_with_discarded_expected_files,
             "micro": in_repo["micro"],
             "macro": in_repo["macro"],
             "confidence_interval_95": in_repo_ci95,
@@ -720,9 +739,27 @@ class BaseBenchmarkEvaluator(ABC):
             "in_repo_only": None,
         }
         if issue_eval.expected_java_files_in_repo is not None:
+            in_repo_file_keys = {
+                normalize_path(file_path) for file_path in issue_eval.expected_java_files_in_repo
+            }
+            discarded_expected_files = [
+                file_path
+                for file_path in issue_eval.expected_java_files
+                if normalize_path(file_path) not in in_repo_file_keys
+            ]
+            expected_file_count = len(issue_eval.expected_java_files)
+            discarded_file_count = len(discarded_expected_files)
             payload["in_repo_only"] = {
+                "original_expected_java_files_count": expected_file_count,
+                "retained_expected_java_files": issue_eval.expected_java_files_in_repo,
+                "retained_expected_java_files_count": len(issue_eval.expected_java_files_in_repo),
                 "expected_java_files": issue_eval.expected_java_files_in_repo,
                 "expected_java_files_count": len(issue_eval.expected_java_files_in_repo),
+                "discarded_expected_java_files": discarded_expected_files,
+                "discarded_expected_java_files_count": discarded_file_count,
+                "discarded_expected_java_files_ratio": (
+                    discarded_file_count / expected_file_count if expected_file_count > 0 else 0.0
+                ),
                 "true_positives": issue_eval.true_positives_in_repo,
                 "false_positives": issue_eval.false_positives_in_repo,
                 "false_negatives": issue_eval.false_negatives_in_repo,

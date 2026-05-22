@@ -218,6 +218,27 @@ Global:
 - `confidence_interval_95` (IC95% bootstrap pour `micro` et `macro`)
 - `in_repo_only` (même métriques, restreintes aux cibles présentes dans le repo local de référence)
 
+Quand `in_repo_only` est activé via `--project-root`, le rapport indique aussi les fichiers attendus exclus parce qu’ils ne sont plus présents dans le repository local:
+- le total brut du benchmark dans `summary.in_repo_only.original_expected_java_files_total`
+- le total retenu après filtrage dans `summary.in_repo_only.retained_expected_java_files_total`
+- globalement dans `summary.in_repo_only.discarded_expected_java_files_total`
+- en ratio dans `summary.in_repo_only.discarded_expected_java_files_ratio`
+- par issue, le nombre brut dans `issues[*].in_repo_only.original_expected_java_files_count`
+- par issue, le nombre retenu dans `issues[*].in_repo_only.retained_expected_java_files_count`
+- par issue dans `issues[*].in_repo_only.discarded_expected_java_files_count`
+- avec la liste exacte dans `issues[*].in_repo_only.discarded_expected_java_files`
+
+Définition explicite:
+- `original_expected_java_files`: fichiers Java attendus par le benchmark car ils apparaissent dans les code changes des pull requests liées à l’issue.
+- `retained_expected_java_files`: sous-ensemble des fichiers attendus qui existent encore, avec le même chemin relatif, dans le repository local passé via `--project-root`.
+- `discarded_expected_java_files`: fichiers attendus par le benchmark mais absents du repository local actuel. Ils sont exclus de la vérité terrain `in_repo_only`. Un fichier renommé ou déplacé est considéré comme `discarded` si son ancien chemin n’existe plus; le benchmark ne résout pas automatiquement le nouveau chemin.
+
+Comportement des issues sans cible retenue:
+- `issues_with_in_repo_metrics`: nombre d’issues pour lesquelles le calcul `in_repo_only` a été produit.
+- `issues_with_in_repo_targets`: nombre d’issues qui conservent au moins un fichier attendu après filtrage.
+- `issues_without_in_repo_targets`: nombre d’issues dont tous les fichiers attendus ont été `discarded`.
+- Les issues sans cible retenue restent présentes dans la liste `issues`, avec leur détail `discarded_expected_java_files`, mais elles sont exclues des agrégats globaux `summary.in_repo_only.micro`, `summary.in_repo_only.macro` et `summary.in_repo_only.confidence_interval_95`.
+
 ### Détail IC95% (bootstrap)
 
 L’`IC95%` est un intervalle de confiance calculé par bootstrap non paramétrique:
