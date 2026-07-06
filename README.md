@@ -84,6 +84,8 @@ Les PR liées sont détectées dans:
 - les commentaires de l’issue,
 - la timeline de l’issue.
 
+Seules les PR du repository miné (même `owner/repo`) sont conservées dans `linked_merged_pull_request_urls` et `linked_merged_pull_requests`.
+
 Si plusieurs PR mergées sont liées à une même issue, elles sont toutes conservées.
 
 ### Commandes

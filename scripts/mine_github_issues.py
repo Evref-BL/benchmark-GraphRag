@@ -326,6 +326,7 @@ def mine_repository(
     issue_entries = []
     scanned_closed_issues = 0
     pr_cache: Dict[PRRef, Optional[Dict[str, Any]]] = {}
+    target_owner, target_repo, _ = normalize_pr_ref(owner, repo, 0)
 
     params = {"state": "closed", "sort": "updated", "direction": "desc", "per_page": 100}
     for issue in client.paginate(f"/repos/{owner}/{repo}/issues", params):
@@ -348,6 +349,8 @@ def mine_repository(
 
         merged_prs = []
         for ref_owner, ref_repo, ref_number in sorted(pr_refs):
+            if ref_owner != target_owner or ref_repo != target_repo:
+                continue
             pr_data = fetch_pull_request(client, ref_owner, ref_repo, ref_number, pr_cache)
             if not pr_data or not pr_data.get("merged_at"):
                 continue
