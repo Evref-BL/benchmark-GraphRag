@@ -24,7 +24,8 @@ benchmark-graphRag/
 │   ├── evaluate_colgrep_benchmark.py
 │   ├── evaluate_random_benchmark.py
 │   ├── evaluate_manual_input_benchmark.py
-│   └── export_benchmark_queries.py
+│   ├── export_benchmark_queries.py
+│   └── convert_trace_to_dataset.py
 ├── mined_projects/              # sorties JSON (ignoré par git)
 ├── evaluation_results/          # rapports evaluator (ignoré par git)
 ├── queries/                     # queries LLM exportées (ignoré par git)

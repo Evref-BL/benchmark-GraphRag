@@ -18,8 +18,10 @@ env/
 .env.github
 
 # Generated benchmark outputs
-evaluation_results/
+evaluation_results/*
 queries/
+mined_projects/OLD/**
+
 
 # OS/editor noise
 .DS_Store
