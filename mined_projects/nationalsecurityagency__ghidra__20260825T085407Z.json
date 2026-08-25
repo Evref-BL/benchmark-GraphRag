@@ -1,0 +1,409 @@
+{
+  "project_name": "nationalsecurityagency/ghidra",
+  "github_url": "https://github.com/NationalSecurityAgency/ghidra",
+  "mined_at": "2026-08-25T08:54:07.624627+00:00",
+  "allow_open_pr": true,
+  "total_closed_issues_scanned": 201,
+  "total_relevant_issues": 13,
+  "issues": [
+    {
+      "number": 517,
+      "title": "PE header fields parsed as signed and not unsinged",
+      "url": "https://github.com/NationalSecurityAgency/ghidra/issues/517",
+      "description_message": "The PE header fields are parsed as signed and not unsigned see: https://github.com/NationalSecurityAgency/ghidra/blob/49c2010b63b56c8f20845f3970fedd95d003b1e9/Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/SectionHeader.java#L493\r\n\r\nIf now e.g. `virtualSize` or `rawDataSize => 0x10000000` then the read in value becomes negative. This means sections larger than `0x0fffffff` bytes can not be read or allocated. Impact of other header fields becoming negative is unknown.\r\n\r\nTwo possible solutions:\r\n1. read everything as unsigned into the next bigger data type\r\n2. handle overflows better, e.g. check consequences of values overflowing\r\n\r\nAs this doesn't seem to cause immediate problems (>2GiB PE files are rare and also the other fields seem to rarely reach overflow limit, plus PE parsing seems to work just fine as is) I'd rate the severity of this very low. However as #327 could lead to frustrating symptoms. Hence, I open this issue.\r\n\r\nOther testcases to harden the PE loader see: https://github.com/NationalSecurityAgency/ghidra/pull/418#issuecomment-486889500\r\n",
+      "created_at": "2019-04-26T01:25:23Z",
+      "closed_at": "2026-07-22T19:30:46Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NationalSecurityAgency/ghidra/pull/418"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 418,
+          "title": "fix issue #327: Align virtualSize while importing PE files",
+          "url": "https://github.com/NationalSecurityAgency/ghidra/pull/418",
+          "repository": "nationalsecurityagency/ghidra",
+          "state": "closed",
+          "created_at": "2019-04-12T21:32:48Z",
+          "merged_at": "2019-06-03T19:06:07Z",
+          "impacted_files": [
+            "Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/FileHeader.java",
+            "Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/PortableExecutable.java"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    },
+    {
+      "number": 1244,
+      "title": "[M68000] Add Motorola CPU32 (683xx) support",
+      "url": "https://github.com/NationalSecurityAgency/ghidra/issues/1244",
+      "description_message": "Currently Ghidra lacks CPU32 (Motorola/Freescale 683xx) processor support.\r\n\r\nCPU32 instruction set is same as 68020, with exception of:\r\n\r\n**The folllowing instructions are CPU32 specific:**\r\n - LPSTOP  — low-power stop\r\n - TBLxxx — table lookup and interpolate\r\n\r\n**The following M68020 instructions are NOT implemented on the CPU32:**\r\n - BFxxx — Bit Field Instructions (BFCHG, BFCLR, BFEXTS, BFEXTU, BFFFOBFINS, BFSET, BFTST)\r\n - CALLM, RTM — Call Module, Return Module\r\n - CAS, CAS2 — Compare and Set (Read-Modify-Write Instructions)\r\n - cpxxx — Coprocessor Instructions (cpBcc, cpDBcc, cpGEN, cp RESTORE,cpSAVE, cpScc, cpTRAPcc)\r\n - PACK, UNPK — Pack, Unpack BCD Instructions\r\n\r\nI have made some effort to try and add CPU32 instructions in my [fork](https://github.com/dzidaV8/ghidra/tree/master/Ghidra/Processors/68000/data/languages).\r\n\r\n[CPU32 Reference Manual](https://www.nxp.com/docs/en/reference-manual/CPU32RM.pdf)",
+      "created_at": "2019-11-14T15:14:46Z",
+      "closed_at": "2026-06-10T13:59:51Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/NationalSecurityAgency/ghidra/pull/3006"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 3006,
+          "title": "Add support for ARCompact instruction set",
+          "url": "https://github.com/NationalSecurityAgency/ghidra/pull/3006",
+          "repository": "nationalsecurityagency/ghidra",
+          "state": "open",
+          "created_at": "2021-05-05T16:04:00Z",
+          "merged_at": null,
+          "impacted_files": [
+            "Ghidra/Extensions/SleighDevTools/pcodetest/pcode_defs.py",
+            "Ghidra/Processors/ARC/Module.manifest",
+            "Ghidra/Processors/ARC/build.gradle",
+            "Ghidra/Processors/ARC/data/languages/ARCompact.cspec",
+            "Ghidra/Processors/ARC/data/languages/ARCompact.dwarf",
+            "Ghidra/Processors/ARC/data/languages/ARCompact.ldefs",
+            "Ghidra/Processors/ARC/data/languages/ARCompact.opinion",
+            "Ghidra/Processors/ARC/data/languages/ARCompact.pspec",
+            "Ghidra/Processors/ARC/data/languages/ARCompact.slaspec",
+            "Ghidra/Processors/ARC/src/main/java/ghidra/program/emulation/ARCompactPcodeUseropLibraryFactory.java",
+            "Ghidra/Processors/ARC/src/test.processors/java/ghidra/test/processors/ARC700_O0_EmulatorTest.java",
+            "Ghidra/Processors/ARC/src/test.processors/java/ghidra/test/processors/ARC700_O3_EmulatorTest.java"
+          ],
+          "impacted_files_count": 12
+        }
+      ]
+    },
+    {
+      "number": 2445,
+      "title": "SLEIGH: 64-bit signed token field constraints do not compile",
+      "url": "https://github.com/NationalSecurityAgency/ghidra/issues/2445",
+      "description_message": "**Describe the bug**\r\n64-bit signed token field constraints cause a compiler error.\r\n\r\n**To Reproduce**\r\nThis file:\r\n\r\n```\r\ndefine endian=little;\r\ndefine alignment=1;\r\ndefine space ram type=ram_space size=8 default;\r\n\r\ndefine token foo (64)\r\n    bar = (0,63)\r\n; \r\n\r\n:baz is bar=0x1234 {}\r\n```\r\n\r\nGives the following error:\r\n\r\n```\r\n$ sleigh problem.slaspec\r\n...\r\nWARN  1 NOP constructors found (SleighCompile)  \r\nWARN  Use -n switch to list each individually (SleighCompile)  \r\nError: Equal constraint is impossible to match: for table \"instruction\" constructor from problem.slaspec:9\r\nERROR No output produced (SleighCompile)  \r\n```\r\n\r\nI believe this is because the following check does not handle unsigned longs properly:\r\n\r\nhttps://github.com/NationalSecurityAgency/ghidra/blob/687ce7f529d17f0fa215c2d8193b39b6ea8f636a/Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/pcodeCPort/slghpatexpress/EqualEquation.java#L29-L56\r\n\r\n`TokenField.maxValue()` is implemented as:\r\n\r\nhttps://github.com/NationalSecurityAgency/ghidra/blob/687ce7f529d17f0fa215c2d8193b39b6ea8f636a/Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/pcodeCPort/slghpatexpress/TokenField.java#L54-L60\r\n\r\nSo the maximum value here is `~0` (*which is actually -1 since Java `long`s are signed*), but is compared with the operand using `val <= lhsmax` rather than `val.compareUnsigned(lhsmax) <= 0`. I would open a PR to fix this, but I am worried this is only one instance of the issue and am not super familiar with Ghidra so I don't know how to find/fix them all.\r\n\r\n**Expected behavior**\r\nThe code should successfully compile.\r\n\r\n**Environment:**\r\n - OS: macOS 10.14.6\r\n - Java Version: 12.0.1\r\n - Ghidra Version: 9.1.2",
+      "created_at": "2020-11-07T23:09:15Z",
+      "closed_at": "2026-08-20T13:07:34Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NationalSecurityAgency/ghidra/pull/9512"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 9512,
+          "title": "#2445 Fix 64-bit token equality constraints",
+          "url": "https://github.com/NationalSecurityAgency/ghidra/pull/9512",
+          "repository": "nationalsecurityagency/ghidra",
+          "state": "closed",
+          "created_at": "2026-08-16T21:03:24Z",
+          "merged_at": "2026-08-20T13:07:33Z",
+          "impacted_files": [
+            "Ghidra/Framework/SoftwareModeling/src/main/java/ghidra/pcodeCPort/slghpatexpress/EqualEquation.java",
+            "Ghidra/Framework/SoftwareModeling/src/test/java/ghidra/pcodeCPort/slghpatexpress/EqualEquationTest.java"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    },
+    {
+      "number": 7494,
+      "title": "Script AutoRenameSimpleLabels not handling some characters (invalid characters)",
+      "url": "https://github.com/NationalSecurityAgency/ghidra/issues/7494",
+      "description_message": "I just tried the script script and seems like it can't handle some names:\n\nhttps://github.com/NationalSecurityAgency/ghidra/blob/4247ae795665dc7d743f97947e0ea2a459a99765/Ghidra/Features/Base/ghidra_scripts/AutoRenameSimpleLabels.java#L141-L144\n\n```\nAutoRenameSimpleLabels.java> Renaming BR @ 10029BE5: switchD to branch_10029BE5_dword ptr [EBP*0x4 + 0x10029dec]\n```\n```Java\nSymbol name contains invalid characters: branch_10029BE5_dword ptr [EBP*0x4 + 0x10029dec]\nghidra.util.exception.InvalidInputException: Symbol name contains invalid characters: branch_10029BE5_dword ptr [EBP*0x4 + 0x10029dec]\n\tat ghidra.program.model.symbol.SymbolUtilities.validateName(SymbolUtilities.java:238)\n\tat ghidra.program.database.symbol.SymbolDB.doSetNameAndNamespace(SymbolDB.java:606)\n\tat ghidra.program.database.symbol.SymbolDB.setNameAndNamespace(SymbolDB.java:674)\n\tat ghidra.program.database.symbol.SymbolDB.setName(SymbolDB.java:540)\n\tat AutoRenameSimpleLabels.run(AutoRenameSimpleLabels.java:143)\n\tat ghidra.app.script.GhidraScript.executeNormal(GhidraScript.java:405)\n\tat ghidra.app.script.GhidraScript.doExecute(GhidraScript.java:260)\n\tat ghidra.app.script.GhidraScript.execute(GhidraScript.java:238)\n\tat ghidra.app.plugin.core.script.RunScriptTask.run(RunScriptTask.java:47)\n\tat ghidra.util.task.Task.monitoredRun(Task.java:134)\n\tat ghidra.util.task.TaskRunner.lambda$startTaskThread$0(TaskRunner.java:106)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n\n---------------------------------------------------\nBuild Date: 2025-Feb-05 1536 EST\nGhidra Version: 11.3\nJava Home: C:\\ghidra\\ghidra_11.3\\Contrib\\jdk-21.0.6+7\nJVM Version: Eclipse Adoptium 21.0.6\nOS: Windows 10 10.0 amd64\n```",
+      "created_at": "2025-02-13T11:47:57Z",
+      "closed_at": "2026-06-10T13:59:50Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NationalSecurityAgency/ghidra/pull/9249"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 9249,
+          "title": "7494: Sanitize generated label name in AutoRenameSimpleLabels script",
+          "url": "https://github.com/NationalSecurityAgency/ghidra/pull/9249",
+          "repository": "nationalsecurityagency/ghidra",
+          "state": "closed",
+          "created_at": "2026-06-05T03:56:47Z",
+          "merged_at": "2026-06-10T13:59:48Z",
+          "impacted_files": [
+            "Ghidra/Features/Base/ghidra_scripts/AutoRenameSimpleLabels.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 9167,
+      "title": "Section names out of bounds causes parsing error",
+      "url": "https://github.com/NationalSecurityAgency/ghidra/issues/9167",
+      "description_message": "Section names can be specified as an offset into the string table using \"/[OFFSET]\" as name for a section. Choosing an out-of-bounds offset will cause Ghidra to not parse the file as a PE at all. A maliciously crafted PE file can choose such an offset to evade analysis.\n\nHere is how to create an example .exe:\n```bash\necho '#include <stdio.h>\nvoid main(void) { printf(\"hello world\"); }' > a.c\nx86_64-w64-mingw32-gcc a.c -o a.exe\nstrip --strip-debug --keep-section-symbols --keep-file-symbols a.exe\nsed -i \"s/.text\\x00\\x00\\x00/\\/9999999/g\" a.exe\n```",
+      "created_at": "2026-05-10T15:37:20Z",
+      "closed_at": "2026-06-10T13:59:50Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/NationalSecurityAgency/ghidra/pull/9173"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 9173,
+          "title": "Limit the maximum loadable characters for symbol names",
+          "url": "https://github.com/NationalSecurityAgency/ghidra/pull/9173",
+          "repository": "nationalsecurityagency/ghidra",
+          "state": "open",
+          "created_at": "2026-05-10T21:12:35Z",
+          "merged_at": null,
+          "impacted_files": [
+            "Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/BinaryReader.java",
+            "Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/NTHeader.java",
+            "Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/SectionHeader.java",
+            "Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/debug/DebugCOFFSymbol.java"
+          ],
+          "impacted_files_count": 4
+        }
+      ]
+    },
+    {
+      "number": 9170,
+      "title": "Disassembly/Decompile manipulation due to loading discrepancy in PE",
+      "url": "https://github.com/NationalSecurityAgency/ghidra/issues/9170",
+      "description_message": "Microsoft specifies that for executable images the PointerToRawData must be a multiple of the FileAlignment.\nHowever, Windows does in fact load executables where this is untrue.\nIn fact, Windows will round down to the nearest multiple of 0x200. Please note that while the default FileAlignment is 0x200, Windows will round to a multiple of 0x200 regardless of the FileAlignment.\n\n\nAs an example section take:\n.text:\n    - PointerToRawData: 0x820\n    - VirtualAddress: RVA:0x1000\n\nWindows will round down to 0x800 and start reading there, but Ghidra starts reading at 0x820.\n\nNow assume that at 0x800 a malicious function is located and at 0x820 a harmless one.\n\nThis means that for this maliciously crafted PE file, Ghidra will show the user at RVA:0x1000 the function that lies at 0x820. In reality the function at 0x800 is executed at RVA:0x1000.\n\n\nThis means that a reverser can be tricked into looking at a function that is actually not executed, while the function that is executed is not visible to the reverser at all.\n\nHere is an illustration:\n\nOn disk:\n```\n    0x800  41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41  |AAAAAAAAAAAAAAAA|\n    0x810  42 42 42 42 42 42 42 42 42 42 42 42 42 42 42 42  |BBBBBBBBBBBBBBBB|\n    0x820  43 43 43 43 43 43 43 43 43 43 43 43 43 43 43 43  |CCCCCCCCCCCCCCCC|\n    0x830  44 44 44 44 44 44 44 44 44 44 44 44 44 44 44 44  |DDDDDDDDDDDDDDDD|\n    0x840  45 45 45 45 45 45 45 45 45 45 45 45 45 45 45 45  |EEEEEEEEEEEEEEEE|\n    0x850  ...\n```\n\nOn Windows:\n```\nRVA:0x1000  41 41 41 41 41 41 41 41 41 41 41 41 41 41 41 41  |AAAAAAAAAAAAAAAA|\nRVA:0x1010  42 42 42 42 42 42 42 42 42 42 42 42 42 42 42 42  |BBBBBBBBBBBBBBBB|\nRVA:0x1020  43 43 43 43 43 43 43 43 43 43 43 43 43 43 43 43  |CCCCCCCCCCCCCCCC|\nRVA:0x1030  ...\n```\n\nIn Ghidra:\n```\nRVA:0x1000  43 43 43 43 43 43 43 43 43 43 43 43 43 43 43 43  |CCCCCCCCCCCCCCCC|\nRVA:0x1010  44 44 44 44 44 44 44 44 44 44 44 44 44 44 44 44  |DDDDDDDDDDDDDDDD|\nRVA:0x1020  45 45 45 45 45 45 45 45 45 45 45 45 45 45 45 45  |EEEEEEEEEEEEEEEE|\nRVA:0x1030  ...\n```\n\nAs this is a parsing bug, the disassembler view and the decompiler view are affected.\n\nAlso note that when a PointerToRawData is 0x0, no data will be loaded (uninitialized section). But the check if PointerToRawData is 0x0, is before rounding down. So in the case where PointerToRawData is between 0x001 and 0x1ff, Windows will load from offset 0x0.\n\nAn exe file for testing with a different FileAlignment can be generated like this:\n```bash\nx86_64-w64-mingw32-gcc a.c -Wl,--file-alignment=0x1000 -o out.exe\n```\n\nFor testing these behaviors described one can change the PointerToRawData in for example PE-bear and see how the section is loaded in x64dbg.\n\n\nThese behaviors were tested on Windows 11 with 32-Bit and 64-Bit executables, with 0x200, 0x800 and 0x1000 as FileAlignment.\n\nSimilar behavior for SizeOfRawData: #9171",
+      "created_at": "2026-05-10T16:07:53Z",
+      "closed_at": "2026-07-06T15:47:56Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NationalSecurityAgency/ghidra/pull/9176"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 9176,
+          "title": "Round down PointerToRawData to the nearest multiple 0x200",
+          "url": "https://github.com/NationalSecurityAgency/ghidra/pull/9176",
+          "repository": "nationalsecurityagency/ghidra",
+          "state": "closed",
+          "created_at": "2026-05-10T22:31:19Z",
+          "merged_at": "2026-07-06T15:47:54Z",
+          "impacted_files": [
+            "Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/SectionHeader.java",
+            "Ghidra/Features/Base/src/main/java/ghidra/app/util/opinion/PeLoader.java"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    },
+    {
+      "number": 9198,
+      "title": "Low-level Error: assignment to constant",
+      "url": "https://github.com/NationalSecurityAgency/ghidra/issues/9198",
+      "description_message": "**Describe the bug**\n\nRISC-V binaries including instructions like ` amoadd.d  zero,a5,(a4)` cause the decompiler to quit with the Low-level Error: assignment to constant.  The decompiler throws this error when an attempt is made to write to a constant Varnode, likely a Varnode holding the constant value '0'.\n\nReproduce by running the attached file as a decompiler datatest.\n\n**Expected behavior**\n\nThe RISC-V register r0 - aka `zero` - is treated as a discard sink rather than the constant `0` when used in a destination register context\n\n**Attachments**\n\nThe attached xml file can be used to reproduce the error in the decompiler datatest context.\n[dpdk_sample_4_save.xml](https://github.com/user-attachments/files/27974391/dpdk_sample_4_save.xml)\n\nThe datatest script for this will be something like:\n\n```text\nrestore test_data/dpdk_sample_4_save.xml\nmap function 0x2879b2 rte_vhost_notify_guest\nparse line extern void rte_vhost_notify_guest(ulong param_1, ulong param_2);\nload function rte_vhost_notify_guest\ndecompile rte_vhost_notify_guest\nprint C\nprint raw\n```\n\n**Environment (please complete the following information):**\n - OS: Fedora 44\n - Java Version: NA\n - Ghidra Version: 12.2-DEV\n - Ghidra Origin: locally built\n\n**Additional context**\n\nMany RISC-V instructions define two patterns, one matching for `rd=r0` and the other for any other destination register. \n\n\n\n We could do the same thing for the `amo*` instructions.   There may be a more elegant way of expressing discard semantics for register r0, perhaps involving this line in `riscv.table.sinc`:\n\n    rdL: zero is r0711 & zero & op0711=0 { export 0:8; }\n\n",
+      "created_at": "2026-05-18T20:25:16Z",
+      "closed_at": "2026-05-28T16:01:26Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/NationalSecurityAgency/ghidra/pull/5778"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 5778,
+          "title": "Update RISCV-64 sleigh files to support vector, bit manipulation, and crypto extensions",
+          "url": "https://github.com/NationalSecurityAgency/ghidra/pull/5778",
+          "repository": "nationalsecurityagency/ghidra",
+          "state": "open",
+          "created_at": "2023-09-14T18:00:38Z",
+          "merged_at": null,
+          "impacted_files": [
+            "Ghidra/Features/Decompiler/certification.manifest",
+            "Ghidra/Features/Decompiler/src/decompile/datatests/riscv_isaext_memcpy.xml",
+            "Ghidra/Features/Decompiler/src/decompile/unittests/riscv_isaext.cc",
+            "Ghidra/Processors/RISCV/certification.manifest",
+            "Ghidra/Processors/RISCV/data/languages/Readme_isa_extensions.md",
+            "Ghidra/Processors/RISCV/data/languages/riscv.custom.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.ilp32d_thead.slaspec",
+            "Ghidra/Processors/RISCV/data/languages/riscv.instr.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.ldefs",
+            "Ghidra/Processors/RISCV/data/languages/riscv.lp64d_thead.slaspec",
+            "Ghidra/Processors/RISCV/data/languages/riscv.priv.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.reg.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.rv32b.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.rv32i.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.rv32p.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.rv64b.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.rv64q.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.rvv.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.table.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.xthead.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.zcb.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.zfa.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.zfh.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.zknd.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.zkne.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.zknh.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.zksed.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.zksh.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.zvbb.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.zvbc.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.zvkng.sinc",
+            "Ghidra/Processors/RISCV/data/languages/riscv.zvksg.sinc",
+            "gradle/support/ip.gradle"
+          ],
+          "impacted_files_count": 33
+        }
+      ]
+    },
+    {
+      "number": 9246,
+      "title": "Hexagon variadic calling convention does not model stack varargs correctly",
+      "url": "https://github.com/NationalSecurityAgency/ghidra/issues/9246",
+      "description_message": "Ghidra’s Hexagon calling convention currently does not correctly model variadic functions such as `printf`, `sprintf`, `snprintf`, and `vsnprintf`.\n\nPer the Hexagon ABI, fixed parameters are passed normally, but variadic arguments are passed on the stack. In practice, this causes the decompiler to miss or mis-handle extra arguments unless the user manually applies custom signature overrides at each call site.\n\nA downstream Hexagon SLEIGH project fixed this by adding separate variadic calling conventions such as `vararg1`, `vararg2`, and `vararg3`:\n\nhttps://github.com/CUB3D/ghidra-hexagon-sleigh/pull/30\n\nIt would be helpful if upstream Ghidra’s Hexagon processor support could model this behavior directly, or provide a generic way for `.cspec` calling conventions to say: “after N fixed arguments, place variadic arguments on the stack.”\n",
+      "created_at": "2026-06-03T14:42:05Z",
+      "closed_at": "2026-08-10T15:20:12Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/NationalSecurityAgency/ghidra/pull/9490"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 9490,
+          "title": "Hexagon: Add missing relocation formats + fix existing one",
+          "url": "https://github.com/NationalSecurityAgency/ghidra/pull/9490",
+          "repository": "nationalsecurityagency/ghidra",
+          "state": "open",
+          "created_at": "2026-08-09T17:43:22Z",
+          "merged_at": null,
+          "impacted_files": [
+            "Ghidra/Processors/Hexagon/src/main/java/ghidra/app/util/bin/format/elf/relocation/Hexagon_ElfRelocationHandler.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 9303,
+      "title": "NPE in ForceUnionAction.findUnion() [12.2-DEVELOPMENT head]",
+      "url": "https://github.com/NationalSecurityAgency/ghidra/issues/9303",
+      "description_message": "**Describe the bug**\nIn code browser, NPE thrown from ForceUnionAction.findUnion()\n\n**To Reproduce**\nLoading a listing from previous release where an address has multiple overlapping labels, click on an instruction line referencing one of the labels give an NPE.\n\n**Expected behavior**\nNo error\n\n**Attachments**\n```\nCannot invoke \"ghidra.program.model.pcode.HighVariable.getDataType()\" because the return value of \"ghidra.program.model.pcode.Varnode.getHigh()\" is null\njava.lang.NullPointerException: Cannot invoke \"ghidra.program.model.pcode.HighVariable.getDataType()\" because the return value of \"ghidra.program.model.pcode.Varnode.getHigh()\" is null\n\tat ghidra.app.plugin.core.decompile.actions.ForceUnionAction.findUnion(ForceUnionAction.java:72)\n\tat ghidra.app.plugin.core.decompile.actions.ForceUnionAction.isEnabledForDecompilerContext(ForceUnionAction.java:104)\n\tat ghidra.app.plugin.core.decompile.actions.AbstractDecompilerAction.isEnabledForContext(AbstractDecompilerAction.java:68)\n\tat docking.ComponentPlaceholder.contextChanged(ComponentPlaceholder.java:555)\n\tat docking.DockingWindowManager.contextChanged(DockingWindowManager.java:2458)\n\tat docking.AbstractDockingTool.contextChanged(AbstractDockingTool.java:222)\n\tat ghidra.framework.plugintool.PluginTool.contextChanged(PluginTool.java:1563)\n\tat ghidra.app.plugin.core.decompile.DecompilerProvider.contextChanged(DecompilerProvider.java:788)\n\tat ghidra.app.plugin.core.decompile.DecompilerProvider.setLocation(DecompilerProvider.java:526)\n\tat ghidra.app.plugin.core.decompile.DecompilePlugin.lambda$0(DecompilePlugin.java:86)\n\tat ghidra.util.task.SwingUpdateManager.swingDoWork(SwingUpdateManager.java:108)\n\tat ghidra.util.task.AbstractSwingUpdateManager.swingExecutePendingWork(AbstractSwingUpdateManager.java:338)\n\tat ghidra.util.task.AbstractSwingUpdateManager.timerCallback(AbstractSwingUpdateManager.java:287)\n\tat ghidra.util.task.AbstractSwingUpdateManager.lambda$0(AbstractSwingUpdateManager.java:131)\n\tat java.desktop/javax.swing.Timer.fireActionPerformed(Timer.java:311)\n\tat java.desktop/javax.swing.Timer$DoPostEvent.run(Timer.java:243)\n\tat java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318)\n\tat java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:773)\n\tat java.desktop/java.awt.EventQueue$4.run(EventQueue.java:720)\n\tat java.desktop/java.awt.EventQueue$4.run(EventQueue.java:714)\n\tat java.base/java.security.AccessController.doPrivileged(AccessController.java:400)\n\tat java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:87)\n\tat java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:742)\n\tat java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:203)\n\tat java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:124)\n\tat java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:113)\n\tat java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:109)\n\tat java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:101)\n\tat java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:90)\n\n---------------------------------------------------\nBuild Date: 2026-Jun-23\nGhidra Version: 12.2\nJava Home: C:\\Users\\paulg\\.p2\\pool\\plugins\\org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_21.0.11.v20260515-1531\\jre\nJVM Version: Eclipse Adoptium 21.0.11\nOS: Windows 11 10.0 amd64\nWorkstation: MITHRIM\n```\n\n**Environment (please complete the following information):**\n - OS: Win 11\n - Java Version: 21\n - Ghidra Version: head, 082f7fe96b1b50d525f84ffe8e67a466a42e8b2e\n - Ghidra Origin: official\n\n",
+      "created_at": "2026-06-24T01:57:25Z",
+      "closed_at": "2026-06-24T17:37:55Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NationalSecurityAgency/ghidra/pull/9304"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 9304,
+          "title": "9303: Varnode.High NP gate in ForceUnionAction.findUnion",
+          "url": "https://github.com/NationalSecurityAgency/ghidra/pull/9304",
+          "repository": "nationalsecurityagency/ghidra",
+          "state": "closed",
+          "created_at": "2026-06-24T02:18:38Z",
+          "merged_at": "2026-06-24T17:37:54Z",
+          "impacted_files": [
+            "Ghidra/Features/Decompiler/src/main/java/ghidra/app/plugin/core/decompile/actions/ForceUnionAction.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 9330,
+      "title": "x86-64: `RCL`/`RCR` should set `OF` flag when masked count is 0 or 1",
+      "url": "https://github.com/NationalSecurityAgency/ghidra/issues/9330",
+      "description_message": "**Describe the bug**\nAccording to the Intel SDM, the `RCL`/`RCR` instructions set the OF flag when the masked count is 0 or 1:\n\n> The OF flag is **defined only for the 1-bit rotates**; it is undefined in all other cases (**except RCL and RCR instructions only: a zero-bit rotate does nothing**, that is affects no flags).\n\nGhidra does not update the OF flag at all.\n\n**To Reproduce**\nLoad the program compiled from the assembly below into Ghidra.\nNavigate to the function `run`.\nThe decompilation window will show something like:\n\n```c\nundefined1  [16] run(undefined8 param_1,undefined8 param_2,ulong param_3)\n\n{\n  undefined1 auVar1 [16];\n  \n  auVar1._8_8_ = 0;\n  auVar1._0_8_ = param_3;\n  return auVar1 << 0x40;\n}\n```\n\nWhen toggling off \"eliminate dead code\", Ghidra will show an if (true) or if (false) branch that makes it seem like the syscall is never executed.\n\n**Expected behavior**\nThe decompilation of the `run` function should show an always-executed `syscall`.\nYou can verify this by running the binary, and confirming that it prints a message \"Everything OK\" to stdout.\n\n**Attachments**\nA minimal program to reproduce:\n```asm\nsection .data\n    msg db \"Everything OK\", 10\n    len equ $ - msg\n\nsection .text\n    global _start\n\nrun:\n    mov eax, 0xffffffff\n    ; Overflows, so OF=1\n    add eax, 0x80000000\n    mov eax, 0\n    clc\n    mov ecx, 1\n\n    ; Uncomment exactly one:\n    rcl eax, cl\n    ; rcr eax, cl\n    ; Both should set OF=0\n\n    jno ok\n    ret\n\nok:\n    mov rsi, msg\n    mov rdx, len\n    mov rax, 1\n    mov rdi, 1\n    syscall\n    ret\n\n_start:\n    call run\n    mov rax, 60\n    xor rdi, rdi\n    syscall\n    ret\n```\n\nThe program can be compiled with `nasm -f elf64 -o test.o test.s`, then linked with `ld -o test test.o`.\nIt will print \"Everything OK\" with a syscall in the run function when executed,\nbut Ghidra will incorrectly consider this syscall to be unreachable.\n\n**Environment (please complete the following information):**\n - OS: Ubuntu 26.04\n - Java Version: openjdk 11.0.31 2026-04-21\n - Ghidra Version: 12.1.2\n - Ghidra Origin: flatpak\n",
+      "created_at": "2026-06-29T13:10:13Z",
+      "closed_at": "2026-08-13T15:11:47Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/NationalSecurityAgency/ghidra/pull/9487"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 9487,
+          "title": "x86: set OF flag for RCL/RCR when masked rotate count is 1",
+          "url": "https://github.com/NationalSecurityAgency/ghidra/pull/9487",
+          "repository": "nationalsecurityagency/ghidra",
+          "state": "open",
+          "created_at": "2026-08-07T23:41:15Z",
+          "merged_at": null,
+          "impacted_files": [
+            "Ghidra/Processors/x86/data/languages/ia.sinc"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 9362,
+      "title": "Filenames containing '!' characters cause an exception when attempting to trigger the \"Copy special....\" action",
+      "url": "https://github.com/NationalSecurityAgency/ghidra/issues/9362",
+      "description_message": "**Describe the bug**\n\nImporting files for analysis which contain '!' (exclamation mark) characters in the filename trigger an unhandled exception when attempting to trigger the \"Copy Special...\" context menu action in the listing field, preventing the usage of the action entirely.\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. Load a file in a project which contains an exclamation mark in its filename.\n2. Mark a few bytes in the \"Listing\" view.\n3. Right-click to trigger the context menu.\n4. Select \"Copy Special...\" from the context menu.\n\n**Expected behavior**\nThe \"Copy Special...\" context menu should appear regardless of the presence of exclamation mark characters in the filename.\n\nI believe that either the exclamation marks should be handled properly during import or the code path leading to `ghidra.framework.protocol.ghidra.GhidraURL.checkValidProjectPath` should be modified to exclude the filename.\n\nIt should be noted that during project creation, project names are explicitly prevented from containing exclamation marks.\n\n**Screenshots**\n\nSample import:\n<img width=\"785\" height=\"588\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/2e5cd67d-ad55-41ae-88ab-9c3e9075589e\" />\n\nContext menu:\n<img width=\"1475\" height=\"1315\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/6e6b1f91-0591-463d-b2c6-42675d2b14df\" />\n\nException:\n<img width=\"1655\" height=\"1154\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/9f47e1aa-39e0-460d-a174-991404854061\" />\n\n**Attachments**\nSample project:\n\n[SampleProject.zip](https://github.com/user-attachments/files/29889002/SampleProject.zip)\n\n**Environment**\n - OS:  macOS Tahoe 26.5.2\n - Java Version: 21.0.11\n - Ghidra Version: 12.1.2\n - Ghidra Origin: homebrew\n\n**Additional context**\n\nException information:\n\n```\nPath element contains invalid character: '!'\njava.lang.IllegalArgumentException: Path element contains invalid character: '!'\n\tat ghidra.util.NamingUtilities.checkName(NamingUtilities.java:112)\n\tat ghidra.framework.protocol.ghidra.GhidraURL.checkValidProjectPath(GhidraURL.java:448)\n\tat ghidra.framework.protocol.ghidra.GhidraURL.resolve(GhidraURL.java:510)\n\tat ghidra.framework.protocol.ghidra.GhidraURL.makeURL(GhidraURL.java:867)\n\tat ghidra.framework.data.GhidraFileData.getLocalProjectURL(GhidraFileData.java:417)\n\tat ghidra.framework.data.GhidraFile.getLocalProjectURL(GhidraFile.java:139)\n\tat ghidra.app.plugin.core.clipboard.CodeBrowserClipboardProvider.getGhidraUrlClipboardType(CodeBrowserClipboardProvider.java:235)\n\tat ghidra.app.plugin.core.clipboard.CodeBrowserClipboardProvider.getCurrentCopyTypes(CodeBrowserClipboardProvider.java:216)\n\tat ghidra.app.plugin.core.clipboard.ClipboardPlugin.copySpecial(ClipboardPlugin.java:306)\n\tat ghidra.app.plugin.core.clipboard.ClipboardPlugin$CopySpecialAction.actionPerformed(ClipboardPlugin.java:482)\n\tat docking.PopupMenuHandler$1.run(PopupMenuHandler.java:63)\n\tat java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318)\n\tat java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:773)\n\tat java.desktop/java.awt.EventQueue$4.run(EventQueue.java:720)\n\tat java.desktop/java.awt.EventQueue$4.run(EventQueue.java:714)\n\tat java.base/java.security.AccessController.doPrivileged(AccessController.java:400)\n\tat java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:87)\n\tat java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:742)\n\tat java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:203)\n\tat java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:124)\n\tat java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:113)\n\tat java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:109)\n\tat java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:101)\n\tat java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:90)\n\n---------------------------------------------------\nBuild Date: 2026-Jun-05 2059 GMT\nGhidra Version: 12.1.2\nJava Home: /opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home\nJVM Version: Homebrew 21.0.11\nOS: Mac OS X 26.5.2 aarch64\n```\n",
+      "created_at": "2026-07-10T12:26:32Z",
+      "closed_at": "2026-07-13T08:37:20Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/NationalSecurityAgency/ghidra/pull/9010"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 9010,
+          "title": "add '+' (plus) as a possible character for project and file names, i.e. to debug notepad++.exe - any reason not to?",
+          "url": "https://github.com/NationalSecurityAgency/ghidra/pull/9010",
+          "repository": "nationalsecurityagency/ghidra",
+          "state": "open",
+          "created_at": "2026-02-27T23:49:19Z",
+          "merged_at": null,
+          "impacted_files": [
+            "Ghidra/Framework/FileSystem/src/main/java/ghidra/util/NamingUtilities.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 9367,
+      "title": "Debugger (gdb): ghidragdb cannot map MIPS ISA-level architectures (e.g. mips:isa64r2), falls back to DATA64",
+      "url": "https://github.com/NationalSecurityAgency/ghidra/issues/9367",
+      "description_message": "**Describe the bug**\n\n`ghidragdb` maps gdb's BFD architecture name to a Ghidra language via `language_map` in `Ghidra/Debug/Debugger-agent-gdb/src/main/py/src/ghidragdb/arch.py`. The MIPS entries cover only specific legacy CPU names — `mips:3000`, `mips:4000`, `mips:5000`, `mips:micromips` — and omit the ISA-level names (`mips:isa32[r2/r6]`, `mips:isa64[r2/r6]`) that gdb selects for ISA-generic MIPS targets.\n\ngdb reports the ISA-level name automatically from an ordinary MIPS ELF — no custom target description is required. For a stock big-endian MIPS64R2 executable:\n\n```\n(gdb) file mips64_hello_static\n(gdb) show architecture\nThe target architecture is set to \"auto\" (currently \"mips:isa64r2\").\n```\n\nWhen the Debugger connects to such a target, `compute_ghidra_language()` does not find `mips:isa64r2` in `language_map` and falls back to `DATA:BE:64:default`. That data language has no program counter, so the trace attaches but register/PC handling is broken:\n\n- Register hover in the Listing: `platform must have a program counter`\n- On stop: `gdb.GdbError: Cannot convert status's value: '<unavailable>'` (from `commands.putreg` → `arch.map_value`)\n- The log shows `Using the DATA64 compiler map`; the Decompiler view stays empty.\n\nThe legacy `mips:NNNN` names still work and are unaffected — the map is simply missing the ISA-level family.\n\n**To Reproduce**\n\n1. Have a MIPS64 (or MIPS32r2+) target where `(gdb) show architecture` reports an ISA-level name, e.g. `mips:isa64r2`.\n2. Connect Ghidra's Debugger (gdb). The trace is created as `DATA:BE:64:default`; registers cannot be read and the Decompiler stays empty.\n\n**Expected behavior**\n\nMap the `mips:isaNN[rN]` names to the matching `MIPS:*:32/64:default` languages, the same way `mips:5000` already maps to `MIPS:BE:64:default`.\n\n**Environment**\n\n- Ghidra 12.1.2 (arch.py unchanged on `master`)\n- gdb-multiarch 17.1; big-endian MIPS64R2 target\n\n**Workaround**\n\n`set ghidra-language MIPS:BE:64:default` before the trace starts.\n\n**Suggested fix**\n\nAdd the ISA-level names to `language_map` in `ghidragdb/arch.py` (pull request to follow).\n",
+      "created_at": "2026-07-12T07:32:52Z",
+      "closed_at": "2026-07-14T13:58:45Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NationalSecurityAgency/ghidra/pull/9368"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 9368,
+          "title": "#9367 Map MIPS ISA-level architectures in ghidragdb",
+          "url": "https://github.com/NationalSecurityAgency/ghidra/pull/9368",
+          "repository": "nationalsecurityagency/ghidra",
+          "state": "closed",
+          "created_at": "2026-07-12T07:34:22Z",
+          "merged_at": "2026-07-14T13:58:44Z",
+          "impacted_files": [
+            "Ghidra/Debug/Debugger-agent-gdb/src/main/py/src/ghidragdb/arch.py"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 9375,
+      "title": "Delay-load imports: enumeration from IAT vs INT when lengths differ - intended behaviour?",
+      "url": "https://github.com/NationalSecurityAgency/ghidra/issues/9375",
+      "description_message": "When a delay-load descriptor's Import Name Table (INT) and Import Address Table (IAT) have different lengths, Ghidra appears to enumerate imports from the IAT, where several other PE tools enumerate from the INT. I'd like to understand whether this is a deliberate design choice, and how the loader is intended to handle an INT/IAT length mismatch.\n\n## Observed behaviour\n\nTesting with a minimal PE32+ binary whose single delay-load descriptor has:\n\n- INT: three entries (Foo, Bar, Baz) + null terminator\n- IAT: two entries (Foo, Bar) + null terminator\n\nGhidra 12.1 (headless, default analysis) enumerates two delay-load imports:\n\n```plaintext\nDDI: delay_dir_parsed=true datatype=ImgDelayDescr\nDDI: external_library=TEST.DLL\nDDI: external_symbol=TEST.DLL!Foo\nDDI: external_symbol=TEST.DLL!Bar\nDDI: external_symbol_count=2\n```\n\n(Output from a small postscript walking `getSymbolTable().getExternalSymbols()`.)\n\n*Note: datatype=ImgDelayDescr - Ghidra parsed the descriptor structure cleanly; the divergence is purely in which array it uses for the import count, not a parse failure.*\n\nFor comparison, on the same binary:\n\n- dumpbin 14.44 enumerates 3 (from INT; the third shown with a null IAT address)\n- pefile 2024.8.26 enumerates 3 (from INT)\n\nSo Ghidra reports two imports where dumpbin and pefile report three. The difference appears to be that Ghidra walks the IAT to determine the import count, while the others walk the INT.\n\n## Why I'm asking\n\nI'm studying how PE parsers handle malformed/edge-case delay-load structures, using single-anomaly test binaries (this one differs from a well-formed binary only in the INT/IAT length mismatch; a well-formed control with matching INT/IAT is enumerated identically by all tools, Ghidra included all 3 imports).\n\nThe PE specification doesn't state which array is authoritative when the two disagree, so I don't think any tool is strictly wrong here. I'm trying to understand the different implementation choices. Ghidra's choice to key off the IAT is defensible; I'd just like to know:\n\n1. Is IAT-based enumeration intentional for delay-load imports, or a side effect of how the loader walks the descriptor?\n2. How does Ghidra intend to handle an INT/IAT length mismatch; is it treated as malformed, or is one array simply taken as authoritative by design?\n3. Would it be useful for Ghidra to surface the mismatch (e.g., a bookmark or log warning) when the arrays disagree, given that the divergence is silent today?\n\n## Not a bug report\n\nTo be clear, I'm not reporting this as a defect. Ghidra parses the descriptor cleanly and produces a reasonable result. On a well-formed binary Ghidra's output matches the other tools exactly. This is a question about intended behaviour on a specifically malformed edge case, which the PE spec underspecifies. I've also raised the underlying spec ambiguity with the PE format documentation: https://github.com/MicrosoftDocs/win32/pull/2202\n\n## Reproduction\n\nMinimal PE32+ test binary and the headless dump postscript are available at https://github.com/malx-labs/pe-delayload-divergence. Happy to provide the fixture directly if useful. Ghidra version 12.1 PUBLIC, default headless analysis options.\n\nThanks, genuinely curious how the loader team thinks about this case.",
+      "created_at": "2026-07-14T16:29:21Z",
+      "closed_at": "2026-07-17T15:23:29Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/NationalSecurityAgency/ghidra/pull/9379"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 9379,
+          "title": "#9375 Warn on delay-load INT/IAT import count mismatch",
+          "url": "https://github.com/NationalSecurityAgency/ghidra/pull/9379",
+          "repository": "nationalsecurityagency/ghidra",
+          "state": "closed",
+          "created_at": "2026-07-16T13:58:35Z",
+          "merged_at": "2026-07-17T15:23:28Z",
+          "impacted_files": [
+            "Ghidra/Features/Base/src/main/java/ghidra/app/util/bin/format/pe/DelayImportDescriptor.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    }
+  ]
+}

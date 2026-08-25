@@ -1,0 +1,672 @@
+{
+  "project_name": "spring-projects/spring-framework",
+  "github_url": "https://github.com/spring-projects/spring-framework",
+  "mined_at": "2026-08-25T07:30:03.177068+00:00",
+  "allow_open_pr": true,
+  "total_closed_issues_scanned": 601,
+  "total_relevant_issues": 22,
+  "issues": [
+    {
+      "number": 35833,
+      "title": "Migrate to `@ParameterizedClass` where feasible",
+      "url": "https://github.com/spring-projects/spring-framework/issues/35833",
+      "description_message": "## Overview\n\nSeveral years ago we migrated from JUnit 4 based parameterized test classes to standard JUnit Jupiter based test classes with `@ParameterizedTest` methods.\n\nHowever, the only reason we did that is that JUnit Jupiter did not have support for parameterized test classes.\n\nSince JUnit Jupiter 5.13, however, there is built-in support for `@ParameterizedClass`.\n\nThus, we should migrate to `@ParameterizedClass` wherever feasible and/or beneficial.\n\n## Related Issues\n\n- #36161 ",
+      "created_at": "2025-11-17T15:29:33Z",
+      "closed_at": "2026-05-21T16:02:38Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/36181"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 36181,
+          "title": "Migrate tests to `@ParameterizedClass` in `spring-core`",
+          "url": "https://github.com/spring-projects/spring-framework/pull/36181",
+          "repository": "spring-projects/spring-framework",
+          "state": "open",
+          "created_at": "2026-01-20T12:19:35Z",
+          "merged_at": null,
+          "impacted_files": [
+            "spring-core/src/test/java/org/springframework/core/io/ResourceTests.java",
+            "spring-core/src/test/java/org/springframework/core/io/buffer/DataBufferTests.java",
+            "spring-core/src/test/java/org/springframework/core/io/buffer/DataBufferUtilsTests.java",
+            "spring-core/src/test/java/org/springframework/core/io/buffer/support/DataBufferTestUtilsTests.java",
+            "spring-core/src/test/java/org/springframework/util/MultiValueMapTests.java",
+            "spring-core/src/testFixtures/java/org/springframework/core/testfixture/io/buffer/AbstractDataBufferAllocatingTests.java",
+            "spring-web/src/test/java/org/springframework/http/codec/ServerSentEventHttpMessageWriterTests.java",
+            "spring-webflux/src/test/java/org/springframework/web/reactive/function/client/WebClientDataBufferAllocatingTests.java"
+          ],
+          "impacted_files_count": 8
+        }
+      ]
+    },
+    {
+      "number": 36223,
+      "title": "Consistently close streams through try-with-resources in FileCopyUtils",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36223",
+      "description_message": "With #27702, `FileCopyUtils` started using try-with-resources for `copy(InputStream, OutputStream)` while leaving other methods with manual stream closing. This can be harmonized toward consistent use of try-with-resources.",
+      "created_at": "2026-01-28T17:04:12Z",
+      "closed_at": "2026-01-28T17:08:33Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/36221"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 36221,
+          "title": "Use Java Files utilities in FileCopyUtils",
+          "url": "https://github.com/spring-projects/spring-framework/pull/36221",
+          "repository": "spring-projects/spring-framework",
+          "state": "closed",
+          "created_at": "2026-01-28T16:16:33Z",
+          "merged_at": "2026-01-28T16:46:09Z",
+          "impacted_files": [
+            "spring-core/src/main/java/org/springframework/util/FileCopyUtils.java",
+            "spring-core/src/test/java/org/springframework/util/FileCopyUtilsTests.java"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    },
+    {
+      "number": 36224,
+      "title": "Consistently close streams through try-with-resources in FileCopyUtils",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36224",
+      "description_message": "Backport of gh-36223",
+      "created_at": "2026-01-28T17:05:36Z",
+      "closed_at": "2026-01-28T17:18:50Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/36221"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 36221,
+          "title": "Use Java Files utilities in FileCopyUtils",
+          "url": "https://github.com/spring-projects/spring-framework/pull/36221",
+          "repository": "spring-projects/spring-framework",
+          "state": "closed",
+          "created_at": "2026-01-28T16:16:33Z",
+          "merged_at": "2026-01-28T16:46:09Z",
+          "impacted_files": [
+            "spring-core/src/main/java/org/springframework/util/FileCopyUtils.java",
+            "spring-core/src/test/java/org/springframework/util/FileCopyUtilsTests.java"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    },
+    {
+      "number": 36236,
+      "title": "ResponseEntity body nullability issue with Kotlin",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36236",
+      "description_message": "Hi there, since Spring 4 and the introduction of JSpecify I am no longer able to declare some nullable types in `ResponseEntity`.\n\nFor example, such an endpoint:\n```kotlin\n@RestController\nclass HelloController {\n    @GetMapping(\"/hello\")\n    fun hello(): ResponseEntity<String?> {\n        val maybeHello :String? = \"hey\"\n        return ResponseEntity.ok(maybeHello)\n    }\n}\n```\nwould return a `ResponseEntity` with body `String`, or a `ResponseEntity` with `null` body (according to whatever logic determines whether the body is null or not).\nLeaving alone as to whether or not this is a recommended Rest endpoint, I would expect this to compile properly, especially due to `ResponseEntity` contract, which is as follows (current version 7.0.2):\n```java\n\tpublic static <T> ResponseEntity<T> ok(@Nullable T body) {\n\t\treturn ok().body(body);\n\t}\n```\nHowever, although the IDE does not recognise this as an error (cause I assume it should not be, given `@Nullable`), when I compile I get the following error:\n```\nexception: src/main/kotlin/.../Application.kt:19:33: error: type argument is not within its bounds: must be subtype of 'Any'.\nexception:     fun hello(): ResponseEntity<String?> {\nexception:                                 ^^^^^^^\nexception: src/main/kotlin/.../Application.kt:21:16: error: return type mismatch: expected 'ResponseEntity<String?>', actual 'ResponseEntity<String>'.\nexception:         return ResponseEntity.ok(maybeHello)\nexception:                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n```\n\nI understand that I can completely omit `ResponseEntity` and just return the nullable body, but I am confused as to why `Jsepcify` is not recognising this kotlin nullability.\nI have read that there are still teething issues when it comes to `Jspecify` and generics, but I wonder if this would fall under this category, and if so what is your recommendation for the short term.",
+      "created_at": "2026-01-31T09:41:31Z",
+      "closed_at": "2026-02-10T14:00:36Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/36238"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 36238,
+          "title": "Revise nullability in HttpEntity and ResponseEntity",
+          "url": "https://github.com/spring-projects/spring-framework/pull/36238",
+          "repository": "spring-projects/spring-framework",
+          "state": "open",
+          "created_at": "2026-01-31T12:36:22Z",
+          "merged_at": null,
+          "impacted_files": [
+            "framework-docs/src/main/kotlin/org/springframework/docs/web/webmvc/mvccontroller/mvcannexceptionhandlerexc/ExceptionController.kt",
+            "spring-web/src/main/java/org/springframework/http/HttpEntity.java",
+            "spring-web/src/main/java/org/springframework/http/RequestEntity.java",
+            "spring-web/src/main/java/org/springframework/http/ResponseEntity.java",
+            "spring-web/src/main/java/org/springframework/http/client/MultipartBodyBuilder.java",
+            "spring-web/src/main/java/org/springframework/web/client/RestTemplate.java",
+            "spring-web/src/test/kotlin/org/springframework/http/ResponseEntityKotlinTests.kt",
+            "spring-webflux/src/main/java/org/springframework/web/reactive/function/client/WebClientUtils.java",
+            "spring-webflux/src/main/java/org/springframework/web/reactive/result/method/annotation/HttpEntityMethodArgumentResolver.java",
+            "spring-webflux/src/main/java/org/springframework/web/reactive/result/method/annotation/ResponseEntityExceptionHandler.java",
+            "spring-webmvc/src/main/java/org/springframework/web/servlet/mvc/method/annotation/HttpEntityMethodProcessor.java",
+            "spring-webmvc/src/main/java/org/springframework/web/servlet/mvc/method/annotation/ResponseEntityExceptionHandler.java"
+          ],
+          "impacted_files_count": 12
+        }
+      ]
+    },
+    {
+      "number": 36262,
+      "title": "Multipart upload leak on client abort (ByteBuf.release() not called)",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36262",
+      "description_message": "### Description\n  I see Netty leak reports during multipart uploads when the client aborts the request mid‑upload. Leak detector logs point to the inbound HTTP pipeline / multipart parsing path. This reproduces quickly when the client timeout is small and the\n  uploaded files are large.\n\n### Environment\n  - OS: Linux\n  - JDK: 21\n  - Spring Boot: 3.5.10\n  - Spring Framework: 6.x (from Boot 3.5.10 BOM)\n  - Reactor Netty: 1.2.14\n  - Netty: 4.1.130.Final\n  - Leak detection: \n     -Dio.netty.leakDetection.level=advanced (also tried paranoid)\n     -Dio.netty.leakDetection.targetRecords=32\n     -Dio.netty.leakDetection.samplingInterval=64\n\n### Dependencies (relevant)\n  org.springframework.boot:spring-boot-starter-reactor-netty:3.5.10\n  └─ io.projectreactor.netty:reactor-netty-http:1.2.14\n     ├─ io.netty:netty-codec-http:4.1.130.Final\n     ├─ io.netty:netty-buffer:4.1.130.Final\n     ├─ io.netty:netty-transport:4.1.130.Final\n     ├─ io.netty:netty-handler:4.1.130.Final\n     └─ io.projectreactor.netty:reactor-netty-core:1.2.14\n\n### Reproduction\n  Minimal repro project:\n  https://github.com/dmittriy13/webflux-multipart-leak-repro\n\n### Summary of steps:\n  1. Start the app.\n  2. Run k6 load test with a short client timeout so requests are aborted mid‑upload.\n  3. Observe leak logs.\n\n### Expected behavior\n  No ByteBuf leak reports on client abort. Inbound buffers should be released even if the request is cancelled.\n\n### Actual behavior\n  Leak logs appear immediately after client abort. Example:\n <details>\n  <summary>Full leak stack trace</summary>\n\n> 2026-02-05T09:56:34.932Z ERROR 1 --- [r-http-epoll-13] io.netty.util.ResourceLeakDetector       : LEAK: ByteBuf.release() was not called before it's garbage-collected. See https://netty.io/wiki/reference-counted-objects.html for more\n>   information.\n>   app-1  | Recent access records:\n>   app-1  | #1:\n>   app-1  |        io.netty.handler.codec.http.DefaultHttpContent.release(DefaultHttpContent.java:92)\n>   app-1  |        io.netty.util.ReferenceCountUtil.release(ReferenceCountUtil.java:90)\n>   app-1  |        reactor.netty.channel.FluxReceive.drainReceiver(FluxReceive.java:296)\n>   app-1  |        reactor.netty.channel.FluxReceive.lambda$request$1(FluxReceive.java:136)\n>   app-1  |        io.netty.util.concurrent.AbstractEventExecutor.runTask(AbstractEventExecutor.java:173)\n>   app-1  |        io.netty.util.concurrent.AbstractEventExecutor.safeExecute(AbstractEventExecutor.java:166)\n>   app-1  |        io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:472)\n>   app-1  |        io.netty.channel.epoll.EpollEventLoop.run(EpollEventLoop.java:405)\n>   app-1  |        io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:998)\n>   app-1  |        io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)\n>   app-1  |        io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)\n>   app-1  |        java.base/java.lang.Thread.run(Unknown Source)\n>   app-1  | #2:\n>   app-1  |        io.netty.buffer.AdvancedLeakAwareByteBuf.forEachByte(AdvancedLeakAwareByteBuf.java:677)\n>   app-1  |        org.springframework.core.io.buffer.NettyDataBuffer.forEachByte(NettyDataBuffer.java:134)\n>   app-1  |        org.springframework.core.io.buffer.DataBufferUtils$AbstractNestedMatcher.match(DataBufferUtils.java:882)\n>   app-1  |        org.springframework.http.codec.multipart.MultipartParser$BodyState.onNext(MultipartParser.java:522)\n>   app-1  |        org.springframework.http.codec.multipart.MultipartParser.hookOnNext(MultipartParser.java:123)\n>   app-1  |        org.springframework.http.codec.multipart.MultipartParser.hookOnNext(MultipartParser.java:52)\n>   app-1  |        reactor.core.publisher.BaseSubscriber.onNext(BaseSubscriber.java:160)\n>   app-1  |        reactor.core.publisher.FluxMap$MapSubscriber.onNext(FluxMap.java:122)\n>   app-1  |        reactor.core.publisher.FluxPeek$PeekSubscriber.onNext(FluxPeek.java:200)\n>   app-1  |        reactor.core.publisher.FluxMap$MapSubscriber.onNext(FluxMap.java:122)\n>   app-1  |        reactor.netty.channel.FluxReceive.drainReceiver(FluxReceive.java:292)\n>   app-1  |        reactor.netty.channel.FluxReceive.lambda$request$1(FluxReceive.java:136)\n>   app-1  |        io.netty.util.concurrent.AbstractEventExecutor.runTask(AbstractEventExecutor.java:173)\n>   app-1  |        io.netty.util.concurrent.AbstractEventExecutor.safeExecute(AbstractEventExecutor.java:166)\n>   app-1  |        io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:472)\n>   app-1  |        io.netty.channel.epoll.EpollEventLoop.run(EpollEventLoop.java:405)\n>   app-1  |        io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:998)\n>   app-1  |        io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)\n>   app-1  |        io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)\n>   app-1  |        java.base/java.lang.Thread.run(Unknown Source)\n>   app-1  | #3:\n>   app-1  |        org.springframework.core.io.buffer.NettyDataBufferFactory.wrap(NettyDataBufferFactory.java:94)\n>   app-1  |        reactor.core.publisher.FluxMap$MapSubscriber.onNext(FluxMap.java:106)\n>   app-1  |        reactor.core.publisher.FluxPeek$PeekSubscriber.onNext(FluxPeek.java:200)\n>   app-1  |        reactor.core.publisher.FluxMap$MapSubscriber.onNext(FluxMap.java:122)\n>   app-1  |        reactor.netty.channel.FluxReceive.drainReceiver(FluxReceive.java:292)\n>   app-1  |        reactor.netty.channel.FluxReceive.lambda$request$1(FluxReceive.java:136)\n>   app-1  |        io.netty.util.concurrent.AbstractEventExecutor.runTask(AbstractEventExecutor.java:173)\n>   app-1  |        io.netty.util.concurrent.AbstractEventExecutor.safeExecute(AbstractEventExecutor.java:166)\n>   app-1  |        io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:472)\n>   app-1  |        io.netty.channel.epoll.EpollEventLoop.run(EpollEventLoop.java:405)\n>   app-1  |        io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:998)\n>   app-1  |        io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)\n>   app-1  |        io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)\n>   app-1  |        java.base/java.lang.Thread.run(Unknown Source)\n>   app-1  | #4:\n>   app-1  |        reactor.core.publisher.FluxPeek$PeekSubscriber.onNext(FluxPeek.java:185)\n>   app-1  |        reactor.core.publisher.FluxMap$MapSubscriber.onNext(FluxMap.java:122)\n>   app-1  |        reactor.netty.channel.FluxReceive.drainReceiver(FluxReceive.java:292)\n>   app-1  |        reactor.netty.channel.FluxReceive.lambda$request$1(FluxReceive.java:136)\n>   app-1  |        io.netty.util.concurrent.AbstractEventExecutor.runTask(AbstractEventExecutor.java:173)\n>   app-1  |        io.netty.util.concurrent.AbstractEventExecutor.safeExecute(AbstractEventExecutor.java:166)\n>   app-1  |        io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:472)\n>   app-1  |        io.netty.channel.epoll.EpollEventLoop.run(EpollEventLoop.java:405)\n>   app-1  |        io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:998)\n>   app-1  |        io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)\n>   app-1  |        io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)\n>   app-1  |        java.base/java.lang.Thread.run(Unknown Source)\n>   app-1  | #5:\n>   app-1  |        Hint: 'reactor.right.reactiveBridge' will handle the message from this point.\n>   app-1  |        io.netty.handler.codec.http.DefaultHttpContent.touch(DefaultHttpContent.java:86)\n>   app-1  |        io.netty.handler.codec.http.DefaultHttpContent.touch(DefaultHttpContent.java:25)\n>   app-1  |        io.netty.channel.DefaultChannelPipeline.touch(DefaultChannelPipeline.java:115)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:417)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412)\n>   app-1  |        reactor.netty.http.server.HttpTrafficHandler.channelRead(HttpTrafficHandler.java:326)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:442)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412)\n>   app-1  |        io.netty.channel.CombinedChannelDuplexHandler$DelegatingChannelHandlerContext.fireChannelRead(CombinedChannelDuplexHandler.java:436)\n>   app-1  |        io.netty.handler.codec.ByteToMessageDecoder.fireChannelRead(ByteToMessageDecoder.java:361)\n>   app-1  |        io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:325)\n>   app-1  |        io.netty.channel.CombinedChannelDuplexHandler.channelRead(CombinedChannelDuplexHandler.java:251)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:442)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412)\n>   app-1  |        io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1357)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:440)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420)\n>   app-1  |        io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:868)\n>   app-1  |        io.netty.channel.epoll.AbstractEpollStreamChannel$EpollStreamUnsafe.epollInReady(AbstractEpollStreamChannel.java:805)\n>   app-1  |        io.netty.channel.epoll.EpollEventLoop.processReady(EpollEventLoop.java:501)\n>   app-1  |        io.netty.channel.epoll.EpollEventLoop.run(EpollEventLoop.java:399)\n>   app-1  |        io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:998)\n>   app-1  |        io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)\n>   app-1  |        io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)\n>   app-1  |        java.base/java.lang.Thread.run(Unknown Source)\n>   app-1  | #6:\n>   app-1  |        Hint: 'reactor.left.httpTrafficHandler' will handle the message from this point.\n>   app-1  |        io.netty.handler.codec.http.DefaultHttpContent.touch(DefaultHttpContent.java:86)\n>   app-1  |        io.netty.handler.codec.http.DefaultHttpContent.touch(DefaultHttpContent.java:25)\n>   app-1  |        io.netty.channel.DefaultChannelPipeline.touch(DefaultChannelPipeline.java:115)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:417)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412)\n>   app-1  |        io.netty.channel.CombinedChannelDuplexHandler$DelegatingChannelHandlerContext.fireChannelRead(CombinedChannelDuplexHandler.java:436)\n>   app-1  |        io.netty.handler.codec.ByteToMessageDecoder.fireChannelRead(ByteToMessageDecoder.java:361)\n>   app-1  |        io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:325)\n>   app-1  |        io.netty.channel.CombinedChannelDuplexHandler.channelRead(CombinedChannelDuplexHandler.java:251)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:442)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412)\n>   app-1  |        io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1357)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:440)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420)\n>   app-1  |        io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:868)\n>   app-1  |        io.netty.channel.epoll.AbstractEpollStreamChannel$EpollStreamUnsafe.epollInReady(AbstractEpollStreamChannel.java:805)\n>   app-1  |        io.netty.channel.epoll.EpollEventLoop.processReady(EpollEventLoop.java:501)\n>   app-1  |        io.netty.channel.epoll.EpollEventLoop.run(EpollEventLoop.java:399)\n>   app-1  |        io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:998)\n>   app-1  |        io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)\n>   app-1  |        io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)\n>   app-1  |        java.base/java.lang.Thread.run(Unknown Source)\n>   app-1  | Created at:\n>   app-1  |        io.netty.buffer.SimpleLeakAwareByteBuf.unwrappedDerived(SimpleLeakAwareByteBuf.java:144)\n>   app-1  |        io.netty.buffer.SimpleLeakAwareByteBuf.readRetainedSlice(SimpleLeakAwareByteBuf.java:67)\n>   app-1  |        io.netty.buffer.AdvancedLeakAwareByteBuf.readRetainedSlice(AdvancedLeakAwareByteBuf.java:108)\n>   app-1  |        io.netty.handler.codec.http.HttpObjectDecoder.decode(HttpObjectDecoder.java:459)\n>   app-1  |        io.netty.handler.codec.http.HttpServerCodec$HttpServerRequestDecoder.decode(HttpServerCodec.java:167)\n>   app-1  |        io.netty.handler.codec.ByteToMessageDecoder.decodeRemovalReentryProtection(ByteToMessageDecoder.java:545)\n>   app-1  |        io.netty.handler.codec.ByteToMessageDecoder.callDecode(ByteToMessageDecoder.java:484)\n>   app-1  |        io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:296)\n>   app-1  |        io.netty.channel.CombinedChannelDuplexHandler.channelRead(CombinedChannelDuplexHandler.java:251)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:442)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:412)\n>   app-1  |        io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1357)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:440)\n>   app-1  |        io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:420)\n>   app-1  |        io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:868)\n>   app-1  |        io.netty.channel.epoll.AbstractEpollStreamChannel$EpollStreamUnsafe.epollInReady(AbstractEpollStreamChannel.java:805)\n>   app-1  |        io.netty.channel.epoll.EpollEventLoop.processReady(EpollEventLoop.java:501)\n>   app-1  |        io.netty.channel.epoll.EpollEventLoop.run(EpollEventLoop.java:399)\n>   app-1  |        io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:998)\n>   app-1  |        io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)\n>   app-1  |        io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)\n>   app-1  |        java.base/java.lang.Thread.run(Unknown Source)\n  </details>\n\n### Additional notes\n  - The issue reproduces only for multipart. A raw (non‑multipart) upload endpoint does not leak under the same abort conditions.\n  - The leak appears even if application logic is effectively a no‑op (no downstream calls, no further processing).\n\n### Questions\n  - Is this a known issue in multipart parsing under client abort?\n  - Is there a recommended way to ensure inbound buffers are released in this scenario?",
+      "created_at": "2026-02-05T10:02:22Z",
+      "closed_at": "2026-02-13T17:56:02Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/37115"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 37115,
+          "title": "Release queued body token buffers on multipart cancel",
+          "url": "https://github.com/spring-projects/spring-framework/pull/37115",
+          "repository": "spring-projects/spring-framework",
+          "state": "open",
+          "created_at": "2026-08-05T22:38:49Z",
+          "merged_at": null,
+          "impacted_files": [
+            "spring-web/src/main/java/org/springframework/http/codec/multipart/MultipartParser.java",
+            "spring-web/src/test/java/org/springframework/http/codec/multipart/MultipartParserTests.java"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    },
+    {
+      "number": 36308,
+      "title": "Avoid lock congestion in ConcurrentReferenceHashMap",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36308",
+      "description_message": "Backport of https://github.com/spring-projects/spring-framework/pull/36293",
+      "created_at": "2026-02-11T16:07:28Z",
+      "closed_at": "2026-02-11T17:13:01Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/36293"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 36293,
+          "title": "Avoid lock congestion in ConcurrentReferenceHashMap",
+          "url": "https://github.com/spring-projects/spring-framework/pull/36293",
+          "repository": "spring-projects/spring-framework",
+          "state": "closed",
+          "created_at": "2026-02-10T15:28:05Z",
+          "merged_at": "2026-02-11T16:53:26Z",
+          "impacted_files": [
+            "spring-core/src/main/java/org/springframework/util/ConcurrentReferenceHashMap.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 36321,
+      "title": "Restore early MessageConsumer creation for temporary queue",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36321",
+      "description_message": "@jhoeller rabbitmq/rabbitmq-jms-client#698 bumps Spring to 7.0.4 and has a RPC test failing. I suspect this change to be the culprit. I see the reply consumer is now created _after_ the message is sent, so the RPC server may send a reply before the temporary queue is created. The requester does not get any response then. Do you think this analysis is correct?\r\n\r\nI reproduced the failure locally, but it is transient, which makes sense as there is a race condition.\r\n\r\n_Originally posted by @acogoluegnes in https://github.com/spring-projects/spring-framework/issues/36162#issuecomment-3892240300_\r\n\r\nThe temporary `Queue` instance is technically created before the send operation still; it's just the `MessageConsumer` for that `Queue` that is created after the send now. Any insight into why RabbitMQ effectively creates the temporary queue on `createConsumer` there rather than on the actual `createTemporaryQueue` all? With ActiveMQ, the queue seems to exist in a stable form after `createTemporaryQueue`, with `createConsumer` then just starting delivery from the queue.\r\n\r\nIn any case, I'll revise this to differentiate between the `useCorrelationId` code path and the temporary queue path, performing the `createConsumer` call early in the latter case again (where we don't have to wait for a correlation/message id on the sent message).\r\n\r\n_Originally posted by @jhoeller in https://github.com/spring-projects/spring-framework/issues/36162#issuecomment-3896979727_",
+      "created_at": "2026-02-13T12:38:00Z",
+      "closed_at": "2026-02-13T12:55:42Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/36162"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 36162,
+          "title": "Add overloaded sendAndReceive methods to JmsTemplate to use explicit response queue",
+          "url": "https://github.com/spring-projects/spring-framework/pull/36162",
+          "repository": "spring-projects/spring-framework",
+          "state": "closed",
+          "created_at": "2026-01-16T15:47:10Z",
+          "merged_at": "2026-01-16T23:16:16Z",
+          "impacted_files": [
+            "spring-jms/src/main/java/org/springframework/jms/core/JmsOperations.java",
+            "spring-jms/src/main/java/org/springframework/jms/core/JmsTemplate.java",
+            "spring-jms/src/test/java/org/springframework/jms/core/JmsTemplateTests.java"
+          ],
+          "impacted_files_count": 3
+        }
+      ]
+    },
+    {
+      "number": 36346,
+      "title": "ResolvableType#getGenerics() breaks serialization",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36346",
+      "description_message": "Calling `ResolvableType#getGenerics()` may cause a `ResolvableType` to become unserializable if the type is generic. Consider the following test\n\nSpring version: 7.0.4 and main, likely 6.x but I didn't check\nJava: OpenJDK 17, 21, 25\n\n```java\nimport java.io.ByteArrayInputStream;\nimport java.io.ByteArrayOutputStream;\nimport java.io.ObjectInputStream;\nimport java.io.ObjectOutputStream;\nimport java.util.List;\n\nimport org.junit.jupiter.api.Test;\nimport org.springframework.core.ResolvableType;\n\nimport static org.assertj.core.api.Assertions.assertThat;\n\nclass SerializationTests {\n\n  @Test\n  void serialize() throws Exception {\n    ResolvableType listType = ResolvableType.forClass(List.class);\n    testSerialization(listType); // this works\n    assertThat(listType.getGenerics()).hasSize(1);\n    testSerialization(listType); // this breaks\n  }\n\n  private static ResolvableType testSerialization(ResolvableType type) throws Exception {\n    ByteArrayOutputStream bos = new ByteArrayOutputStream();\n    try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {\n      oos.writeObject(type);\n    }\n    try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()))) {\n      ResolvableType read = (ResolvableType) ois.readObject();\n      assertThat(read).isEqualTo(type);\n      assertThat(read.getType()).isEqualTo(type.getType());\n      assertThat(read.resolve()).isEqualTo(type.resolve());\n      return read;\n    }\n  }\n\n}\n```\n\nFailing with the following exception\n\n```\njava.io.NotSerializableException: sun.reflect.generics.reflectiveObjects.TypeVariableImpl\n\tat java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1085)\n\tat java.base/java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1451)\n\tat java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1408)\n\tat java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1317)\n\tat java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1079)\n\tat java.base/java.io.ObjectOutputStream.writeArray(ObjectOutputStream.java:1260)\n\tat java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1075)\n\tat java.base/java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1451)\n\tat java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1408)\n\tat java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1317)\n\tat java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1079)\n\tat java.base/java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:325)\n\tat SerializationTests.testSerialization(SerializationTests.java:26)\n\tat SerializationTests.serialize(SerializationTests.java:20)\n```\n\nThe issues is that calling `ResolvableType#getGenerics()` lazily initializes the `generics` field with a `ResolvedType` that references a `sun.reflect.generics.reflectiveObjects.TypeVariableImpl` which is not serializable. Unfortunately not all implementations of `java.lang.reflect.Type` are `Serializable`.\n\nIdeally this would be fixed in OpenJDK but users may not want to wait so long.\n\nI didn't check whether the other lazily computed fields `superType` and `interfaces` have the same issue.\n\nAn possible fix for this specific issue would be to simply not serialize the lazily computed fields. However doing so in a way that does not break the serialized form can be a bit tricky. Possibly wither implementing `writeObject` or defining `serialPersistentFields`.\n\n\n",
+      "created_at": "2026-02-17T20:49:19Z",
+      "closed_at": "2026-02-17T21:14:27Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/37186"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 37186,
+          "title": "Make ResolvableType.forClassWithGenerics results serializable",
+          "url": "https://github.com/spring-projects/spring-framework/pull/37186",
+          "repository": "spring-projects/spring-framework",
+          "state": "open",
+          "created_at": "2026-08-21T00:06:07Z",
+          "merged_at": null,
+          "impacted_files": [
+            "spring-core/src/main/java/org/springframework/core/ResolvableType.java",
+            "spring-core/src/test/java/org/springframework/core/ResolvableTypeTests.java",
+            "spring-core/src/test/java/org/springframework/core/convert/TypeDescriptorTests.java"
+          ],
+          "impacted_files_count": 3
+        }
+      ]
+    },
+    {
+      "number": 36372,
+      "title": "Refactor JettyDataBuffer to eliminate conditional branching and SRP violations",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36372",
+      "description_message": "JettyDataBuffer currently serves two distinct purposes: wrapping a Jetty Content.Chunk and acting as a virtual wrapper for a DataBuffer. This \"dual-mode\" nature violates the Single Responsibility Principle (SRP).\n\n```java\npublic final class JettyDataBuffer implements PooledDataBuffer {\n\n\tprivate final DefaultDataBuffer delegate;\n\n\tprivate final Content.@Nullable Chunk chunk;\n\n\tprivate final JettyDataBufferFactory bufferFactory;\n\n\tprivate final AtomicInteger refCount = new AtomicInteger(1);\n\n\n\tJettyDataBuffer(JettyDataBufferFactory bufferFactory, DefaultDataBuffer delegate, Content.Chunk chunk) {\n\t\tAssert.notNull(bufferFactory, \"BufferFactory must not be null\");\n\t\tAssert.notNull(delegate, \"Delegate must not be null\");\n\t\tAssert.notNull(chunk, \"Chunk must not be null\");\n\n\t\tthis.bufferFactory = bufferFactory;\n\t\tthis.delegate = delegate;\n\t\tthis.chunk = chunk;\n\t}\n\n\tJettyDataBuffer(JettyDataBufferFactory bufferFactory, DefaultDataBuffer delegate) {\n\t\tAssert.notNull(bufferFactory, \"BufferFactory must not be null\");\n\t\tAssert.notNull(delegate, \"Delegate must not be null\");\n\n\t\tthis.bufferFactory = bufferFactory;\n\t\tthis.delegate = delegate;\n\t\tthis.chunk = null;\n\t}\n``` \nBy having two constructors—one where chunk is vital and one where it is explicitly null—the class is essentially saying, \"I am two different types of Buffer, but I’m wearing the same skin.\"\n\nThe contradiction is that first the chunk is `@Nullable`, later `Assert.notNull(chunk, \"Chunk must not be null\");` and finally in the other constructor `this.chunk = null;`\nIt has a consequence in the methods emerging branching based on whether the chunk is null or not.\n\nI propose to split this class and introduce JettyVirtualDataBuffer that has no chuck at all. \nSure I provide a PR as a solution.",
+      "created_at": "2026-02-23T12:27:24Z",
+      "closed_at": "2026-02-23T14:15:38Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/36373"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 36373,
+          "title": "Refactor `JettyDataBuffer` structure to separate the concerns ",
+          "url": "https://github.com/spring-projects/spring-framework/pull/36373",
+          "repository": "spring-projects/spring-framework",
+          "state": "open",
+          "created_at": "2026-02-23T12:54:16Z",
+          "merged_at": null,
+          "impacted_files": [
+            "spring-core/src/main/java/org/springframework/core/io/buffer/JettyDataBuffer.java",
+            "spring-core/src/main/java/org/springframework/core/io/buffer/JettyDataBufferFactory.java",
+            "spring-core/src/main/java/org/springframework/core/io/buffer/JettyVirtualDataBuffer.java"
+          ],
+          "impacted_files_count": 3
+        }
+      ]
+    },
+    {
+      "number": 36376,
+      "title": "Regression in handling of unchecked exceptions in cglib proxy (no UndeclaredThrowableException conversion anymore)",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36376",
+      "description_message": "Hello folks,\n\nI have found a regression / changed behaviour between Spring v6.1 and v6.2 regarding handling of _undefined_ checked exceptions in target cglib-proxy. \n\nThere is conversion logic in Spring's 6.1.x `CglibAopProxy` class to create a `UndeclaredThrowableException`  on the fly\n\n```\n...\n\t\t@Override\n\t\t@Nullable\n\t\tpublic Object proceed() throws Throwable {\n\t\t\ttry {\n\t\t\t\treturn super.proceed();\n\t\t\t}\n\t\t\tcatch (RuntimeException ex) {\n\t\t\t\tthrow ex;\n\t\t\t}\n\t\t\tcatch (Exception ex) {\n\t\t\t\tif (ReflectionUtils.declaresException(getMethod(), ex.getClass()) ||\n\t\t\t\t\t\tKotlinDetector.isKotlinType(getMethod().getDeclaringClass())) {\n\t\t\t\t\t// Propagate original exception if declared on the target method\n\t\t\t\t\t// (with callers expecting it). Always propagate it for Kotlin code\n\t\t\t\t\t// since checked exceptions do not have to be explicitly declared there.\n\t\t\t\t\tthrow ex;\n\t\t\t\t}\n\t\t\t\telse {\n\t\t\t\t\t// Checked exception thrown in the interceptor but not declared on the\n\t\t\t\t\t// target method signature -> apply an UndeclaredThrowableException,\n\t\t\t\t\t// aligned with standard JDK dynamic proxy behavior.\n\t\t\t\t\tthrow new UndeclaredThrowableException(ex);\n\t\t\t\t}\n\t\t\t}\n\t\t}\n```\n\nThis conversion logic is completely removed in Spring v6.2.\n\n\nThis breaks my current code like\n\n```\n...\n  @Transactional\n  public void startLogicWithinTransaction() {\n      logicThrowingCheckedException();\n  }\n \n  @SneakyThrows\n  private void logicThrowingCheckedException() {\n      throw new IOException(\"exception\");\n  }\n...\n```\nand leads to following regression/observed behaviour:\n\n- With Spring v6.1, the transaction is rolledback because an unchecked(!) `UndeclaredThrowableException` is created on the fly (wrapping the `IOException`). \n- With Spring v6.2, the transaction is _not_ rolledback because the original, checked(!) `IOExecption` is bubbled up (Spring's default rollback behaviour is based on _unchecked_ exceptions only)\n\nMy  question:\n\nI am wondering if this changed behaviour is _really_ desired by Spring guys or happend by accident ?\nThe comment in `CglibAopProxy` Spring v6.1.x\n\n```\n// Checked exception thrown in the interceptor but not declared on the\n// target method signature -> apply an UndeclaredThrowableException\n// aligned with standard JDK dynamic proxy behavior.\n```\nshows me that the conversion-logic is on purpose and has its _justified_ existence. \nThe code change feels like a \"silent\", but crucial drop to me that should be discussed more or should be made more \"public\" ?\n\nOther issues are also trying to address the \"consistent\" behavior regarding `UndeclaredThrowableException`\n- https://github.com/spring-projects/spring-framework/pull/32469\n- https://github.com/spring-projects/spring-framework/issues/33585\n- https://github.com/spring-projects/spring-framework/issues/26854\n\nbest regards\n\n",
+      "created_at": "2026-02-23T17:00:08Z",
+      "closed_at": "2026-02-24T10:03:41Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/32469"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 32469,
+          "title": "Consistent handling of undeclared checked exceptions in CGLIB proxies",
+          "url": "https://github.com/spring-projects/spring-framework/pull/32469",
+          "repository": "spring-projects/spring-framework",
+          "state": "closed",
+          "created_at": "2024-03-18T02:31:35Z",
+          "merged_at": "2024-04-10T10:11:33Z",
+          "impacted_files": [
+            "spring-aop/src/main/java/org/springframework/aop/framework/CglibAopProxy.java",
+            "spring-aop/src/test/java/org/springframework/aop/framework/ClassWithConstructor.java",
+            "spring-aop/src/test/java/org/springframework/aop/framework/ProxyExceptionHandlingTests.java",
+            "spring-core/src/main/java/org/springframework/cglib/core/ClassLoaderAwareGeneratorStrategy.java",
+            "spring-core/src/main/java/org/springframework/cglib/transform/impl/UndeclaredThrowableTransformer.java"
+          ],
+          "impacted_files_count": 5
+        }
+      ]
+    },
+    {
+      "number": 36396,
+      "title": "Create OpenTelemetry convention variants for WebFlux",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36396",
+      "description_message": "gh-35358 contributed a observation convention that is compliant with OpenTelemetry semantic conventions for Servlet HTTP server. We should provide a similar implementation for Reactive HTTP server.",
+      "created_at": "2026-02-27T09:15:25Z",
+      "closed_at": "2026-08-23T14:53:22Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/37131"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 37131,
+          "title": "Add WebFlux OpenTelemetry observation convention",
+          "url": "https://github.com/spring-projects/spring-framework/pull/37131",
+          "repository": "spring-projects/spring-framework",
+          "state": "open",
+          "created_at": "2026-08-12T06:25:41Z",
+          "merged_at": null,
+          "impacted_files": [
+            "spring-web/src/main/java/org/springframework/http/server/reactive/observation/OpenTelemetryServerHttpObservationDocumentation.java",
+            "spring-web/src/main/java/org/springframework/http/server/reactive/observation/OpenTelemetryServerRequestObservationConvention.java",
+            "spring-web/src/test/java/org/springframework/http/server/reactive/observation/OpenTelemetryServerRequestObservationConventionTests.java",
+            "spring-web/src/test/java/org/springframework/web/server/adapter/OpenTelemetryServerRequestObservationConventionIntegrationTests.java"
+          ],
+          "impacted_files_count": 4
+        }
+      ]
+    },
+    {
+      "number": 36408,
+      "title": "Support for Map body types in FormHttpMessageConverter",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36408",
+      "description_message": "`RestClient` supports a body of type `MultiMap<String, ?> ` and content type of `application/x-www-form-urlencoded`. However, the default setup does not support `Map<String, ?>`. It would be nice if `RestClient` (and `WebClient`) supported `Map<String, ?>` as well.\n\nOne could argue that it is trivial for users to use `MultiMap<String, ?>` instead of `Map<String, ?>`, but Spring should not put the burden on the user when it can easily be implemented by the framework.",
+      "created_at": "2026-03-02T16:01:42Z",
+      "closed_at": "2026-03-26T14:11:10Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/36676"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 36676,
+          "title": "Support Map<String, String> in FormHttpMessageWriter and FormHttpMessageReader",
+          "url": "https://github.com/spring-projects/spring-framework/pull/36676",
+          "repository": "spring-projects/spring-framework",
+          "state": "open",
+          "created_at": "2026-04-20T00:46:50Z",
+          "merged_at": null,
+          "impacted_files": [
+            "spring-web/src/main/java/org/springframework/http/codec/FormHttpMessageReader.java",
+            "spring-web/src/main/java/org/springframework/http/codec/FormHttpMessageWriter.java",
+            "spring-web/src/main/java/org/springframework/http/codec/multipart/MultipartHttpMessageWriter.java"
+          ],
+          "impacted_files_count": 3
+        }
+      ]
+    },
+    {
+      "number": 36481,
+      "title": "Replace HandlerMappingIntrospector with PreFlightRequestHandler bean in MVC config",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36481",
+      "description_message": "The MVC config continues to expose a `HandlerMappingIntrospector` bean, which implements `CorsConfigurationSource` and `PreFlightRequestHandler`. \n\nSpring Security 7 only needs a `PreFlightRequestHandler`, and no longer depends on using `HandlerMappingIntrospector` directly. \n\nWe need to switch to a `PreFlightRequestHandler` bean, which would be transparent to Spring Security, but it would impact anyone who picks it up as `CorsConfigurationSource`. This was never an intended way of using `HandlerMappingIntrospector`, but rather a side effect. It needs to be discontinued at some point. \n\nUnfortunately there is no deprecation path, and it will break some apps, but it would be easy for an application to redeclare it, also explicitly opting into the use of a deprecated class. The isolated use of `HandlerMappingIntrospector` for CORS only also leads to the cache miss warnings in #36309.",
+      "created_at": "2026-03-16T17:00:36Z",
+      "closed_at": "2026-07-29T15:03:22Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/36554"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 36554,
+          "title": "Fix: Replace HandlerMappingIntrospector with PreFlightRequestHandler bean in MVC config",
+          "url": "https://github.com/spring-projects/spring-framework/pull/36554",
+          "repository": "spring-projects/spring-framework",
+          "state": "open",
+          "created_at": "2026-03-27T14:07:21Z",
+          "merged_at": null,
+          "impacted_files": [
+            "spring-webmvc/src/main/java/org/springframework/web/servlet/config/MvcNamespaceUtils.java",
+            "spring-webmvc/src/main/java/org/springframework/web/servlet/config/annotation/WebMvcConfigurationSupport.java",
+            "spring-webmvc/src/main/java/org/springframework/web/servlet/handler/AbstractHandlerMapping.java",
+            "spring-webmvc/src/main/java/org/springframework/web/servlet/handler/DefaultPreFlightRequestHandler.java",
+            "spring-webmvc/src/main/java/org/springframework/web/servlet/handler/HandlerMappingIntrospector.java",
+            "spring-webmvc/src/main/java/org/springframework/web/servlet/handler/MatchableHandlerMapping.java",
+            "spring-webmvc/src/main/java/org/springframework/web/servlet/handler/PathPatternMatchableHandlerMapping.java",
+            "spring-webmvc/src/main/java/org/springframework/web/servlet/handler/RequestMatchResult.java",
+            "spring-webmvc/src/test/java/org/springframework/web/servlet/config/MvcNamespaceTests.java",
+            "spring-webmvc/src/test/java/org/springframework/web/servlet/handler/DefaultPreFlightRequestHandlerTests.java",
+            "spring-webmvc/src/test/java/org/springframework/web/servlet/handler/HandlerMappingIntrospectorTests.java"
+          ],
+          "impacted_files_count": 11
+        }
+      ]
+    },
+    {
+      "number": 36545,
+      "title": "Introduce `ResolvableType.forParameter()` factory method",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36545",
+      "description_message": "Although one can invoke `ResolvableType.forMethodParameter(MethodParameter.forParameter(parameter))`, it would be helpful to be able to simply invoke `ResolvableType.forParameter(parameter)`, analogous to existing convenience factory methods in `ResolvableType`.",
+      "created_at": "2026-03-26T15:43:39Z",
+      "closed_at": "2026-03-26T15:48:15Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/37015"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 37015,
+          "title": "Introduce Parameter-based factory methods in TypeDescriptor",
+          "url": "https://github.com/spring-projects/spring-framework/pull/37015",
+          "repository": "spring-projects/spring-framework",
+          "state": "open",
+          "created_at": "2026-07-08T00:24:03Z",
+          "merged_at": null,
+          "impacted_files": [
+            "spring-core/src/main/java/org/springframework/core/convert/TypeDescriptor.java",
+            "spring-core/src/test/java/org/springframework/core/convert/TypeDescriptorTests.java"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    },
+    {
+      "number": 36591,
+      "title": "Add missing @Deprecated(forRemoval = true) for deleted in 7.0",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36591",
+      "description_message": "There are a lot of classes/methods/constructors removed in 7.0 release. Many of these are missing `@Deprecated(forRemoval=true)` annotations (even just `@Deprecated` is missing) in the latest `6.2.17`.\nThis may be critical as during migration you need to distinguish which deprecations are critical and which are not.\nFor a trivial microservice based on pure spring-boot this can be quite ok as it will simply lead to compilation failures highlighting all cases.\nBut for the huge codebases with hundreds of libraries this is quite challenging. For `org.springframework.*` libraries there is confidence (as we mostly take their versions from `spring-boot-dependencies`, others can be found on https://spring.io/projects/generations#mappings), but for own libraries based on spring as well as any third-party this can become an issue caught in the runtime.\nE.g. within our organization we implemented arch-unit tests scanning project modules and all JAR dependencies on usages of classes/methods/constructors/fields marked as `@Deprecated(forRemoval = true)` to make the migration more safe.\nThe list of classes, methods, constructors and fields missing the proper annotation:\n⚠️ these are replaced with updated lists in the comments (as original lists had false positives)\n* [missing-deprecated-forRemoval-classes.txt](https://github.com/user-attachments/files/26455743/missing-deprecated-forRemoval-classes.txt)\n* [missing-deprecated-forRemoval-public-constructors.txt](https://github.com/user-attachments/files/26456039/missing-deprecated-forRemoval-constructors.txt)\n* [missing-deprecated-forRemoval-protected-constructors.txt](https://github.com/user-attachments/files/26456454/missing-deprecated-forRemoval-protected-constructors.txt)\n* [missing-deprecated-forRemoval-methods-public.txt](https://github.com/user-attachments/files/26456462/missing-deprecated-methods-public.txt)\n* [missing-deprecated-forRemoval-methods-protected.txt](https://github.com/user-attachments/files/26456461/missing-deprecated-methods-protected.txt)\n* [missing-deprecated-forRemoval-fields-public.txt](https://github.com/user-attachments/files/26456600/missing-deprecated-fields-public.txt)\n\nThis discussion started within PR addressing some of these https://github.com/spring-projects/spring-framework/pull/36562 but with @bclozel we agreed to close the PR and create a separate issue.",
+      "created_at": "2026-04-03T07:37:06Z",
+      "closed_at": "2026-04-10T10:18:18Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/36599"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 36599,
+          "title": "`AbstractMockHttpServletRequestBuilder#param` does not allow `null` in Kotlin",
+          "url": "https://github.com/spring-projects/spring-framework/pull/36599",
+          "repository": "spring-projects/spring-framework",
+          "state": "open",
+          "created_at": "2026-04-05T14:40:08Z",
+          "merged_at": null,
+          "impacted_files": [
+            "spring-test/src/main/java/org/springframework/test/web/servlet/request/AbstractMockHttpServletRequestBuilder.java",
+            "spring-test/src/main/kotlin/org/springframework/test/web/servlet/MockHttpServletRequestDsl.kt"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    },
+    {
+      "number": 36651,
+      "title": "Proxy environment variables are not applied when using ReactorClientHttpConnector unlike ReactorClientHttpRequestFactory",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36651",
+      "description_message": "#34850 updated `ReactorClientHttpRequestFactory` [to use `proxyWithSystemProperties()`](https://github.com/spring-projects/spring-framework/blob/6275f46a66dc24c050e3c80ad4a4c95c4e1a4c0f/spring-web/src/main/java/org/springframework/http/client/ReactorClientHttpRequestFactory.java#L57) but `ReactorClientHttpConnector` [does not have the same call](https://github.com/spring-projects/spring-framework/blob/6275f46a66dc24c050e3c80ad4a4c95c4e1a4c0f/spring-web/src/main/java/org/springframework/http/client/reactive/ReactorClientHttpConnector.java#L65). I think both should be aligned. ",
+      "created_at": "2026-04-14T00:52:23Z",
+      "closed_at": "2026-05-21T13:45:17Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/36654"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 36654,
+          "title": "Apply proxy with system properties to the default client in ReactorClientHttpConnector",
+          "url": "https://github.com/spring-projects/spring-framework/pull/36654",
+          "repository": "spring-projects/spring-framework",
+          "state": "open",
+          "created_at": "2026-04-14T17:53:08Z",
+          "merged_at": null,
+          "impacted_files": [
+            "spring-web/src/main/java/org/springframework/http/client/reactive/ReactorClientHttpConnector.java"
+          ],
+          "impacted_files_count": 1
+        }
+      ]
+    },
+    {
+      "number": 36841,
+      "title": "Reject duplicate MIME type parameters",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36841",
+      "description_message": "[RFC 6838 4.3](https://datatracker.ietf.org/doc/html/rfc6838#section-4.3) notes that duplicate parameter names in MIME types should be treated as errors. We should reject such cases when parsing MIME types.",
+      "created_at": "2026-05-26T15:52:39Z",
+      "closed_at": "2026-05-26T15:55:40Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/37008"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 37008,
+          "title": "Reject MIME type parameters differing only in case",
+          "url": "https://github.com/spring-projects/spring-framework/pull/37008",
+          "repository": "spring-projects/spring-framework",
+          "state": "open",
+          "created_at": "2026-07-06T13:21:14Z",
+          "merged_at": null,
+          "impacted_files": [
+            "spring-core/src/main/java/org/springframework/util/MimeTypeUtils.java",
+            "spring-core/src/test/java/org/springframework/util/MimeTypeTests.java"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    },
+    {
+      "number": 36863,
+      "title": "Fix applicability note on setAutoGrowCollectionLimit",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36863",
+      "description_message": "`DataBinder#setAutoGrowCollectionLimit` acquired a misleading javadoc note in 6.1, in mismatch with long-standing behavior. Along with addressing #36862 in 7.1, let's clarify the original applicability in 7.0.x and 6.2.x.",
+      "created_at": "2026-06-02T15:13:44Z",
+      "closed_at": "2026-06-02T15:37:09Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/36862"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 36862,
+          "title": "Apply auto-grow collection limit to direct field binding",
+          "url": "https://github.com/spring-projects/spring-framework/pull/36862",
+          "repository": "spring-projects/spring-framework",
+          "state": "closed",
+          "created_at": "2026-06-02T10:28:39Z",
+          "merged_at": "2026-06-02T14:58:47Z",
+          "impacted_files": [
+            "spring-context/src/main/java/org/springframework/validation/DataBinder.java",
+            "spring-context/src/main/java/org/springframework/validation/DirectFieldBindingResult.java",
+            "spring-context/src/test/java/org/springframework/validation/DataBinderFieldAccessTests.java"
+          ],
+          "impacted_files_count": 3
+        }
+      ]
+    },
+    {
+      "number": 36890,
+      "title": "GenericTypeResolver.resolveType picks a sibling interface's binding when two interfaces share a type-variable name (breaks `@RequestBody` deserialization)",
+      "url": "https://github.com/spring-projects/spring-framework/issues/36890",
+      "description_message": "\n**Affects:** 6.2.12 (also expected on 6.2.x main). Reproduced via Spring Boot 3.5.7, Jackson 2.19.2, Java 25 — but the core reproducer below depends on `spring-core` only.\n\n## Description\n\nWhen a class implements two **unrelated** generic interfaces whose type variables happen to share the **same name** (e.g. `I`), bound to **different concrete types**, `GenericTypeResolver.resolveType(Type, Class)` resolves a type variable declared by one interface to the **other** interface's binding.\n\n`AbstractJackson2HttpMessageConverter#getJavaType(Type, Class)` calls exactly this method to choose the `@RequestBody` target type, so a controller combining a `String`-criteria *search* interface with a *create/update* interface fails to deserialize a valid JSON body:\n\n```\nHttpMessageNotReadableException: JSON parse error: Cannot deserialize value of type\n`java.lang.String` from Object value (token `JsonToken.START_OBJECT`)\n```\n\nIn Java the two `I` variables are distinct `TypeVariable` instances (different `getGenericDeclaration()`), so there is no real ambiguity — the resolution is driven by the variable **name**.\n\n## Minimal reproducer (spring-core only — no MVC, no Jackson, no Boot)\n\n```java\nimport org.springframework.core.GenericTypeResolver;\nimport java.lang.reflect.Type;\n\npublic class Demo {\n    interface Search<I, O> {}                                      // I = search criteria\n    interface Create<I, O> { default O create(I body) { return null; } } // I = @RequestBody\n\n    static class Controller implements Search<String, Long>, Create<Long, Long> {} // String vs Long\n\n    public static void main(String[] args) throws Exception {\n        Type createBody = Create.class.getMethod(\"create\", Object.class)\n                                      .getGenericParameterTypes()[0];   // TypeVariable \"I\" of Create\n        Type resolved = GenericTypeResolver.resolveType(createBody, Controller.class);\n        System.out.println(resolved);\n    }\n}\n```\n\n**Expected:** `class java.lang.Long` (from `Create<Long, Long>`).\n**Actual:** `class java.lang.String` (leaked from `Search<String, Long>`).\n\n## Real-world manifestation (Spring MVC)\n\n```java\ninterface WithSearch<I, O>        { @PostMapping(\"/search\") default List<O> search(@RequestBody I criteria) {...} }\ninterface WithSimpleTextSearch<O> extends WithSearch<String, O> {}     // pins I = String\ninterface WithCreate<I, O>        { @PostMapping            default O create(@RequestBody I body) {...} }\n\n@RestController @RequestMapping(\"/items\")\nclass ItemController implements WithSimpleTextSearch<Item>, WithCreate<Item, Item> {}\n```\n\n`POST /items` with `{\"name\":\"foo\"}` → **400**, body read as `String`.\nA controller implementing `WithCreate` **only** works (`Item`). Full runnable project + MockMvc test: `(https://github.com/antonin-daniau/spring-typevar-collision-repro)`.\n\n## Root cause: `resolveType` disagrees with `resolveParameterType`\n\nFor the same `(TypeVariable I, ItemController.class)`:\n\n| `spring-core` entry point | resolves to |\n|---|---|\n| `GenericTypeResolver.resolveParameterType(MethodParameter, Class)` (keeps method/declaring-interface context) | `Item` ✅ |\n| **`GenericTypeResolver.resolveType(Type, Class)`** (bare `TypeVariable` + controller) | **`String`** ❌ |\n| `AbstractJackson2HttpMessageConverter#getJavaType` (delegates to `resolveType`) | **`String`** ❌ |\n\n`getJavaType` in spring-web 6.2.x:\n\n```java\nprotected JavaType getJavaType(Type type, @Nullable Class<?> contextClass) {\n    return this.defaultObjectMapper.constructType(\n            GenericTypeResolver.resolveType(type, contextClass));\n}\n```\n\n`resolveType` → private `resolveVariable(TypeVariable, ResolvableType)` walks the supertype and **all interfaces** of `contextClass`, matching the variable by **name** through the `ResolvableType` variable resolver. `WithSearch<String, …>` (reached via `WithSimpleTextSearch`) declares a parameter also named `I`, matches first, and wins. The variable's declaring type (`WithCreate`) is not taken into account.\n\n## Relation to existing issues (searched, distinct)\n\n- **#28904** (*incorrect type with multiple generic interfaces, order-dependent*, closed as superseded) is about falling back to an unrelated interface's **bounds**. Here both variables are bound to **concrete** types — no bounds fallback — and `resolveParameterType` is already **correct**; only `resolveType(Type, Class)` is wrong.\n- **#34386** (*generics not resolved in multi-layer interface inheritance since 6.2.0*, fixed 6.2.3) is the **inverse** shape (variables with **different** names failing across inheritance layers). Its fix does not cover **same-name collision across sibling interfaces**, which still reproduces on 6.2.12.\n- **#33887** (*Refine `ResolvableType` type variable resolution*, open) looks like the umbrella this belongs to.\n\n## Suggested direction\n\n`resolveType(Type, Class)` ignores the `TypeVariable`'s declaring context. Keying resolution on the variable's **identity** (`getGenericDeclaration()` + name) rather than the name alone would only match `Create`'s `I` against `Create`'s binding — the behaviour `resolveParameterType` already exhibits. Alternatively, `getJavaType` could prefer `MethodParameter`-aware resolution when a `MethodParameter` is available.\n\n## Workaround\n\nGive each `@RequestBody`-bearing type variable a unique name (`CREATE_INPUT`, `UPDATE_INPUT`, `CRITERIA`, …) so no two interfaces in a controller's hierarchy share a type-variable name. This fully removes the symptom and confirms the resolution is name-based.\n\n## Environment\n\n- Spring Framework 6.2.12 / Spring Boot 3.5.7\n- Jackson 2.19.2, Java 25, Maven 3.9.x\n- Reproducer repository (minimal `spring-core` proof + layered diagnostic + MVC MockMvc test): `https://github.com/antonin-daniau/spring-typevar-collision-repro`\n",
+      "created_at": "2026-06-09T04:38:21Z",
+      "closed_at": "2026-06-22T20:11:47Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/37082"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 37082,
+          "title": "Restrict type variable name fallback to subtype narrowing",
+          "url": "https://github.com/spring-projects/spring-framework/pull/37082",
+          "repository": "spring-projects/spring-framework",
+          "state": "open",
+          "created_at": "2026-07-22T00:01:51Z",
+          "merged_at": null,
+          "impacted_files": [
+            "spring-core/src/main/java/org/springframework/core/ResolvableType.java",
+            "spring-core/src/test/java/org/springframework/core/GenericTypeResolverTests.java"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    },
+    {
+      "number": 37127,
+      "title": "Infinite recursion in `KotlinDetector.hasSerializableAnnotation`",
+      "url": "https://github.com/spring-projects/spring-framework/issues/37127",
+      "description_message": "`KotlinDetector.hasSerializableAnnotation` goes into infinite recursion when fed a self-referential generic type such as Guava's `ImmutableEnumSet`. Minimal reproducing example:\n\n```java\nimport com.google.common.collect.Sets;\nimport org.springframework.core.KotlinDetector;\nimport org.springframework.core.ResolvableType;\n\npublic class KotlinDetectorReproducer {\n\n    enum Foo {\n        BAR,\n        BAZ, // Makes sure that `immutableEnumSet` doesn't produce a singleton set object\n    }\n\n    public static void main(String[] args) {\n        KotlinDetector.hasSerializableAnnotation(\n                ResolvableType.forInstance(Sets.immutableEnumSet(Foo.BAR, Foo.BAZ))\n        );\n    }\n}\n```\n\n",
+      "created_at": "2026-08-11T11:23:32Z",
+      "closed_at": "2026-08-11T13:50:11Z",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/37128"
+      ],
+      "linked_open_pull_requests": [
+        {
+          "number": 37128,
+          "title": "Avoid infinite recursion in `KotlinDetector.hasSerializableAnnotation`",
+          "url": "https://github.com/spring-projects/spring-framework/pull/37128",
+          "repository": "spring-projects/spring-framework",
+          "state": "open",
+          "created_at": "2026-08-11T12:15:00Z",
+          "merged_at": null,
+          "impacted_files": [
+            "spring-core/src/main/java/org/springframework/core/KotlinDetector.java",
+            "spring-core/src/test/kotlin/org/springframework/core/KotlinDetectorTests.kt"
+          ],
+          "impacted_files_count": 2
+        }
+      ]
+    },
+    {
+      "number": 37136,
+      "title": "Update `MockCookie#parse(String)` validation",
+      "url": "https://github.com/spring-projects/spring-framework/issues/37136",
+      "description_message": "## Overview\n\nhttps://github.com/spring-projects/spring-framework/blob/68e6acd37ed0c12e395ef96d170971028e727383/spring-test/src/main/java/org/springframework/mock/web/MockCookie.java#L130-L132\n\nBased on the Javadoc, I think it should throw `Set-Cookie header must not be null or empty` instead of `Invalid Set-Cookie header ''` when setCookieHeader is empty.\n\nSee 8b894933aef40b8662f25ae60ea56cb136e22895 and 27a85be4e074d763e157d3393c72f34fa372df44 for the related changes.\n\n## Related Issues\n\n- #37134\n",
+      "created_at": "2026-08-13T15:37:07Z",
+      "closed_at": "2026-08-18T16:26:08Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/37134"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 37134,
+          "title": "Update `MockCookie#parse(String)` validation",
+          "url": "https://github.com/spring-projects/spring-framework/pull/37134",
+          "repository": "spring-projects/spring-framework",
+          "state": "closed",
+          "created_at": "2026-08-13T09:24:44Z",
+          "merged_at": "2026-08-13T10:38:03Z",
+          "impacted_files": [
+            "spring-test/src/main/java/org/springframework/mock/web/MockCookie.java",
+            "spring-test/src/test/java/org/springframework/mock/web/MockCookieTests.java",
+            "spring-web/src/testFixtures/java/org/springframework/web/testfixture/servlet/MockCookie.java"
+          ],
+          "impacted_files_count": 3
+        }
+      ]
+    },
+    {
+      "number": 37161,
+      "title": "Use `<<id,text>>` instead of `xref:` for local links in reference docs",
+      "url": "https://github.com/spring-projects/spring-framework/issues/37161",
+      "description_message": "## Overview\n\nIn our Antora-based reference docs, some same-page links (i.e. links to another section on the *same* page) are currently written using `xref:`, the macro meant for linking *between* pages. While fixing some broken links in #37152, we found that our docs tooling can misread a same-page `xref:` link as a link to a different page, which would fail the site build. That specific case was caught and corrected before the PR was merged, so it never affected `main`/`7.0.x`, but it shows the pattern is fragile and could easily slip through unnoticed next time.\n\nThe safer, more correct macro for linking within the same page is AsciiDoc's built-in `<<id,text>>` syntax. It can only ever point at a heading/anchor on the current page, so this class of mistake becomes impossible.\n\nThus, we should inspect all documents in `framework-docs` and convert same-page links currently written as `xref:` to `<<id,text>>`. Note, however, that actual cross-page links are unaffected and should therefore remain as `xref:`.\n\n## Related Issues\n\n- #37152\n",
+      "created_at": "2026-08-20T11:13:33Z",
+      "closed_at": "2026-08-20T12:57:22Z",
+      "linked_merged_pull_request_urls": [
+        "https://github.com/spring-projects/spring-framework/pull/37152"
+      ],
+      "linked_merged_pull_requests": [
+        {
+          "number": 37152,
+          "title": "Fix broken internal xref links in reference docs",
+          "url": "https://github.com/spring-projects/spring-framework/pull/37152",
+          "repository": "spring-projects/spring-framework",
+          "state": "closed",
+          "created_at": "2026-08-19T00:09:48Z",
+          "merged_at": "2026-08-19T16:39:13Z",
+          "impacted_files": [
+            "framework-docs/modules/ROOT/pages/core/aop/schema.adoc",
+            "framework-docs/modules/ROOT/pages/core/appendix/xml-custom.adoc",
+            "framework-docs/modules/ROOT/pages/data-access/transaction/strategies.adoc",
+            "framework-docs/modules/ROOT/pages/testing/resttestclient.adoc",
+            "framework-docs/modules/ROOT/pages/testing/testcontext-framework/ctx-management/groovy.adoc",
+            "framework-docs/modules/ROOT/pages/web/webflux/config.adoc",
+            "framework-docs/modules/ROOT/pages/web/webmvc-test.adoc",
+            "framework-docs/modules/ROOT/pages/web/webmvc/mvc-config/content-negotiation.adoc"
+          ],
+          "impacted_files_count": 8
+        }
+      ]
+    }
+  ]
+}

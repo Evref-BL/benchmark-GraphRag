@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Mine GitHub issues linked to merged pull requests for benchmark generation."""
+"""Mine GitHub issues linked to merged (or open) pull requests for benchmark generation."""
 
 from __future__ import annotations
 
@@ -291,6 +291,8 @@ def fetch_pull_request(
         "title": pr.get("title"),
         "url": pr.get("html_url"),
         "repository": f"{owner.lower()}/{repo.lower()}",
+        "state": pr.get("state"),
+        "created_at": pr.get("created_at"),
         "merged_at": pr.get("merged_at"),
         "impacted_files": impacted_files,
         "impacted_files_count": len(impacted_files),
@@ -319,6 +321,7 @@ def mine_repository(
     repo: str,
     max_issues: Optional[int] = None,
     progress_every: int = 25,
+    allow_open_pr: bool = False,
 ) -> Dict[str, Any]:
     repo_slug = f"{owner}/{repo}"
     print(f"[{repo_slug}] Mining closed issues...", file=sys.stderr)
@@ -347,45 +350,73 @@ def mine_repository(
         if not pr_refs:
             continue
 
-        merged_prs = []
+        merged_prs: list[Dict[str, Any]] = []
+        open_prs: list[Dict[str, Any]] = []
         for ref_owner, ref_repo, ref_number in sorted(pr_refs):
             if ref_owner != target_owner or ref_repo != target_repo:
                 continue
             pr_data = fetch_pull_request(client, ref_owner, ref_repo, ref_number, pr_cache)
-            if not pr_data or not pr_data.get("merged_at"):
+            if not pr_data:
                 continue
-            merged_prs.append(pr_data)
+            if pr_data.get("merged_at"):
+                merged_prs.append(pr_data)
+            elif allow_open_pr and pr_data.get("state") == "open":
+                open_prs.append(pr_data)
 
-        if not merged_prs:
+        if merged_prs:
+            # Rule 3: issue closed after at least one PR was merged.
+            has_merge_before_close = any(
+                (parse_iso_datetime(pr.get("merged_at")) or dt.datetime.max.replace(tzinfo=dt.timezone.utc))
+                <= closed_at
+                for pr in merged_prs
+            )
+            if not has_merge_before_close:
+                continue
+
+            merged_prs.sort(key=lambda item: (item.get("merged_at") or "", item.get("repository") or "", item.get("number") or 0))
+            issue_entries.append(
+                {
+                    "number": issue.get("number"),
+                    "title": issue.get("title"),
+                    "url": issue.get("html_url"),
+                    "description_message": issue.get("body"),
+                    "created_at": issue.get("created_at"),
+                    "closed_at": issue.get("closed_at"),
+                    "linked_merged_pull_request_urls": [pr["url"] for pr in merged_prs if pr.get("url")],
+                    "linked_merged_pull_requests": merged_prs,
+                }
+            )
+
+        elif allow_open_pr and open_prs:
+            # Fallback: no merged PR found, but --allow-open-pr is set.
+            # Keep only the most recently created open PR (owner likely implemented
+            # the fix themselves after reviewing the suggestion).
+            open_prs.sort(key=lambda p: p.get("created_at") or "", reverse=True)
+            candidate = open_prs[0]
+            issue_entries.append(
+                {
+                    "number": issue.get("number"),
+                    "title": issue.get("title"),
+                    "url": issue.get("html_url"),
+                    "description_message": issue.get("body"),
+                    "created_at": issue.get("created_at"),
+                    "closed_at": issue.get("closed_at"),
+                    "linked_merged_pull_request_urls": [],
+                    "linked_merged_pull_requests": [],
+                    "linked_open_pull_request_urls": [candidate["url"]] if candidate.get("url") else [],
+                    "linked_open_pull_requests": [candidate],
+                }
+            )
+
+        else:
             continue
-
-        has_merge_before_close = any(
-            (parse_iso_datetime(pr.get("merged_at")) or dt.datetime.max.replace(tzinfo=dt.timezone.utc))
-            <= closed_at
-            for pr in merged_prs
-        )
-        if not has_merge_before_close:
-            continue
-
-        merged_prs.sort(key=lambda item: (item.get("merged_at") or "", item.get("repository") or "", item.get("number") or 0))
-        issue_entries.append(
-            {
-                "number": issue.get("number"),
-                "title": issue.get("title"),
-                "url": issue.get("html_url"),
-                "description_message": issue.get("body"),
-                "created_at": issue.get("created_at"),
-                "closed_at": issue.get("closed_at"),
-                "linked_merged_pull_request_urls": [pr["url"] for pr in merged_prs if pr.get("url")],
-                "linked_merged_pull_requests": merged_prs,
-            }
-        )
 
     issue_entries.sort(key=lambda item: item.get("number") or 0)
     return {
         "project_name": repo_slug.lower(),
         "github_url": f"https://github.com/{owner}/{repo}",
         "mined_at": dt.datetime.now(tz=dt.timezone.utc).isoformat(),
+        "allow_open_pr": allow_open_pr,
         "total_closed_issues_scanned": scanned_closed_issues,
         "total_relevant_issues": len(issue_entries),
         "issues": issue_entries,
@@ -533,6 +564,17 @@ def parse_args() -> argparse.Namespace:
         default=25,
         help="Print progress every N scanned closed issues.",
     )
+    parser.add_argument(
+        "--allow-open-pr",
+        action="store_true",
+        default=False,
+        help=(
+            "When an issue is closed but no merged PR is referenced, consider the most "
+            "recently created open PR still mentioned in the issue conversation. Useful "
+            "when the repository owner implements the fix themselves after reviewing the "
+            "PR suggestion rather than merging it directly."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -561,6 +603,7 @@ def main() -> int:
                 repo=repo,
                 max_issues=args.max_issues,
                 progress_every=args.progress_every,
+                allow_open_pr=args.allow_open_pr,
             )
             output_path = os.path.join(args.output_dir, make_output_filename(owner, repo))
             with open(output_path, "w", encoding="utf-8") as file:
