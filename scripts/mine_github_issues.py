@@ -5,11 +5,13 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import os
 from pathlib import Path
 import re
 import sys
+import threading
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -268,36 +270,53 @@ def fetch_pull_request(
     repo: str,
     number: int,
     cache: Dict[PRRef, Optional[Dict[str, Any]]],
+    cache_lock: Optional[threading.Lock] = None,
 ) -> Optional[Dict[str, Any]]:
     key = normalize_pr_ref(owner, repo, number)
-    if key in cache:
-        return cache[key]
+
+    # Fast cache check (with lock when running multi-threaded).
+    if cache_lock:
+        with cache_lock:
+            if key in cache:
+                return cache[key]
+    else:
+        if key in cache:
+            return cache[key]
 
     try:
         pr = client.get(f"/repos/{owner}/{repo}/pulls/{number}")
     except GitHubAPIError as error:
         if error.status_code == 404:
-            cache[key] = None
-            return None
-        raise
+            result: Optional[Dict[str, Any]] = None
+        else:
+            raise
+    else:
+        if not isinstance(pr, dict):
+            result = None
+        else:
+            impacted_files = fetch_pull_request_files(client, owner, repo, number)
+            result = {
+                "number": pr.get("number"),
+                "title": pr.get("title"),
+                "url": pr.get("html_url"),
+                "repository": f"{owner.lower()}/{repo.lower()}",
+                "state": pr.get("state"),
+                "created_at": pr.get("created_at"),
+                "merged_at": pr.get("merged_at"),
+                "impacted_files": impacted_files,
+                "impacted_files_count": len(impacted_files),
+            }
 
-    if not isinstance(pr, dict):
-        cache[key] = None
-        return None
+    # Write to cache; double-check under lock to avoid clobbering a racing thread.
+    if cache_lock:
+        with cache_lock:
+            if key not in cache:
+                cache[key] = result
+            else:
+                result = cache[key]
+    else:
+        cache[key] = result
 
-    impacted_files = fetch_pull_request_files(client, owner, repo, number)
-    result = {
-        "number": pr.get("number"),
-        "title": pr.get("title"),
-        "url": pr.get("html_url"),
-        "repository": f"{owner.lower()}/{repo.lower()}",
-        "state": pr.get("state"),
-        "created_at": pr.get("created_at"),
-        "merged_at": pr.get("merged_at"),
-        "impacted_files": impacted_files,
-        "impacted_files_count": len(impacted_files),
-    }
-    cache[key] = result
     return result
 
 
@@ -315,6 +334,83 @@ def fetch_pull_request_files(client: GitHubClient, owner: str, repo: str, number
     return files
 
 
+def _process_issue(
+    client: GitHubClient,
+    owner: str,
+    repo: str,
+    issue: Dict[str, Any],
+    target_owner: str,
+    target_repo: str,
+    allow_open_pr: bool,
+    pr_cache: Dict[PRRef, Optional[Dict[str, Any]]],
+    cache_lock: Optional[threading.Lock],
+) -> Optional[Dict[str, Any]]:
+    """Process a single closed issue and return an entry dict, or None if it should be skipped."""
+    closed_at = parse_iso_datetime(issue.get("closed_at"))
+    if not closed_at:
+        return None
+
+    pr_refs = collect_issue_pr_refs(client, owner, repo, issue)
+    if not pr_refs:
+        return None
+
+    merged_prs: list[Dict[str, Any]] = []
+    open_prs: list[Dict[str, Any]] = []
+    for ref_owner, ref_repo, ref_number in sorted(pr_refs):
+        if ref_owner != target_owner or ref_repo != target_repo:
+            continue
+        pr_data = fetch_pull_request(client, ref_owner, ref_repo, ref_number, pr_cache, cache_lock)
+        if not pr_data:
+            continue
+        if pr_data.get("merged_at"):
+            merged_prs.append(pr_data)
+        elif allow_open_pr and pr_data.get("state") == "open":
+            open_prs.append(pr_data)
+
+    if merged_prs:
+        # Rule 3: issue closed after at least one PR was merged.
+        has_merge_before_close = any(
+            (parse_iso_datetime(pr.get("merged_at")) or dt.datetime.max.replace(tzinfo=dt.timezone.utc))
+            <= closed_at
+            for pr in merged_prs
+        )
+        if not has_merge_before_close:
+            return None
+
+        merged_prs.sort(key=lambda item: (item.get("merged_at") or "", item.get("repository") or "", item.get("number") or 0))
+        return {
+            "number": issue.get("number"),
+            "title": issue.get("title"),
+            "url": issue.get("html_url"),
+            "description_message": issue.get("body"),
+            "created_at": issue.get("created_at"),
+            "closed_at": issue.get("closed_at"),
+            "linked_merged_pull_request_urls": [pr["url"] for pr in merged_prs if pr.get("url")],
+            "linked_merged_pull_requests": merged_prs,
+        }
+
+    elif allow_open_pr and open_prs:
+        # Fallback: no merged PR found, but --allow-open-pr is set.
+        # Keep only the most recently created open PR (owner likely implemented
+        # the fix themselves after reviewing the suggestion).
+        open_prs.sort(key=lambda p: p.get("created_at") or "", reverse=True)
+        candidate = open_prs[0]
+        return {
+            "number": issue.get("number"),
+            "title": issue.get("title"),
+            "url": issue.get("html_url"),
+            "description_message": issue.get("body"),
+            "created_at": issue.get("created_at"),
+            "closed_at": issue.get("closed_at"),
+            "linked_merged_pull_request_urls": [],
+            "linked_merged_pull_requests": [],
+            "linked_open_pull_request_urls": [candidate["url"]] if candidate.get("url") else [],
+            "linked_open_pull_requests": [candidate],
+        }
+
+    return None
+
+
 def mine_repository(
     client: GitHubClient,
     owner: str,
@@ -322,94 +418,64 @@ def mine_repository(
     max_issues: Optional[int] = None,
     progress_every: int = 25,
     allow_open_pr: bool = False,
+    num_threads: int = 1,
 ) -> Dict[str, Any]:
     repo_slug = f"{owner}/{repo}"
     print(f"[{repo_slug}] Mining closed issues...", file=sys.stderr)
 
-    issue_entries = []
+    issue_entries: list[Dict[str, Any]] = []
     scanned_closed_issues = 0
     pr_cache: Dict[PRRef, Optional[Dict[str, Any]]] = {}
     target_owner, target_repo, _ = normalize_pr_ref(owner, repo, 0)
+    cache_lock: Optional[threading.Lock] = threading.Lock() if num_threads > 1 else None
 
     params = {"state": "closed", "sort": "updated", "direction": "desc", "per_page": 100}
-    for issue in client.paginate(f"/repos/{owner}/{repo}/issues", params):
-        if issue.get("pull_request"):
-            continue
+    issue_iter = (
+        issue
+        for issue in client.paginate(f"/repos/{owner}/{repo}/issues", params)
+        if not issue.get("pull_request")
+    )
 
-        scanned_closed_issues += 1
-        if max_issues and scanned_closed_issues > max_issues:
-            break
-        if progress_every and scanned_closed_issues % progress_every == 0:
-            print(f"[{repo_slug}] Scanned {scanned_closed_issues} closed issues...", file=sys.stderr)
+    if num_threads <= 1:
+        # Sequential path — no executor overhead.
+        for issue in issue_iter:
+            scanned_closed_issues += 1
+            if max_issues and scanned_closed_issues > max_issues:
+                break
+            if progress_every and scanned_closed_issues % progress_every == 0:
+                print(f"[{repo_slug}] Scanned {scanned_closed_issues} closed issues...", file=sys.stderr)
 
-        closed_at = parse_iso_datetime(issue.get("closed_at"))
-        if not closed_at:
-            continue
-
-        pr_refs = collect_issue_pr_refs(client, owner, repo, issue)
-        if not pr_refs:
-            continue
-
-        merged_prs: list[Dict[str, Any]] = []
-        open_prs: list[Dict[str, Any]] = []
-        for ref_owner, ref_repo, ref_number in sorted(pr_refs):
-            if ref_owner != target_owner or ref_repo != target_repo:
-                continue
-            pr_data = fetch_pull_request(client, ref_owner, ref_repo, ref_number, pr_cache)
-            if not pr_data:
-                continue
-            if pr_data.get("merged_at"):
-                merged_prs.append(pr_data)
-            elif allow_open_pr and pr_data.get("state") == "open":
-                open_prs.append(pr_data)
-
-        if merged_prs:
-            # Rule 3: issue closed after at least one PR was merged.
-            has_merge_before_close = any(
-                (parse_iso_datetime(pr.get("merged_at")) or dt.datetime.max.replace(tzinfo=dt.timezone.utc))
-                <= closed_at
-                for pr in merged_prs
+            entry = _process_issue(
+                client, owner, repo, issue,
+                target_owner, target_repo,
+                allow_open_pr, pr_cache, cache_lock,
             )
-            if not has_merge_before_close:
-                continue
+            if entry is not None:
+                issue_entries.append(entry)
 
-            merged_prs.sort(key=lambda item: (item.get("merged_at") or "", item.get("repository") or "", item.get("number") or 0))
-            issue_entries.append(
-                {
-                    "number": issue.get("number"),
-                    "title": issue.get("title"),
-                    "url": issue.get("html_url"),
-                    "description_message": issue.get("body"),
-                    "created_at": issue.get("created_at"),
-                    "closed_at": issue.get("closed_at"),
-                    "linked_merged_pull_request_urls": [pr["url"] for pr in merged_prs if pr.get("url")],
-                    "linked_merged_pull_requests": merged_prs,
-                }
-            )
+    else:
+        # Threaded path — main thread paginates and submits, workers process issues.
+        with ThreadPoolExecutor(max_workers=num_threads) as executor:
+            futures = {}
+            for issue in issue_iter:
+                scanned_closed_issues += 1
+                if max_issues and scanned_closed_issues > max_issues:
+                    break
+                if progress_every and scanned_closed_issues % progress_every == 0:
+                    print(f"[{repo_slug}] Scanned {scanned_closed_issues} closed issues...", file=sys.stderr)
 
-        elif allow_open_pr and open_prs:
-            # Fallback: no merged PR found, but --allow-open-pr is set.
-            # Keep only the most recently created open PR (owner likely implemented
-            # the fix themselves after reviewing the suggestion).
-            open_prs.sort(key=lambda p: p.get("created_at") or "", reverse=True)
-            candidate = open_prs[0]
-            issue_entries.append(
-                {
-                    "number": issue.get("number"),
-                    "title": issue.get("title"),
-                    "url": issue.get("html_url"),
-                    "description_message": issue.get("body"),
-                    "created_at": issue.get("created_at"),
-                    "closed_at": issue.get("closed_at"),
-                    "linked_merged_pull_request_urls": [],
-                    "linked_merged_pull_requests": [],
-                    "linked_open_pull_request_urls": [candidate["url"]] if candidate.get("url") else [],
-                    "linked_open_pull_requests": [candidate],
-                }
-            )
+                future = executor.submit(
+                    _process_issue,
+                    client, owner, repo, issue,
+                    target_owner, target_repo,
+                    allow_open_pr, pr_cache, cache_lock,
+                )
+                futures[future] = issue.get("number")
 
-        else:
-            continue
+            for future in as_completed(futures):
+                entry = future.result()
+                if entry is not None:
+                    issue_entries.append(entry)
 
     issue_entries.sort(key=lambda item: item.get("number") or 0)
     return {
@@ -565,6 +631,19 @@ def parse_args() -> argparse.Namespace:
         help="Print progress every N scanned closed issues.",
     )
     parser.add_argument(
+        "--threads",
+        "--thread",
+        dest="threads",
+        type=int,
+        default=1,
+        metavar="N",
+        help=(
+            "Number of threads used to process closed issues in parallel. "
+            "Each thread handles the HTTP calls for one issue (comments, timeline, PR fetches). "
+            "Pagination itself stays sequential. Default: 1 (single-threaded)."
+        ),
+    )
+    parser.add_argument(
         "--allow-open-pr",
         action="store_true",
         default=False,
@@ -604,6 +683,7 @@ def main() -> int:
                 max_issues=args.max_issues,
                 progress_every=args.progress_every,
                 allow_open_pr=args.allow_open_pr,
+                num_threads=args.threads,
             )
             output_path = os.path.join(args.output_dir, make_output_filename(owner, repo))
             with open(output_path, "w", encoding="utf-8") as file:

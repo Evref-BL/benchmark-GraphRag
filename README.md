@@ -77,8 +77,13 @@ Script: `scripts/mine_github_issues.py`
 
 Une issue est conservée si:
 - elle est `closed`,
-- au moins une PR mentionnée dans sa conversation est `merged`,
-- la fermeture de l’issue est postérieure (ou égale) au merge d’au moins une de ces PR.
+- **soit** au moins une PR mentionnée dans sa conversation est `merged` **et** la fermeture de l'issue est postérieure (ou égale) au merge d'au moins une de ces PR,
+- **soit** (avec `--allow-open-pr`) aucune PR mergée n'est trouvée mais au moins une PR encore **ouverte** est mentionnée — dans ce cas, la PR ouverte la plus récente est retenue (le mainteneur a probablement implémenté lui-même le correctif après avoir examiné la suggestion).
+
+En résumé, les trois règles appliquées dans l'ordre sont:
+1. l'issue est `closed`,
+2. au moins une PR mentionnée dans sa conversation est `merged` **OU**, si `--allow-open-pr` est actif, la dernière PR encore ouverte est retenue à la place,
+3. la fermeture de l'issue est postérieure au merge d'au moins une PR (règle 3 non applicable dans le cas open-PR).
 
 Les PR liées sont détectées dans:
 - le body de l’issue,
@@ -88,6 +93,8 @@ Les PR liées sont détectées dans:
 Seules les PR du repository miné (même `owner/repo`) sont conservées dans `linked_merged_pull_request_urls` et `linked_merged_pull_requests`.
 
 Si plusieurs PR mergées sont liées à une même issue, elles sont toutes conservées.
+
+Quand `--allow-open-pr` est actif et qu'une issue est retenue via une PR ouverte, les champs `linked_open_pull_request_urls` et `linked_open_pull_requests` sont renseignés à la place de leurs équivalents `merged`.
 
 ### Commandes
 
@@ -105,7 +112,7 @@ python3 scripts/mine_github_issues.py \
   "https://github.com/NanoHttpd/nanohttpd"
 ```
 
-Limiter le nombre d’issues scannées:
+Limiter le nombre d'issues scannées:
 
 ```bash
 python3 scripts/mine_github_issues.py "https://github.com/stleary/JSON-java" --issue-limit 300
@@ -113,29 +120,95 @@ python3 scripts/mine_github_issues.py "https://github.com/stleary/JSON-java" --i
 
 `--issue-limit` (alias `--max-issues`) vaut `200` par défaut.
 
+Activer la prise en compte des PR ouvertes quand aucune PR mergée n'est trouvée:
+
+```bash
+python3 scripts/mine_github_issues.py "https://github.com/stleary/JSON-java" --allow-open-pr
+```
+
+Accélérer le mining avec plusieurs threads (chaque thread traite une issue en parallèle):
+
+```bash
+python3 scripts/mine_github_issues.py "https://github.com/stleary/JSON-java" --threads 8
+```
+
+Combiner les deux options et plusieurs repos:
+
+```bash
+python3 scripts/mine_github_issues.py \
+  "https://github.com/mybatis/jpetstore-6" \
+  "https://github.com/NanoHttpd/nanohttpd" \
+  --threads 8 \
+  --allow-open-pr \
+  --issue-limit 500
+```
+
+### Options du miner
+
+| Option | Alias | Défaut | Description |
+|---|---|---|---|
+| `--issue-limit N` | `--max-issues` | `200` | Nombre maximum d'issues fermées scannées par repo. |
+| `--progress-every N` | — | `25` | Affiche la progression tous les N issues scannées. |
+| `--threads N` | `--thread` | `1` | Nombre de threads pour traiter les issues en parallèle. La pagination reste séquentielle; chaque thread gère les appels HTTP d'une issue (commentaires, timeline, PR). |
+| `--allow-open-pr` | — | désactivé | Si aucune PR mergée n'est liée à une issue fermée, retient la PR ouverte la plus récente mentionnée dans la conversation. |
+| `--output-dir DIR` | `-o` | `mined_projects/` | Dossier de sortie des fichiers JSON. |
+| `--token TOKEN` | — | — | Token GitHub (priorité: `--token` > env `GITHUB_TOKEN` > `.env.github`). |
+
 ### Format de sortie (fichier de mining)
 
 Un fichier JSON par projet, par exemple:
 `mined_projects/stleary__json-java__YYYYMMDDTHHMMSSZ.json`
 
-Structure simplifiée:
+Structure simplifiée — issue retenue via PR **mergée** (cas standard):
 
 ```json
 {
   "project_name": "stleary/json-java",
   "github_url": "https://github.com/stleary/JSON-java",
+  "allow_open_pr": false,
   "issues": [
     {
       "number": 296,
       "title": "...",
       "description_message": "...",
+      "linked_merged_pull_request_urls": ["https://github.com/.../pull/646"],
       "linked_merged_pull_requests": [
         {
           "number": 646,
           "url": "...",
+          "state": "closed",
           "merged_at": "...",
           "impacted_files": [
             "src/main/java/org/json/JSONObject.java"
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+Structure simplifiée — issue retenue via PR **ouverte** (cas `--allow-open-pr`):
+
+```json
+{
+  "allow_open_pr": true,
+  "issues": [
+    {
+      "number": 312,
+      "title": "...",
+      "linked_merged_pull_request_urls": [],
+      "linked_merged_pull_requests": [],
+      "linked_open_pull_request_urls": ["https://github.com/.../pull/720"],
+      "linked_open_pull_requests": [
+        {
+          "number": 720,
+          "url": "...",
+          "state": "open",
+          "created_at": "...",
+          "merged_at": null,
+          "impacted_files": [
+            "src/main/java/org/json/JSONArray.java"
           ]
         }
       ]
@@ -490,6 +563,9 @@ Options utiles:
   - vérifier l’ambiguïté des noms de classes simples.
 - Pas d’issues pertinentes:
   - le repository n’a peut-être pas d’issues fermées reliées à des PR mergées selon les règles du miner.
+  - essayer `--allow-open-pr` pour inclure les issues fermées dont le correctif a été implémenté directement par le mainteneur à partir d'une PR ouverte.
+- Mining trop lent sur un grand repository:
+  - utiliser `--threads N` (ex: `--threads 8`) pour paralléliser le traitement des issues.
 
 ## Notes
 
