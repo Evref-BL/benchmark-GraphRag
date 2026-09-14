@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import json
 from pathlib import Path
 import select
 import shutil
@@ -86,6 +87,14 @@ def parse_args() -> argparse.Namespace:
         help="Store full pasted manual response in output JSON.",
     )
     parser.add_argument(
+        "--answer-file",
+        default=None,
+        help=(
+            "Optional JSONL file containing one JSON model response per evaluated issue. "
+            "The query is still shown and pressing Enter advances to the next issue."
+        ),
+    )
+    parser.add_argument(
         "--end-token",
         default=DEFAULT_END_TOKEN,
         help=(
@@ -121,6 +130,11 @@ class ManualInputEvaluator(BaseBenchmarkEvaluator):
     def __init__(self, args: argparse.Namespace) -> None:
         super().__init__(args)
         self.end_token = args.end_token
+        self.answer_file = (
+            Path(args.answer_file).expanduser().resolve() if getattr(args, "answer_file", None) else None
+        )
+        self._answer_lines: List[str] = []
+        self._answer_index = 0
         self.copy_query_to_clipboard = not args.no_copy_query_to_clipboard
         self.project_root = (
             Path(args.project_root).expanduser().resolve() if getattr(args, "project_root", None) else None
@@ -174,6 +188,25 @@ class ManualInputEvaluator(BaseBenchmarkEvaluator):
         return "manual_input"
 
     def validate_runtime(self) -> None:
+        if self.answer_file is not None:
+            if not self.answer_file.is_file():
+                raise RuntimeError(f"Answer file not found: {self.answer_file}")
+            try:
+                with self.answer_file.open("r", encoding="utf-8") as file:
+                    for line_number, line in enumerate(file, start=1):
+                        answer = line.strip()
+                        if not answer:
+                            continue
+                        try:
+                            json.loads(answer)
+                        except json.JSONDecodeError as error:
+                            raise RuntimeError(
+                                f"Invalid JSON in answer file {self.answer_file} on line "
+                                f"{line_number}: {error.msg}"
+                            ) from error
+                        self._answer_lines.append(answer)
+            except OSError as error:
+                raise RuntimeError(f"Unable to read answer file {self.answer_file}: {error}") from error
         if self.project_root is not None:
             if not self.project_root.is_dir():
                 raise RuntimeError(
@@ -181,6 +214,16 @@ class ManualInputEvaluator(BaseBenchmarkEvaluator):
                 )
             self._repo_java_file_keys = collect_repository_file_keys(self.project_root, ".java")
         return None
+
+    def _read_file_response(self) -> str:
+        if self._answer_index >= len(self._answer_lines):
+            raise RuntimeError(
+                f"Answer file {self.answer_file} has no response for evaluated issue "
+                f"#{self._answer_index + 1}."
+            )
+        response = self._answer_lines[self._answer_index]
+        self._answer_index += 1
+        return response
 
     def _read_multiline_response(self) -> str:
         lines: List[str] = []
@@ -222,15 +265,32 @@ class ManualInputEvaluator(BaseBenchmarkEvaluator):
                     "[WARN] Unable to copy query to clipboard automatically on this environment.",
                     file=sys.stderr,
                 )
-        print(
-            (
-                "Paste the model output below, then press Enter on an empty line to continue. "
-                f"(Optional: type '{self.end_token}' on a single line.) "
-                f"Type '{STOP_TOKEN}' to stop now and save partial results."
-            ),
-            flush=True,
-        )
-        manual_response = self._read_multiline_response()
+        if self.answer_file is not None:
+            print(
+                (
+                    f"Press Enter to use the JSON response from answer file "
+                    f"({self._answer_index + 1}/{len(self._answer_lines)}) and continue. "
+                    f"Type '{STOP_TOKEN}' to stop now and save partial results."
+                ),
+                flush=True,
+            )
+            try:
+                line = input()
+            except EOFError as error:
+                raise RuntimeError("Standard input closed while waiting to advance to the next issue.") from error
+            if line.strip().upper() == STOP_TOKEN:
+                raise EvaluationStopped("Stopped by user request.")
+            manual_response = self._read_file_response()
+        else:
+            print(
+                (
+                    "Paste the model output below, then press Enter on an empty line to continue. "
+                    f"(Optional: type '{self.end_token}' on a single line.) "
+                    f"Type '{STOP_TOKEN}' to stop now and save partial results."
+                ),
+                flush=True,
+            )
+            manual_response = self._read_multiline_response()
         print(
             f"[INFO] Manual response captured for issue #{issue_number}:",
             file=sys.stderr,
@@ -267,6 +327,7 @@ class ManualInputEvaluator(BaseBenchmarkEvaluator):
             "output_dir": str(self.output_dir),
             "include_empty_java": self.include_empty_java,
             "keep_raw_response": self.keep_raw_response,
+            "answer_file": (str(self.answer_file) if self.answer_file else None),
             "end_token": self.end_token,
             "copy_query_to_clipboard": self.copy_query_to_clipboard,
             "dry_run": self.dry_run,

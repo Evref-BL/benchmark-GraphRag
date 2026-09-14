@@ -465,6 +465,18 @@ python3 scripts/evaluate_manual_input_benchmark.py \
   --keep-raw-response
 ```
 
+Pour conserver les réponses déjà obtenues dans un fichier JSONL (une réponse JSON
+par ligne, dans le même ordre que les issues évaluées), utiliser `--answer-file`.
+La query de chaque issue reste affichée et une simple pression sur `Entrée` passe
+à l'issue suivante:
+
+```bash
+python3 scripts/evaluate_manual_input_benchmark.py \
+  mined_projects/stleary__json-java__20260706T133302Z.json \
+  --answer-file /path/to/answer-file.jsonl \
+  --keep-raw-response
+```
+
 Mode de saisie:
 - le script affiche la query,
 - la query est automatiquement copiée dans le presse-papier (si supporté par l’environnement),
@@ -478,6 +490,7 @@ Options utiles:
 - `--issue-limit N`
 - `--include-empty-java`
 - `--keep-raw-response`
+- `--answer-file /path/to/answers.jsonl` pour lire une réponse JSON par issue; la query est toujours affichée et `Entrée` permet de passer à l'issue suivante (incompatible avec la saisie manuelle pour cette exécution)
 - `--end-token DONE`
 - `--no-copy-query-to-clipboard`
 - `--project-root` pour activer `in_repo_only`
