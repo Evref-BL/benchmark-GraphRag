@@ -134,7 +134,8 @@ class ManualInputEvaluator(BaseBenchmarkEvaluator):
             Path(args.answer_file).expanduser().resolve() if getattr(args, "answer_file", None) else None
         )
         self._answer_lines: List[str] = []
-        self._answer_index = 0
+        self._current_answer: Optional[str] = None
+        self._current_answer_number: Optional[int] = None
         self.copy_query_to_clipboard = not args.no_copy_query_to_clipboard
         self.project_root = (
             Path(args.project_root).expanduser().resolve() if getattr(args, "project_root", None) else None
@@ -216,14 +217,28 @@ class ManualInputEvaluator(BaseBenchmarkEvaluator):
         return None
 
     def _read_file_response(self) -> str:
-        if self._answer_index >= len(self._answer_lines):
+        if self._current_answer is None:
             raise RuntimeError(
-                f"Answer file {self.answer_file} has no response for evaluated issue "
-                f"#{self._answer_index + 1}."
+                f"Answer file {self.answer_file} has no response for issue "
+                f"#{self._current_answer_number or '?'}."
             )
-        response = self._answer_lines[self._answer_index]
-        self._answer_index += 1
-        return response
+        return self._current_answer
+
+    def prepare_issue(self, issue: Dict[str, Any], issue_index: int) -> None:
+        """Bind the JSONL response to the source issue before filtering it."""
+        self._current_answer_number = issue_index + 1
+        self._current_answer = (
+            self._answer_lines[issue_index] if issue_index < len(self._answer_lines) else None
+        )
+
+    def validate_answer_count(self, issue_count: int) -> None:
+        if self.answer_file is None:
+            return
+        if len(self._answer_lines) != issue_count:
+            raise RuntimeError(
+                f"Answer file {self.answer_file} contains {len(self._answer_lines)} "
+                f"responses, but {issue_count} issues are selected for evaluation."
+            )
 
     def _read_multiline_response(self) -> str:
         lines: List[str] = []
@@ -269,7 +284,7 @@ class ManualInputEvaluator(BaseBenchmarkEvaluator):
             print(
                 (
                     f"Press Enter to use the JSON response from answer file "
-                    f"({self._answer_index + 1}/{len(self._answer_lines)}) and continue. "
+                    f"({(self._current_answer_number or 0)}/{len(self._answer_lines)}) and continue. "
                     f"Type '{STOP_TOKEN}' to stop now and save partial results."
                 ),
                 flush=True,

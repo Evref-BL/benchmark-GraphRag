@@ -697,6 +697,12 @@ class BaseBenchmarkEvaluator(ABC):
     def predict_for_issue(self, issue: Dict[str, Any], query: str) -> PredictionResult:
         """Produce predictions for one issue."""
 
+    def prepare_issue(self, issue: Dict[str, Any], issue_index: int) -> None:
+        """Prepare issue-specific state before filtering or prediction."""
+
+    def validate_answer_count(self, issue_count: int) -> None:
+        """Validate response sources against the selected issue count."""
+
     @abstractmethod
     def default_report_path(self, mined_path: Path, output_dir: Path) -> Path:
         """Build default output report path."""
@@ -793,13 +799,19 @@ class BaseBenchmarkEvaluator(ABC):
         issues = mined_data.get("issues", [])
         if self.issue_limit:
             issues = issues[: self.issue_limit]
+        try:
+            self.validate_answer_count(len(issues))
+        except RuntimeError as error:
+            print(f"[ERROR] {error}", file=sys.stderr)
+            return 1
 
         results: List[IssueEvaluation] = []
         skipped_zero_java = 0
         stopped_early = False
         stop_reason: Optional[str] = None
 
-        for issue in issues:
+        for issue_index, issue in enumerate(issues):
+            self.prepare_issue(issue, issue_index)
             expected = build_expected_index(issue)
             if len(expected.targets) == 0 and not self.include_empty_java:
                 skipped_zero_java += 1
