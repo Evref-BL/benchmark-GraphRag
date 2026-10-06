@@ -25,13 +25,41 @@ benchmark-graphRag/
 │   ├── evaluate_random_benchmark.py
 │   ├── evaluate_manual_input_benchmark.py
 │   ├── export_benchmark_queries.py
-│   └── convert_trace_to_dataset.py
+│   ├── convert_trace_to_dataset.py
+│   ├── convert_csv_trace_to_dataset_result.py
+│   └── evaluate_dataset_result.py
 ├── mined_projects/              # sorties JSON (ignoré par git)
 ├── evaluation_results/          # rapports evaluator (ignoré par git)
 ├── queries/                     # queries LLM exportées (ignoré par git)
 ├── .env.github                  # token GitHub local (ignoré par git)
 └── README.md
 ```
+
+Pour injecter les réponses JSON d'un LLM dans un dataset à partir d'un CSV
+`id,json`:
+
+```bash
+python3 scripts/convert_csv_trace_to_dataset_result.py \
+  --dataset mined_projects/stleary__json-java__20260706T133302Z.json \
+  --csv temp/issue-list-with-json.csv \
+  --output evaluation_results/stleary__json-java__with-responses.json
+```
+
+Le fichier produit conserve uniquement les issues présentes dans les deux
+fichiers et ajoute la réponse JSON décodée dans le champ `response` de chaque
+issue.
+
+Pour calculer directement les métriques depuis un dataset résultat contenant
+`issues[].response`, sans appeler de LLM:
+
+```bash
+python3 scripts/evaluate_dataset_result.py \
+  evaluation_results/stleary__json-java__20260706T133302Z__csv-responses__dataset-result.json
+```
+
+Le rapport détaillé est écrit par défaut avec le suffixe `__eval.json` et
+contient les métriques `precision`, `recall` et `f1` par issue, ainsi que les
+agrégats `micro`, `macro` et leurs intervalles de confiance bootstrap.
 
 ## Prérequis
 
